@@ -1,0 +1,128 @@
+---
+import Layout from '@/layouts/Layout.astro';
+---
+<Layout
+  title="About — ConsentTheater"
+  description="ConsentTheater is a non-commercial, open-source project for GDPR and tracker transparency. No ads, no sponsorships, no user profiling."
+>
+  <section class="mx-auto w-full max-w-3xl px-6 pt-10 pb-12">
+    <div class="mb-6">
+      <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        About
+      </p>
+      <h1 class="mt-1 font-display text-2xl font-bold tracking-tight sm:text-3xl">
+        A non-commercial project for tracker transparency
+      </h1>
+      <p class="mt-2 text-sm leading-relaxed text-muted-foreground">
+        ConsentTheater exists to make the web's tracking layer legible to the people
+        it's pointed at — in plain language, with citations, and without a paywall.
+      </p>
+    </div>
+
+    <div class="space-y-8 text-sm leading-relaxed text-foreground/90">
+      <section>
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">Why this exists</h2>
+        <p>
+          Every time you open a website, your browser quietly talks to dozens of
+          third parties. Analytics platforms, advertising networks, behaviour
+          trackers, fingerprinting libraries, session recorders. Most of them set
+          cookies; many of them do things that sit somewhere between technically
+          legal under GDPR and actively non-compliant. Almost none of it is
+          explained to the visitor in understandable terms.
+        </p>
+        <p class="mt-3">
+          ConsentTheater catalogues these trackers — every cookie, every domain,
+          every company behind them — with a short, plain-language description of
+          what each one does, how invasive it is, and where it fits in the GDPR
+          picture. The goal is educational: giving individuals a way to understand
+          the tools that are pointed at them, and giving compliance professionals,
+          journalists, and researchers a consistent reference to cite.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">What we are</h2>
+        <ul class="list-disc space-y-1 pl-5">
+          <li>Non-commercial. Not a product, not a service, not a brand extension.</li>
+          <li>Open source under <a href="/license/" class="link">AGPL-3.0</a>.</li>
+          <li>Community-run and volunteer-maintained.</li>
+          <li>
+            Neutral. Not affiliated with any regulator, advocacy group, law firm,
+            or commercial vendor.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">What we are not</h2>
+        <ul class="list-disc space-y-1 pl-5">
+          <li>We do not sell data. There is no data to sell — see below.</li>
+          <li>We do not run ads.</li>
+          <li>We do not accept paid placements or sponsored entries in the catalogue.</li>
+          <li>
+            We do not profile visitors. The site itself loads no third-party
+            scripts, uses no external fonts, and sets no tracking cookies. See
+            <a href="/privacy/" class="link">/privacy/</a> for the full statement.
+          </li>
+          <li>
+            We are not a legal service. Nothing on this site is legal advice. If
+            you need a GDPR assessment for a specific situation, talk to a qualified
+            lawyer or DPO.
+          </li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">Where the data comes from</h2>
+        <p>
+          The tracker catalogue is maintained as a separate, open-source package
+          called the <em>Playbill</em>. It's distributed on npm as
+          <a
+            href="https://www.npmjs.com/package/@consenttheater/playbill"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="link font-mono"
+          >@consenttheater/playbill</a>, and its source lives at
+          <a
+            href="https://github.com/ConsentTheater/playbill"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="link font-mono"
+          >github.com/ConsentTheater/playbill</a> — so anyone can inspect it,
+          reuse it in their own tools, or propose corrections.
+        </p>
+        <p class="mt-3">
+          Each entry in the catalogue includes: the company behind the tracker, the
+          service name, a GDPR category, a severity rating, a human-readable
+          description, a typical lifetime, and a link to primary documentation
+          where possible. Corrections are welcome — the catalogue is public so
+          that its claims are auditable.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">Who runs it</h2>
+        <p>
+          Volunteers. The project has no employees, no investors, and no corporate
+          parent. Contributions — data corrections, new trackers, translations,
+          accessibility improvements, documentation — are welcome.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">Contact</h2>
+        <p>
+          If you've found something incorrect, have a question a lookup can't
+          answer, or want to get involved:
+        </p>
+        <p class="mt-3">
+          Email:
+          <a
+            href="mailto:developer@consenttheater.org"
+            class="link font-mono"
+          >developer@consenttheater.org</a>
+        </p>
+      </section>
+    </div>
+  </section>
+</Layout>

@@ -1,0 +1,36 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import licenseText from '../../LICENSE?raw';
+---
+<Layout
+  title="License — ConsentTheater"
+  description="ConsentTheater is licensed under the GNU Affero General Public License v3.0 or later."
+>
+  <section class="mx-auto w-full max-w-4xl px-6 pt-10 pb-12">
+    <div class="mb-6">
+      <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        License
+      </p>
+      <h1 class="mt-1 font-display text-2xl font-bold tracking-tight sm:text-3xl">
+        GNU Affero General Public License v3.0
+      </h1>
+      <p class="mt-2 text-sm leading-relaxed text-muted-foreground">
+        ConsentTheater — including this website, the browser extension, and the Playbill
+        knowledge base — is released under <span class="font-mono">AGPL-3.0-or-later</span>.
+        The full license text is reproduced below.
+      </p>
+    </div>
+
+    <pre class="max-h-[70vh] overflow-auto border border-border bg-card p-4 font-mono text-[11px] leading-relaxed text-foreground/90 whitespace-pre-wrap">{licenseText}</pre>
+
+    <p class="mt-4 text-xs text-muted-foreground">
+      Canonical text:
+      <a
+        href="https://www.gnu.org/licenses/agpl-3.0.txt"
+        class="link"
+        target="_blank"
+        rel="noopener noreferrer"
+      >gnu.org/licenses/agpl-3.0.txt</a>
+    </p>
+  </section>
+</Layout>

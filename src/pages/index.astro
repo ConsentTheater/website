@@ -1,0 +1,19 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { SearchBar } from '@/components/SearchBar';
+---
+<Layout>
+  <section class="mx-auto flex w-full max-w-3xl flex-col items-center px-6 pt-16 pb-12 sm:pt-24">
+    <h1 class="text-center font-display text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
+      Check an actor
+    </h1>
+    <p class="mt-3 max-w-xl text-center text-sm leading-relaxed text-muted-foreground sm:text-base">
+      Enter a cookie name or a domain.<br/>
+      We'll tell you who's behind it, what they do, and how severe.
+    </p>
+
+    <div class="mt-10 w-full">
+      <SearchBar client:load />
+    </div>
+  </section>
+</Layout>
