@@ -1,18 +1,39 @@
 ---
 import '@/styles/globals.css';
 import { Image } from 'astro:assets';
+import { execSync } from 'node:child_process';
 import { SettingsDialog } from '@/components/SettingsDialog';
 import logo from '@/assets/logo.png';
+
+function readBuildInfo() {
+  const builtAt = new Date().toISOString().slice(0, 10);
+  try {
+    const commit = execSync('git rev-parse --short HEAD', {
+      encoding: 'utf8',
+      stdio: ['ignore', 'pipe', 'ignore']
+    }).trim();
+    return { commit, builtAt };
+  } catch {
+    return { commit: null as string | null, builtAt };
+  }
+}
+
+const { commit, builtAt } = readBuildInfo();
 
 interface Props {
   title?: string;
   description?: string;
+  image?: string;
 }
 
 const {
   title = 'ConsentTheater — GDPR cookie & tracker lookup',
-  description = 'Identify cookies, domains and trackers. Look up any cookie name or domain to see the company, service, category and severity.'
+  description = 'Identify cookies, domains and trackers. Look up any cookie name or domain to see the company, service, category and severity.',
+  image = '/og-default.png'
 } = Astro.props;
+
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site).toString();
+const imageUrl = new URL(image, Astro.site).toString();
 
 const year = new Date().getFullYear();
 ---
@@ -24,11 +45,23 @@ const year = new Date().getFullYear();
     <meta name="generator" content={Astro.generator} />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="canonical" href={canonicalUrl} />
+
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />
     <meta property="og:type" content="website" />
-    <meta property="og:url" content="https://consenttheater.org" />
+    <meta property="og:url" content={canonicalUrl} />
+    <meta property="og:site_name" content="ConsentTheater" />
+    <meta property="og:image" content={imageUrl} />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="628" />
+    <meta property="og:image:alt" content={title} />
+
     <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={imageUrl} />
+    <meta name="twitter:image:alt" content={title} />
     <link rel="icon" type="image/png" href="/favicon-96x96.png" sizes="96x96" />
     <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
     <link rel="shortcut icon" href="/favicon.ico" />
@@ -93,8 +126,8 @@ const year = new Date().getFullYear();
       </main>
 
       <footer class="border-t border-border bg-card">
-        <div class="mx-auto flex w-full max-w-4xl flex-wrap items-center justify-between gap-2 px-6 py-3 text-[11px] text-muted-foreground">
-          <span>© {year} ConsentTheater · Non-commercial, open-source project (AGPL-3.0)</span>
+        <div class="mx-auto flex w-full max-w-4xl flex-wrap items-center justify-between gap-2 px-6 pb-1 pt-3 text-[11px] text-muted-foreground">
+          <span>© {year} ConsentTheater · Non-commercial, open-source project <span class="whitespace-nowrap">(AGPL-3.0)</span></span>
           <nav class="flex items-center gap-4" aria-label="Footer">
             <a href="/about/" class="transition-colors hover:text-foreground">About</a>
             <a href="/privacy/" class="transition-colors hover:text-foreground">Privacy</a>
@@ -112,6 +145,24 @@ const year = new Date().getFullYear();
               GitHub
             </a>
           </nav>
+        </div>
+        <div class="mx-auto w-full max-w-4xl px-6 pb-3 text-[10px] text-muted-foreground/70">
+          <span class="whitespace-nowrap">
+            Build
+            {' '}
+            {commit ? (
+              <a
+                href={`https://github.com/ConsentTheater/website/commit/${commit}`}
+                target="_blank"
+                rel="noopener noreferrer"
+                class="font-mono transition-colors hover:text-foreground"
+              >{commit}</a>
+            ) : (
+              <span class="font-mono">dev</span>
+            )}
+            {' · '}
+            <time datetime={builtAt} class="font-mono">{builtAt}</time>
+          </span>
         </div>
       </footer>
     </div>
