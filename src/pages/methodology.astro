@@ -1,0 +1,190 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { Badge } from '@/components/ui/badge';
+
+const updated = '2026-04-23';
+---
+<Layout
+  title="Methodology — ConsentTheater"
+  description="How ConsentTheater classifies cookies and domains by severity and category, what each label means, and where the data comes from."
+>
+  <section class="mx-auto w-full max-w-3xl px-6 pt-10 pb-12">
+    <div class="mb-6">
+      <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        Methodology
+      </p>
+      <h1 class="mt-1 font-display text-2xl font-bold tracking-tight sm:text-3xl">
+        How we classify trackers
+      </h1>
+      <p class="mt-2 text-[11px] text-muted-foreground">
+        Last updated <time datetime={updated} class="font-mono">{updated}</time>
+      </p>
+      <p class="mt-3 text-sm leading-relaxed text-muted-foreground">
+        Every entry in our catalogue carries a <strong>severity</strong> and a <strong>category</strong>.
+        This page explains what those mean, how we assign them, and how to challenge a rating if you
+        think it's wrong.
+      </p>
+    </div>
+
+    <div class="space-y-10 text-sm leading-relaxed text-foreground/90">
+
+      <section id="severity">
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">Severity</h2>
+        <p>
+          Severity is our short answer to the question: <em>how much does this tracker invade the
+          visitor's privacy, and how much consent work does it create for the site operator under
+          GDPR?</em> It is not a legal verdict — it is a quick, consistent signal.
+        </p>
+
+        <dl class="mt-5 space-y-5">
+          <div id="critical" class="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-4">
+            <dt class="sm:w-32 sm:shrink-0">
+              <Badge variant="critical">critical</Badge>
+            </dt>
+            <dd class="text-sm">
+              Cross-site tracking, ad targeting, fingerprinting, session recording, or any flow that
+              builds a durable profile of the visitor across properties. Under GDPR these require
+              <strong>explicit, prior, informed consent</strong>. Loading them before consent is
+              usually non-compliant.
+            </dd>
+          </div>
+
+          <div id="high" class="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-4">
+            <dt class="sm:w-32 sm:shrink-0">
+              <Badge variant="high">high</Badge>
+            </dt>
+            <dd class="text-sm">
+              Persistent identifiers tied to personal data — cross-session analytics, CRM enrichment,
+              marketing-automation cookies, social-login SDKs. Almost always
+              <strong>consent-gated</strong>, though the personal-data footprint is smaller than
+              critical.
+            </dd>
+          </div>
+
+          <div id="medium" class="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-4">
+            <dt class="sm:w-32 sm:shrink-0">
+              <Badge variant="medium">medium</Badge>
+            </dt>
+            <dd class="text-sm">
+              Aggregate or privacy-aware analytics, limited-scope conversion tracking, A/B testing
+              without cross-site linkage. Typically consent-gated under GDPR, but with lower
+              personal-data impact and often easier legitimate-interest arguments in context.
+            </dd>
+          </div>
+
+          <div id="low" class="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-4">
+            <dt class="sm:w-32 sm:shrink-0">
+              <Badge variant="low">low</Badge>
+            </dt>
+            <dd class="text-sm">
+              Functional and convenience — theme preference, language, CSRF tokens, shopping-cart
+              state. Strictly necessary for the service the user asked for.
+              <strong>Usually exempt from consent</strong> under GDPR Art. 5(3) ePrivacy "strictly
+              necessary" carve-out, provided the scope stays genuinely functional.
+            </dd>
+          </div>
+        </dl>
+      </section>
+
+      <section id="categories">
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">Categories</h2>
+        <p>
+          Category describes <em>what the tracker does</em>, not how invasive it is. A tracker in
+          the <span class="font-mono">analytics</span> category can be low or critical depending on
+          its design.
+        </p>
+
+        <dl class="mt-5 space-y-3">
+          {[
+            ['advertising', 'Ad-serving, ad personalisation, ad-click attribution, retargeting. Usually critical severity.'],
+            ['analytics', 'Page-view and event measurement. Severity depends on whether identifiers cross sites and sessions.'],
+            ['marketing', 'Email tracking, CRM enrichment, lead capture, sales intelligence. Personal-data heavy.'],
+            ['social', 'Embedded share buttons, social logins, comment widgets. Frequently load third-party profile cookies even before interaction.'],
+            ['session_recording', 'Records keystrokes, clicks, scroll behaviour, or full pixel-level session replay. Inherently high-risk under GDPR.'],
+            ['fingerprinting', 'Canvas, WebGL, audio-context, font-enumeration, device-sensor fingerprinting — techniques that identify a browser without cookies.'],
+            ['data_leak', "Transmits data (often email, phone, form-field values) to a third party in ways the user hasn't authorised. Frequently unintentional on the site operator's part."],
+            ['tag_manager', 'Injects other scripts at runtime. Severity depends entirely on what ends up being loaded.'],
+            ['consent', 'Consent-management platforms (CMPs) themselves. Reported so operators can verify their CMP is configured correctly.'],
+            ['security', 'Bot detection, fraud prevention, CAPTCHA. Often necessary, but can carry significant personal-data fingerprinting as a side effect.'],
+            ['functional', 'Language preference, UI state, shopping-cart session — things the site needs to work.']
+          ].map(([name, desc]) => (
+            <div class="flex flex-col gap-1 sm:flex-row sm:items-baseline sm:gap-4">
+              <dt class="sm:w-44 sm:shrink-0">
+                <code class="font-mono text-xs font-semibold">{name}</code>
+              </dt>
+              <dd class="text-sm text-foreground/90">{desc}</dd>
+            </div>
+          ))}
+        </dl>
+      </section>
+
+      <section id="process">
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">How ratings are assigned</h2>
+        <p>
+          Each entry is reviewed against three questions:
+        </p>
+        <ol class="mt-3 list-decimal space-y-1 pl-6">
+          <li>What does the vendor's own documentation say the tool is for?</li>
+          <li>What does the tool actually do on the wire — cookies set, domains called, identifiers persisted?</li>
+          <li>How does that map onto the GDPR consent requirement (Art. 6, 7, and the ePrivacy "strictly necessary" test)?</li>
+        </ol>
+        <p class="mt-3">
+          Ratings are conservative: when in doubt, we rate <em>up</em>. A borderline high/critical
+          entry will be marked critical until evidence shifts it.
+        </p>
+      </section>
+
+      <section id="source">
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">Where the data lives</h2>
+        <p>
+          The full catalogue — every entry, its severity, its category, its description and
+          documentation link — is maintained as an open-source package called the <em>Playbill</em>.
+          It is distributed on npm as
+          <a
+            href="https://www.npmjs.com/package/@consenttheater/playbill"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="link font-mono"
+          >@consenttheater/playbill</a>, and its source lives at
+          <a
+            href="https://github.com/ConsentTheater/playbill"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="link font-mono"
+          >github.com/ConsentTheater/playbill</a>.
+        </p>
+        <p class="mt-3">
+          Every classification is traceable to a specific commit. If you disagree with a rating, you
+          can open an issue or a pull request against that repository — include the vendor
+          documentation or wire evidence that supports the correction, and we'll review.
+        </p>
+      </section>
+
+      <section id="caveats">
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">Caveats</h2>
+        <ul class="list-disc space-y-2 pl-6">
+          <li>
+            <strong>This is not legal advice.</strong> A GDPR compliance determination for a
+            specific site depends on consent implementation, legal basis, data-subject rights, and
+            the site's specific context. Consult a qualified DPO or lawyer.
+          </li>
+          <li>
+            <strong>The catalogue is a snapshot.</strong> Vendors change their tools and cookies
+            over time. We re-audit on a rolling basis, but any given entry may lag behind the
+            vendor's current implementation.
+          </li>
+          <li>
+            <strong>Context changes severity.</strong> A cookie rated <Badge variant="medium">medium</Badge>
+            in one context can become <Badge variant="critical">critical</Badge> if combined with
+            other identifiers or loaded on a sensitive site (healthcare, minors). Use the rating as
+            a starting point, not a verdict.
+          </li>
+          <li>
+            <strong>Unknown &ne; safe.</strong> A cookie or domain that returns "no match" on this
+            site hasn't been audited by us — it is not a clean bill of health.
+          </li>
+        </ul>
+      </section>
+    </div>
+  </section>
+</Layout>
