@@ -27,7 +27,7 @@
   "dependencies": {
     "@astrojs/react": "^5.0.4",
     "@astrojs/sitemap": "^3.7.2",
-    "@consenttheater/playbill": "^0.1.0",
+    "@consenttheater/playbill": "^0.1.1",
     "@phosphor-icons/react": "^2.1.10",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-slot": "^1.2.4",
