@@ -27,7 +27,7 @@
   --destructive-foreground: 0 0% 100%;
   --border: 220 13% 86%;
   --input: 220 13% 86%;
-  --ring: 48 100% 50%;
+  --ring: 220 100% 30%;
   --warning: 25 90% 32%;
   --link: 220 100% 30%;
   --radius: 0px;
@@ -45,8 +45,8 @@
   --card-foreground: 0 0% 95%;
   --popover: 220 18% 10%;
   --popover-foreground: 0 0% 95%;
-  --primary: 220 100% 30%;
-  --primary-foreground: 0 0% 100%;
+  --primary: 48 100% 55%;
+  --primary-foreground: 220 20% 10%;
   --secondary: 220 14% 16%;
   --secondary-foreground: 0 0% 95%;
   --muted: 220 14% 16%;
