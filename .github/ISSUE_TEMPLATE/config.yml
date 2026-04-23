@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Tracker catalogue correction
+    url: https://github.com/ConsentTheater/playbill/issues/new/choose
+    about: Wrong company, missing cookie, incorrect severity — these belong in the playbill repository, not this repo.
+  - name: Privacy or security concerns
+    url: https://consenttheater.org/privacy/
+    about: For privacy or security concerns, see the privacy page or email developer@consenttheater.org.

@@ -1,0 +1,68 @@
+name: Bug report
+description: Something on the website isn't working as expected
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for reporting a bug. Please fill out the sections below so we can reproduce
+        and fix it quickly.
+
+        **Tracker catalogue issues** (wrong company, missing cookie, wrong severity) belong
+        in the [playbill repository](https://github.com/ConsentTheater/playbill/issues),
+        not here.
+
+  - type: textarea
+    id: what-happened
+    attributes:
+      label: What happened?
+      description: A clear description of the problem.
+      placeholder: "When I do X, I see Y instead of Z…"
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What did you expect to happen?
+    validations:
+      required: true
+
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to reproduce
+      placeholder: |
+        1. Go to …
+        2. Type …
+        3. Press …
+    validations:
+      required: true
+
+  - type: input
+    id: url
+    attributes:
+      label: Page URL (if applicable)
+      placeholder: "https://consenttheater.org/…"
+
+  - type: dropdown
+    id: browser
+    attributes:
+      label: Browser
+      options:
+        - Chrome / Chromium
+        - Firefox
+        - Safari
+        - Edge
+        - Other (describe below)
+
+  - type: input
+    id: os
+    attributes:
+      label: Operating system
+      placeholder: "macOS 15, Windows 11, Ubuntu 24.04, …"
+
+  - type: textarea
+    id: more
+    attributes:
+      label: Additional context, screenshots, console errors
