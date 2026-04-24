@@ -1,5 +1,6 @@
 ---
 import Layout from '@/layouts/Layout.astro';
+import { Icon } from 'astro-icon/components';
 import { SearchBar } from '@/components/SearchBar';
 ---
 <Layout>
@@ -29,10 +30,11 @@ import { SearchBar } from '@/components/SearchBar';
           extension — it tells you in plain language.
         </p>
       </div>
-      <span
+      <Icon
+        name="ph:arrow-right"
+        class="h-5 w-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5"
         aria-hidden="true"
-        class="shrink-0 font-mono text-muted-foreground transition-transform group-hover:translate-x-0.5"
-      >→</span>
+      />
     </a>
   </section>
 </Layout>
