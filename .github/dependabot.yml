@@ -37,6 +37,12 @@ updates:
           - "@types/*"
         exclude-patterns:
           - "@types/react*"
+    ignore:
+      # Pin TypeScript to 5.x until @astrojs/check (and upstream @volar/kit,
+      # @astrojs/language-server) declare peer support for TS 6+. Attempting
+      # TS 6.x breaks `astro check` in the build pipeline with ERESOLVE.
+      - dependency-name: "typescript"
+        update-types: ["version-update:semver-major"]
 
   - package-ecosystem: "github-actions"
     directory: "/"
