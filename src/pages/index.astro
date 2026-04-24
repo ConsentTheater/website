@@ -15,5 +15,24 @@ import { SearchBar } from '@/components/SearchBar';
     <div class="mt-10 w-full">
       <SearchBar client:load />
     </div>
+
+    <a
+      href="/extension/"
+      class="group mt-16 flex w-full max-w-xl items-center justify-between gap-4 border border-border bg-card px-5 py-4 text-left transition-colors hover:bg-secondary sm:mt-20"
+    >
+      <div class="min-w-0">
+        <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          Browser extension
+        </p>
+        <p class="mt-1 text-sm leading-snug text-foreground/90 sm:text-[15px]">
+          Curious what a website is really up to? Try our free, open-source browser
+          extension — it tells you in plain language.
+        </p>
+      </div>
+      <span
+        aria-hidden="true"
+        class="shrink-0 font-mono text-muted-foreground transition-transform group-hover:translate-x-0.5"
+      >→</span>
+    </a>
   </section>
 </Layout>

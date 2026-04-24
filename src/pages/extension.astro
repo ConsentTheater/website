@@ -1,0 +1,364 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { Image } from 'astro:assets';
+import { Icon } from 'astro-icon/components';
+import screenshotLightWelcome from '@/assets/extension/screenshot-light-welcome.png';
+import screenshotDarkWelcome from '@/assets/extension/screenshot-dark-welcome.png';
+import screenshotLightScan from '@/assets/extension/screenshot-light-scan.png';
+import screenshotDarkScan from '@/assets/extension/screenshot-dark-scan.png';
+
+const chromeStoreUrl = 'https://chromewebstore.google.com/detail/consenttheater/polanfackgaekglhmgdknmojihbngjkc';
+const firefoxAmoUrl = 'https://addons.mozilla.org/en-US/firefox/addon/consenttheater/';
+const sourceUrl = 'https://github.com/ConsentTheater/extension';
+const releasesUrl = 'https://github.com/ConsentTheater/extension/releases';
+const privacyUrl = 'https://github.com/ConsentTheater/extension/blob/main/PRIVACY.md';
+
+const manualBuildVersion = '0.1.0';
+const manualChromeZip = `${releasesUrl}/download/v${manualBuildVersion}/consenttheater-chrome-v${manualBuildVersion}.zip`;
+const manualFirefoxZip = `${releasesUrl}/download/v${manualBuildVersion}/consenttheater-firefox-v${manualBuildVersion}.zip`;
+
+const features = [
+  {
+    title: 'One-click clean-slate scan',
+    body: 'Wipes cookies, localStorage, sessionStorage, IndexedDB, cache and service workers for the origin, then reloads. Every scan starts from a true first visit.'
+  },
+  {
+    title: 'Catches pre-consent tracking',
+    body: 'The most common GDPR problem is trackers that fire before you accept. ConsentTheater watches from the first byte and flags everything that sneaks in early.'
+  },
+  {
+    title: 'Understands the banner',
+    body: 'Finds Accept / Reject / Manage buttons and times the scan around your click — so "before you agreed" really means before you agreed.'
+  },
+  {
+    title: 'Live third-party inspector',
+    body: 'Always-on view of every cookie, every storage key, and every third-party host the current page contacts, bucketed into Trackers / CDN / Unknown.'
+  },
+  {
+    title: 'Plain-language verdict',
+    body: 'Compliant, At Risk, Non-Compliant, Violating. Severity-based, no arbitrary scores, no made-up numbers.'
+  },
+  {
+    title: 'Shareable report',
+    body: 'One click copies a clean summary you can paste to a friend, a support team, or (if you go that far) a regulator.'
+  }
+];
+---
+<Layout
+  title="ConsentTheater browser extension — see what a site really tracks"
+  description="Free, open-source browser extension for Chrome and Firefox. See trackers, cookies and pre-consent data flows before you click Accept. No telemetry, no accounts, nothing leaves your browser."
+>
+  <section class="mx-auto w-full max-w-4xl px-6 pt-10 pb-12">
+
+    <!-- Hero -->
+    <div class="mb-10">
+      <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        Browser extension
+      </p>
+      <h1 class="mt-1 font-display text-2xl font-bold tracking-tight sm:text-3xl">
+        See what a site really tracks — before you click Accept
+      </h1>
+      <p class="mt-2 text-sm leading-relaxed text-muted-foreground">
+        A free, open-source sidebar for Chrome and Firefox that shows, in plain language,
+        which trackers a site loads, which cookies it drops, and whether any of it
+        happens <em>before</em> you've agreed to a cookie banner.
+      </p>
+    </div>
+
+    <!-- Install CTAs -->
+    <div class="mb-3 flex flex-col gap-3 sm:flex-row sm:flex-wrap">
+      <a
+        href={chromeStoreUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="group inline-flex items-center justify-between gap-3 border border-border bg-card px-4 py-3 text-left transition-colors hover:bg-secondary"
+      >
+        <div class="flex items-center gap-3">
+          <Icon name="ph:google-chrome-logo" class="h-6 w-6 shrink-0" aria-hidden="true" />
+          <div class="leading-tight">
+            <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Install for
+            </p>
+            <p class="font-display text-sm font-bold">Chrome / Edge / Brave / Arc</p>
+          </div>
+        </div>
+        <span class="inline-flex items-center bg-secondary px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wide text-secondary-foreground">
+          Pending review
+        </span>
+      </a>
+
+      <a
+        href={firefoxAmoUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="group inline-flex items-center justify-between gap-3 border border-border bg-card px-4 py-3 text-left transition-colors hover:bg-secondary"
+      >
+        <div class="flex items-center gap-3">
+          <Icon name="ph:fire" class="h-6 w-6 shrink-0" aria-hidden="true" />
+          <div class="leading-tight">
+            <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Install for
+            </p>
+            <p class="font-display text-sm font-bold">Firefox / Zen</p>
+          </div>
+        </div>
+        <span class="inline-flex items-center bg-secondary px-2 py-0.5 font-mono text-[10px] font-semibold uppercase tracking-wide text-secondary-foreground">
+          Pending review
+        </span>
+      </a>
+
+      <a
+        href={sourceUrl}
+        target="_blank"
+        rel="noopener noreferrer"
+        class="group inline-flex items-center justify-between gap-3 border border-border bg-card px-4 py-3 text-left transition-colors hover:bg-secondary"
+      >
+        <div class="flex items-center gap-3">
+          <Icon name="ph:github-logo" class="h-6 w-6 shrink-0" aria-hidden="true" />
+          <div class="leading-tight">
+            <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              On GitHub
+            </p>
+            <p class="font-display text-sm font-bold">Build the latest dev version yourself</p>
+          </div>
+        </div>
+      </a>
+    </div>
+
+    <details class="group mb-10 border border-border bg-card">
+      <summary class="flex cursor-pointer list-none items-center justify-between gap-3 px-4 py-3 text-left transition-colors hover:bg-secondary">
+        <div class="flex min-w-0 items-center gap-3">
+          <Icon name="ph:download-simple" class="h-6 w-6 shrink-0" aria-hidden="true" />
+          <div class="leading-tight">
+            <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Manual install
+            </p>
+            <p class="font-display text-sm font-bold">
+              Install the latest dev build from GitHub Releases (v{manualBuildVersion})
+            </p>
+          </div>
+        </div>
+        <span
+          aria-hidden="true"
+          class="shrink-0 font-mono text-muted-foreground transition-transform group-open:rotate-90"
+        >›</span>
+      </summary>
+
+      <div class="space-y-5 border-t border-border px-4 py-4 text-sm leading-relaxed text-foreground/90">
+        <div>
+          <p class="font-display text-sm font-bold tracking-tight">Chrome / Edge / Brave / Arc</p>
+          <ol class="mt-2 list-decimal space-y-1 pl-5 text-sm">
+            <li>
+              Download
+              <a href={manualChromeZip} class="link font-mono">consenttheater-chrome-v{manualBuildVersion}.zip</a>
+              and unzip it somewhere you'll remember.
+            </li>
+            <li>Open <code class="bg-secondary px-1 font-mono text-xs">chrome://extensions/</code>.</li>
+            <li>Turn on <strong>Developer mode</strong> (top-right toggle).</li>
+            <li>Click <strong>Load unpacked</strong> and pick the unzipped folder.</li>
+          </ol>
+        </div>
+
+        <div>
+          <p class="font-display text-sm font-bold tracking-tight">Firefox / Zen</p>
+          <ol class="mt-2 list-decimal space-y-1 pl-5 text-sm">
+            <li>
+              Download
+              <a href={manualFirefoxZip} class="link font-mono">consenttheater-firefox-v{manualBuildVersion}.zip</a>
+              and unzip it.
+            </li>
+            <li>Open <code class="bg-secondary px-1 font-mono text-xs">about:debugging#/runtime/this-firefox</code>.</li>
+            <li>
+              Click <strong>Load Temporary Add-on…</strong> and pick the
+              <code class="bg-secondary px-1 font-mono text-xs">manifest.json</code> from the unzipped folder.
+            </li>
+          </ol>
+          <p class="mt-2 text-xs text-muted-foreground">
+            Firefox clears temporary add-ons on restart — reload after each browser restart,
+            or wait for the AMO listing to go live.
+          </p>
+        </div>
+
+        <p class="text-xs text-muted-foreground">
+          All builds and changelogs:
+          <a href={releasesUrl} target="_blank" rel="noopener noreferrer" class="link">GitHub Releases</a>.
+        </p>
+      </div>
+    </details>
+
+    <!-- Privacy callout -->
+    <aside
+      class="mb-12 border-l-2 bg-card p-5"
+      style="border-color: hsl(var(--band-compliant));"
+      aria-labelledby="privacy-callout"
+    >
+      <p class="text-[11px] font-semibold uppercase tracking-wider" style="color: hsl(var(--band-compliant));">
+        Privacy by design
+      </p>
+      <h2 id="privacy-callout" class="mt-1 font-display text-lg font-bold tracking-tight">
+        Nothing leaves your browser. Really.
+      </h2>
+      <ul class="mt-3 space-y-1.5 text-sm leading-relaxed text-foreground/90">
+        <li>✅ No server, no accounts, no cloud sync, no telemetry.</li>
+        <li>✅ Zero outbound requests to ConsentTheater or any third party during normal use.</li>
+        <li>✅ The extension only looks at the tab where you opened the sidebar — other tabs and your regular browsing are never touched.</li>
+        <li>✅ The tracker catalogue is bundled at build time — no runtime fetch, no update ping.</li>
+        <li>✅ Scan results live only in the sidebar's memory and are cleared the moment you leave the tab or close the sidebar.</li>
+      </ul>
+      <p class="mt-4 text-xs text-muted-foreground">
+        Read the full, plain-language
+        <a href={privacyUrl} target="_blank" rel="noopener noreferrer" class="link font-mono">
+          extension privacy policy
+        </a>
+        — including exactly why each browser permission is needed.
+      </p>
+    </aside>
+
+    <!-- Features -->
+    <section class="mb-12">
+      <h2 class="mb-5 font-display text-xl font-bold tracking-tight">What it does</h2>
+      <div class="grid gap-4 sm:grid-cols-2">
+        {features.map(f => (
+          <div class="border border-border bg-card p-4">
+            <h3 class="font-display text-sm font-bold tracking-tight">{f.title}</h3>
+            <p class="mt-2 text-sm leading-relaxed text-foreground/80">{f.body}</p>
+          </div>
+        ))}
+      </div>
+    </section>
+
+    <!-- Screenshots -->
+    <section class="mb-12">
+      <h2 class="mb-5 font-display text-xl font-bold tracking-tight">Screenshots</h2>
+      <div class="grid gap-4 sm:grid-cols-2">
+        <figure class="border border-border bg-card p-2">
+          <Image
+            src={screenshotLightWelcome}
+            alt="Welcome screen in light mode explaining what ConsentTheater does before the first scan"
+            widths={[480, 800]}
+            sizes="(min-width: 640px) 48vw, 92vw"
+            class="h-auto w-full"
+            loading="lazy"
+          />
+          <figcaption class="mt-2 px-1 text-[11px] text-muted-foreground">Light — welcome &amp; consent</figcaption>
+        </figure>
+        <figure class="border border-border bg-card p-2">
+          <Image
+            src={screenshotDarkWelcome}
+            alt="Welcome screen in dark mode explaining what ConsentTheater does before the first scan"
+            widths={[480, 800]}
+            sizes="(min-width: 640px) 48vw, 92vw"
+            class="h-auto w-full"
+            loading="lazy"
+          />
+          <figcaption class="mt-2 px-1 text-[11px] text-muted-foreground">Dark — welcome &amp; consent</figcaption>
+        </figure>
+        <figure class="border border-border bg-card p-2">
+          <Image
+            src={screenshotLightScan}
+            alt="Live scan in light mode — verdict, severity bands and tracker list"
+            widths={[480, 800]}
+            sizes="(min-width: 640px) 48vw, 92vw"
+            class="h-auto w-full"
+            loading="lazy"
+          />
+          <figcaption class="mt-2 px-1 text-[11px] text-muted-foreground">Light — live scan</figcaption>
+        </figure>
+        <figure class="border border-border bg-card p-2">
+          <Image
+            src={screenshotDarkScan}
+            alt="Live scan in dark mode — verdict, severity bands and tracker list"
+            widths={[480, 800]}
+            sizes="(min-width: 640px) 48vw, 92vw"
+            class="h-auto w-full"
+            loading="lazy"
+          />
+          <figcaption class="mt-2 px-1 text-[11px] text-muted-foreground">Dark — live scan</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <!-- Permissions -->
+    <section class="mb-12">
+      <h2 class="mb-3 font-display text-xl font-bold tracking-tight">Why does it ask for so many permissions?</h2>
+      <p class="mb-4 text-sm leading-relaxed text-foreground/90">
+        A privacy auditor has to be able to see what a website is doing — so a few browser
+        permissions are unavoidable. Every single one is narrowly scoped and only used for
+        the scan you explicitly trigger.
+      </p>
+      <dl class="space-y-2 text-sm leading-relaxed text-foreground/90">
+        <div class="border-l-2 border-border pl-4">
+          <dt class="font-mono text-xs font-semibold">cookies, browsingData</dt>
+          <dd class="text-muted-foreground">To read the origin's cookies and wipe them before the scan, so we measure what a real first visitor sees.</dd>
+        </div>
+        <div class="border-l-2 border-border pl-4">
+          <dt class="font-mono text-xs font-semibold">webRequest, webNavigation</dt>
+          <dd class="text-muted-foreground">To catch every third-party request during the scan, especially the ones that happen before you touch the banner.</dd>
+        </div>
+        <div class="border-l-2 border-border pl-4">
+          <dt class="font-mono text-xs font-semibold">scripting, content script</dt>
+          <dd class="text-muted-foreground">To inject the banner detector on the tab being scanned. The content script is only active on that tab.</dd>
+        </div>
+        <div class="border-l-2 border-border pl-4">
+          <dt class="font-mono text-xs font-semibold">storage</dt>
+          <dd class="text-muted-foreground">To remember your UI preferences (theme, language, high-contrast). Nothing else is stored.</dd>
+        </div>
+        <div class="border-l-2 border-border pl-4">
+          <dt class="font-mono text-xs font-semibold">&lt;all_urls&gt;</dt>
+          <dd class="text-muted-foreground">Required so the above APIs work on whichever site you choose to scan. Your normal browsing is never observed.</dd>
+        </div>
+      </dl>
+      <p class="mt-4 text-xs text-muted-foreground">
+        Full breakdown in the
+        <a href={privacyUrl} target="_blank" rel="noopener noreferrer" class="link font-mono">extension privacy policy</a>.
+      </p>
+    </section>
+
+    <!-- Open source -->
+    <section class="mb-12">
+      <h2 class="mb-3 font-display text-xl font-bold tracking-tight">Open source, end to end</h2>
+      <p class="text-sm leading-relaxed text-foreground/90">
+        The extension, the tracker catalogue, and this website are all open source under
+        <a href="/license/" class="link font-mono">AGPL-3.0-or-later</a>. You can read the
+        code, build your own copy, audit every privacy claim, or fork the project.
+      </p>
+      <ul class="mt-4 space-y-1 text-sm">
+        <li>
+          Extension source —
+          <a href={sourceUrl} target="_blank" rel="noopener noreferrer" class="link font-mono">
+            github.com/ConsentTheater/extension
+          </a>
+        </li>
+        <li>
+          Tracker catalogue —
+          <a href="https://github.com/ConsentTheater/playbill" target="_blank" rel="noopener noreferrer" class="link font-mono">
+            github.com/ConsentTheater/playbill
+          </a>
+        </li>
+        <li>
+          This website —
+          <a href="https://github.com/ConsentTheater/website" target="_blank" rel="noopener noreferrer" class="link font-mono">
+            github.com/ConsentTheater/website
+          </a>
+        </li>
+      </ul>
+    </section>
+
+    <!-- Footer CTA -->
+    <section class="border-t border-border pt-8">
+      <p class="text-sm leading-relaxed text-foreground/90">
+        Questions, corrections, or an actor the extension classified incorrectly?
+        Open an issue on <a href={sourceUrl + '/issues'} target="_blank" rel="noopener noreferrer" class="link">GitHub</a>
+        — or, if you'd rather, email <a href="mailto:developer@consenttheater.org" class="link font-mono">developer@consenttheater.org</a>.
+      </p>
+      <p class="mt-4 text-xs leading-relaxed text-muted-foreground">
+        ConsentTheater is an independent open-source project and is not affiliated with,
+        endorsed by, or sponsored by Google, Mozilla, Microsoft, Brave Software, The Browser
+        Company, Zen Browser, or any other browser vendor. The Chrome Web Store and Firefox
+        Add-ons listings are simply the standard ways to distribute browser extensions.
+        All product names, logos and browser brands are property of their respective owners.
+      </p>
+    </section>
+
+  </section>
+</Layout>
