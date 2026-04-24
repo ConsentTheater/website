@@ -3,6 +3,7 @@ import * as Dialog from '@radix-ui/react-dialog';
 import { VisuallyHidden } from '@radix-ui/react-visually-hidden';
 import {
   GearIcon,
+  ListIcon,
   XIcon,
   SunIcon,
   MoonIcon,
@@ -61,9 +62,24 @@ const CONTRASTS: { value: ContrastMode; label: string }[] = [
   { value: 'system', label: 'System' }
 ];
 
-export function SettingsDialog() {
+interface NavItem {
+  href: string;
+  label: string;
+  mobileLabel?: string;
+  mobileOnly?: boolean;
+}
+
+interface SettingsDialogProps {
+  navItems?: NavItem[];
+  currentPath?: string;
+}
+
+export function SettingsDialog({ navItems = [], currentPath = '' }: SettingsDialogProps) {
   const [settings, setSettings] = React.useState<Settings>(DEFAULTS);
   const [mounted, setMounted] = React.useState(false);
+
+  const isActive = (href: string) =>
+    currentPath === href || currentPath.startsWith(href);
 
   React.useEffect(() => {
     setSettings(readSettings());
@@ -103,11 +119,15 @@ export function SettingsDialog() {
       <Dialog.Trigger asChild>
         <button
           type="button"
-          aria-label="User preferences"
-          title="User preferences"
-          className="inline-flex h-9 w-9 items-center justify-center border border-input bg-background text-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+          aria-label={navItems.length > 0 ? 'Menu and preferences' : 'User preferences'}
+          title={navItems.length > 0 ? 'Menu and preferences' : 'User preferences'}
+          className="inline-flex h-9 items-center gap-2 border border-input bg-background px-2.5 text-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:w-9 sm:justify-center sm:px-0"
         >
-          <GearIcon size={16} aria-hidden="true" />
+          <span className="text-[11px] font-semibold uppercase tracking-wider sm:hidden">
+            Menu
+          </span>
+          <ListIcon size={16} aria-hidden="true" className="sm:hidden" />
+          <GearIcon size={16} aria-hidden="true" className="hidden sm:inline-block" />
         </button>
       </Dialog.Trigger>
 
@@ -117,7 +137,16 @@ export function SettingsDialog() {
           className="fixed left-1/2 top-1/2 z-50 w-full max-w-sm -translate-x-1/2 -translate-y-1/2 border border-border bg-card text-card-foreground shadow-lg data-[state=open]:animate-in data-[state=open]:fade-in-0 data-[state=open]:zoom-in-95 data-[state=closed]:animate-out data-[state=closed]:fade-out-0 data-[state=closed]:zoom-out-95"
         >
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
-            <Dialog.Title className="text-sm font-semibold">User Preferences</Dialog.Title>
+            <Dialog.Title className="text-sm font-semibold">
+              {navItems.length > 0 ? (
+                <>
+                  <span className="sm:hidden">Menu</span>
+                  <span className="hidden sm:inline">User Preferences</span>
+                </>
+              ) : (
+                'User Preferences'
+              )}
+            </Dialog.Title>
             <VisuallyHidden asChild>
               <Dialog.Description>
                 Choose a theme and configure high-contrast mode. Preferences are saved in your browser only.
@@ -132,6 +161,42 @@ export function SettingsDialog() {
           </div>
 
           <div className="flex flex-col gap-5 p-4">
+            {navItems.length > 0 && (
+              <>
+                <nav aria-label="Primary" className="sm:hidden">
+                  <ul className="flex flex-col">
+                    {navItems.map((item) => {
+                      const active = isActive(item.href);
+                      return (
+                        <li key={item.href}>
+                          <Dialog.Close asChild>
+                            <a
+                              href={item.href}
+                              aria-current={active ? 'page' : undefined}
+                              className={cn(
+                                'flex border-l-2 px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                                active
+                                  ? 'border-primary bg-secondary font-semibold text-foreground'
+                                  : 'border-transparent text-foreground/90 hover:bg-secondary'
+                              )}
+                            >
+                              {item.mobileLabel ?? item.label}
+                            </a>
+                          </Dialog.Close>
+                        </li>
+                      );
+                    })}
+                  </ul>
+                </nav>
+
+                <div className="h-px bg-border sm:hidden" />
+
+                <p className="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground sm:hidden">
+                  User Preferences
+                </p>
+              </>
+            )}
+
             <section>
               <p className="text-xs font-semibold">Theme</p>
               <p className="mt-0.5 text-[11px] text-muted-foreground">
