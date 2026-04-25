@@ -1,0 +1,259 @@
+---
+import Layout from '@/layouts/Layout.astro';
+
+const updated = '2026-04-24';
+
+interface Credit {
+  name: string;
+  href: string;
+  license: string;
+  desc: string;
+}
+
+interface Section {
+  id: string;
+  title: string;
+  lead: string;
+  items: Credit[];
+}
+
+const sections: Section[] = [
+  {
+    id: 'frontend',
+    title: 'Frontend runtime',
+    lead: 'What ships to your browser when you open this site.',
+    items: [
+      {
+        name: 'Astro',
+        href: 'https://astro.build',
+        license: 'MIT',
+        desc: 'Content-driven framework with an islands architecture — lets us serve a near-static site with only a few interactive components.'
+      },
+      {
+        name: 'React & React-DOM',
+        href: 'https://react.dev',
+        license: 'MIT',
+        desc: 'Powers the search bar and settings dialog islands.'
+      },
+      {
+        name: 'Tailwind CSS',
+        href: 'https://tailwindcss.com',
+        license: 'MIT',
+        desc: 'Utility-first styling layer. All design tokens live in a single globals.css file.'
+      },
+      {
+        name: 'Radix UI (Dialog, Slot, VisuallyHidden)',
+        href: 'https://www.radix-ui.com',
+        license: 'MIT',
+        desc: 'Accessible primitives for the settings / mobile-menu dialog and a few supporting utilities.'
+      },
+      {
+        name: 'tw-animate-css',
+        href: 'https://github.com/Wombosvideo/tw-animate-css',
+        license: 'MIT',
+        desc: 'Tailwind-v4 compatible replacement for tailwindcss-animate — used by Radix primitives for open/close transitions.'
+      },
+      {
+        name: 'clsx',
+        href: 'https://github.com/lukeed/clsx',
+        license: 'MIT',
+        desc: 'Tiny class-name joiner.'
+      },
+      {
+        name: 'tailwind-merge',
+        href: 'https://github.com/dcastil/tailwind-merge',
+        license: 'MIT',
+        desc: 'Resolves conflicting Tailwind utility classes in shadcn-style helpers.'
+      },
+      {
+        name: 'class-variance-authority',
+        href: 'https://cva.style',
+        license: 'Apache-2.0',
+        desc: 'Types and ergonomics for our component variants.'
+      }
+    ]
+  },
+  {
+    id: 'icons',
+    title: 'Icons',
+    lead: 'Every glyph in the UI comes from the same family, rendered without runtime JS.',
+    items: [
+      {
+        name: 'Phosphor Icons',
+        href: 'https://phosphoricons.com',
+        license: 'MIT',
+        desc: 'The icon family the whole project uses — friendly, geometric, and well-covered.'
+      },
+      {
+        name: '@phosphor-icons/react',
+        href: 'https://github.com/phosphor-icons/react',
+        license: 'MIT',
+        desc: 'React bindings for Phosphor; used inside React islands.'
+      },
+      {
+        name: 'astro-icon',
+        href: 'https://github.com/natemoo-re/astro-icon',
+        license: 'MIT',
+        desc: 'Build-time SVG inlining for Astro components — no JS shipped for static icons.'
+      },
+      {
+        name: 'Iconify & @iconify-json/ph',
+        href: 'https://iconify.design',
+        license: 'MIT',
+        desc: 'The upstream icon registry astro-icon resolves against.'
+      }
+    ]
+  },
+  {
+    id: 'edge',
+    title: 'Backend & edge',
+    lead: 'What happens in the tens of milliseconds after you hit Search.',
+    items: [
+      {
+        name: 'Hono',
+        href: 'https://hono.dev',
+        license: 'MIT',
+        desc: 'Lightweight router running inside our Cloudflare Worker.'
+      },
+      {
+        name: 'Cloudflare Workers',
+        href: 'https://workers.cloudflare.com',
+        license: 'Commercial platform',
+        desc: 'Edge runtime where the /api/search endpoint executes.'
+      },
+      {
+        name: 'Wrangler',
+        href: 'https://github.com/cloudflare/workers-sdk',
+        license: 'MIT / Apache-2.0',
+        desc: 'Cloudflare Workers CLI used for local dev and deploys.'
+      }
+    ]
+  },
+  {
+    id: 'tooling',
+    title: 'Build & tooling',
+    lead: 'What the repository depends on but that never reaches your browser.',
+    items: [
+      {
+        name: 'TypeScript',
+        href: 'https://www.typescriptlang.org',
+        license: 'Apache-2.0',
+        desc: 'Type-checks the whole codebase.'
+      },
+      {
+        name: 'Vite (via @tailwindcss/vite)',
+        href: 'https://vitejs.dev',
+        license: 'MIT',
+        desc: 'The bundler Astro uses under the hood; the Tailwind v4 Vite plugin wires in our utility classes.'
+      },
+      {
+        name: '@astrojs/react, @astrojs/sitemap, @astrojs/check',
+        href: 'https://github.com/withastro/astro/tree/main/packages/integrations',
+        license: 'MIT',
+        desc: 'Official Astro integrations for React islands, XML sitemaps, and type-checking.'
+      }
+    ]
+  },
+  {
+    id: 'siblings',
+    title: 'Sibling projects & data',
+    lead: 'These live in separate repositories under the same umbrella.',
+    items: [
+      {
+        name: '@consenttheater/playbill',
+        href: 'https://github.com/ConsentTheater/playbill',
+        license: 'AGPL-3.0-or-later',
+        desc: 'The tracker knowledge base — bundled into the search API and the extension. Same author, same license, deliberately reusable on its own.'
+      },
+      {
+        name: 'ConsentTheater browser extension',
+        href: 'https://github.com/ConsentTheater/extension',
+        license: 'AGPL-3.0-or-later',
+        desc: 'The Chrome / Firefox extension. Shares the design tokens this site uses.'
+      }
+    ]
+  }
+];
+
+---
+<Layout
+  title="Acknowledgements — ConsentTheater"
+  description="ConsentTheater is built on top of a lot of high-quality open-source work. This page lists the projects and people we rely on, with licenses and links."
+>
+  <section class="mx-auto w-full max-w-3xl px-6 pt-10 pb-12">
+    <div class="mb-6">
+      <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        Acknowledgements
+      </p>
+      <h1 class="mt-1 font-display text-2xl font-bold tracking-tight sm:text-3xl">
+        Standing on open shoulders
+      </h1>
+      <p class="mt-2 text-[11px] text-muted-foreground">
+        Last updated <time datetime={updated} class="font-mono">{updated}</time>
+      </p>
+      <p class="mt-3 text-sm leading-relaxed text-muted-foreground">
+        The website you're reading, the browser extension, and the Playbill tracker
+        catalogue are only possible because other people published excellent
+        open-source software and kept maintaining it. This page lists the projects
+        we depend on, with licenses and links. If you contributed to any of these
+        and spot a mistake — name, license, attribution — email
+        <a href="mailto:developer@consenttheater.org" class="link font-mono">developer@consenttheater.org</a>.
+      </p>
+    </div>
+
+    <div class="space-y-10 text-sm leading-relaxed text-foreground/90">
+
+      {sections.map((section) => (
+        <section id={section.id}>
+          <h2 class="mb-1 font-display text-lg font-bold tracking-tight">{section.title}</h2>
+          <p class="mb-4 text-sm text-muted-foreground">{section.lead}</p>
+          <dl class="space-y-4">
+            {section.items.map((item) => (
+              <div class="border-l-2 border-border pl-4">
+                <dt class="flex flex-wrap items-baseline gap-x-2 gap-y-1">
+                  <a
+                    href={item.href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    class="link font-semibold"
+                  >{item.name}</a>
+                  <span class="font-mono text-[10px] uppercase tracking-wider text-muted-foreground">
+                    {item.license}
+                  </span>
+                </dt>
+                <dd class="mt-1 text-sm text-foreground/80">{item.desc}</dd>
+              </div>
+            ))}
+          </dl>
+        </section>
+      ))}
+
+      <section id="fine-print">
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">Fine print</h2>
+        <p>
+          All trademarks, logos, and product names listed on this page belong to
+          their respective owners and are mentioned here for identification only.
+          Listing a project here does not imply any affiliation, endorsement, or
+          sponsorship — it means we use their work, are grateful for it, and want
+          you to be able to trace where it comes from.
+        </p>
+        <p class="mt-3">
+          Want to verify? The full dependency tree lives in the
+          <a
+            href="https://github.com/ConsentTheater/website/blob/main/package.json"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="link font-mono"
+          >website's package.json</a>, and the extension's tree is
+          <a
+            href="https://github.com/ConsentTheater/extension/blob/main/package.json"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="link font-mono"
+          >here</a>.
+        </p>
+      </section>
+
+    </div>
+  </section>
+</Layout>
