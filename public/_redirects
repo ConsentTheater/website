@@ -10,3 +10,7 @@
 /law/gdpr/       /law/  301
 /law/eprivacy    /law/  301
 /law/eprivacy/   /law/  301
+
+# Sitemap conventional URL — @astrojs/sitemap emits /sitemap-index.xml,
+# but bots and humans typing /sitemap.xml expect to land somewhere.
+/sitemap.xml     /sitemap-index.xml  301
