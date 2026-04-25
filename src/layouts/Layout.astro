@@ -29,7 +29,7 @@ interface Props {
 
 const {
   title = 'ConsentTheater — GDPR cookie & tracker lookup',
-  description = 'Identify cookies, domains and trackers. Look up any cookie name or domain to see the company, service, category and severity.',
+  description = 'Identify cookies, domains and trackers. Look up any cookie name or domain to see the company, service, category and consent burden under GDPR.',
   image = '/og-default.png'
 } = Astro.props;
 
@@ -161,22 +161,23 @@ const isActive = (href: string) =>
       </main>
 
       <footer class="border-t border-border bg-card">
-        <div class="mx-auto flex w-full max-w-4xl flex-col items-start gap-6 px-6 py-6 text-[11px] text-muted-foreground min-[900px]:flex-row min-[900px]:flex-wrap min-[900px]:items-center min-[900px]:justify-between min-[900px]:gap-y-2 min-[900px]:py-3">
+        <div class="mx-auto grid w-full max-w-4xl gap-6 px-6 py-6 text-[11px] text-muted-foreground">
           <!-- 1. Menu -->
           <nav
-            class="flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-5 sm:gap-y-2 min-[900px]:order-2 min-[900px]:gap-x-4"
+            class="flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-5 sm:gap-y-2"
             aria-label="Footer"
           >
-            <a href="/about/" class="py-1 transition-colors hover:text-foreground min-[900px]:py-0">About</a>
-            <a href="/extension/" class="py-1 transition-colors hover:text-foreground min-[900px]:py-0">Extension</a>
-            <a href="/methodology/" class="py-1 transition-colors hover:text-foreground min-[900px]:py-0">Methodology</a>
-            <a href="/privacy/" class="py-1 transition-colors hover:text-foreground min-[900px]:py-0">Privacy</a>
-            <a href="/license/" class="py-1 transition-colors hover:text-foreground min-[900px]:py-0">License</a>
+            <a href="/about/" class="py-1 transition-colors hover:text-foreground">About</a>
+            <a href="/extension/" class="py-1 transition-colors hover:text-foreground">Extension</a>
+            <a href="/methodology/" class="py-1 transition-colors hover:text-foreground">Methodology</a>
+            <a href="/privacy/" class="py-1 transition-colors hover:text-foreground">Privacy</a>
+            <a href="/license/" class="py-1 transition-colors hover:text-foreground">License</a>
+            <a href="/acknowledgements/" class="py-1 transition-colors hover:text-foreground">Acknowledgements</a>
             <a
               href="https://github.com/ConsentTheater"
               target="_blank"
               rel="noopener noreferrer"
-              class="inline-flex items-center gap-1 py-1 transition-colors hover:text-foreground min-[900px]:py-0"
+              class="inline-flex items-center gap-1 py-1 transition-colors hover:text-foreground"
               aria-label="ConsentTheater on GitHub"
             >
               <Icon name="ph:github-logo" class="h-3.5 w-3.5" aria-hidden="true" />
@@ -184,13 +185,22 @@ const isActive = (href: string) =>
             </a>
           </nav>
 
-          <!-- 2. Copyright -->
-          <span class="min-[900px]:order-1">
-            © {year} ConsentTheater · Non-commercial, open-source project <span class="whitespace-nowrap">(AGPL-3.0)</span>
-          </span>
+          <!-- 2. Copyright & fine print -->
+          <div class="grid gap-2">
+            <span>
+              © {year} ConsentTheater · Non-commercial, open-source project <span class="whitespace-nowrap">(AGPL-3.0)</span>
+            </span>
+            <p class="text-[10px] leading-relaxed text-muted-foreground/70">
+              ConsentTheater is an independent, volunteer-run, non-commercial project.
+              Content on this site is provided for educational purposes only and is
+              not legal advice. Not affiliated with or endorsed by any regulator, law
+              firm, browser vendor, or service listed in the catalogue. All trademarks
+              and product names are the property of their respective owners.
+            </p>
+          </div>
 
           <!-- 3. Build -->
-          <div class="text-[10px] text-muted-foreground/70 min-[900px]:order-3 min-[900px]:basis-full">
+          <div class="text-[10px] text-muted-foreground/70">
             <span class="whitespace-nowrap">
               Build
               {' '}

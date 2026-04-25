@@ -37,7 +37,7 @@ type RelatedEntry = {
   company: string;
   service: string;
   category: string;
-  severity: string;
+  consent_burden: string;
   description?: string;
   lifetime?: string;
   docs_url?: string;

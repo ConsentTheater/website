@@ -2,11 +2,19 @@
 import Layout from '@/layouts/Layout.astro';
 import { Badge } from '@/components/ui/badge';
 
-const updated = '2026-04-23';
+const updated = '2026-04-25';
+
+// Primary EU sources. We link directly to eur-lex.europa.eu (the EU's
+// own legal portal) rather than a third-party aggregator, so every legal
+// reference on this page resolves to the canonical text.
+const GDPR_URL = 'https://eur-lex.europa.eu/eli/reg/2016/679/oj';
+const EPRIVACY_URL = 'https://eur-lex.europa.eu/eli/dir/2002/58/oj';
+const EDPB_CONSENT_URL = 'https://www.edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-052020-consent-under-regulation-2016679_en';
+const DSK_GUIDANCE_URL = 'https://www.datenschutzkonferenz-online.de/orientierungshilfen.html';
 ---
 <Layout
   title="Methodology — ConsentTheater"
-  description="How ConsentTheater classifies cookies and domains by severity and category, what each label means, and where the data comes from."
+  description="How ConsentTheater classifies cookies and domains by category and consent burden under GDPR, what each label means, and where the data comes from."
 >
   <section class="mx-auto w-full max-w-3xl px-6 pt-10 pb-12">
     <div class="mb-6">
@@ -20,90 +28,112 @@ const updated = '2026-04-23';
         Last updated <time datetime={updated} class="font-mono">{updated}</time>
       </p>
       <p class="mt-3 text-sm leading-relaxed text-muted-foreground">
-        Every entry in our catalogue carries a <strong>severity</strong> and a <strong>category</strong>.
-        This page explains what those mean, how we assign them, and how to challenge a rating if you
-        think it's wrong.
+        Every entry in our catalogue carries a <strong>category</strong> and a
+        <strong>consent burden</strong>. This page explains what each label means, how we
+        assign them, and how to challenge a tag if you think it's wrong. We do not assign
+        verdicts to whole websites — that work belongs to supervisory authorities and
+        courts.
       </p>
     </div>
 
     <div class="space-y-10 text-sm leading-relaxed text-foreground/90">
 
-      <section id="severity">
-        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">Severity</h2>
+      <section id="consent-burden">
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">Consent burden</h2>
         <p>
-          Severity is our short answer to the question: <em>how much does this tracker invade the
-          visitor's privacy, and how much consent work does it create for the site operator under
-          GDPR?</em> It is not a legal verdict — it is a quick, consistent signal.
+          Consent burden is our short answer to the question: <em>how much explicit
+          consent does this tracker need under EU/GDPR rules before it may be loaded?</em>
+          It describes the <strong>tracker</strong>, not whether any specific site is
+          compliant. Two trackers with the same burden can land a site in very different
+          places depending on context, legal basis, and how consent is collected.
         </p>
 
         <dl class="mt-5 space-y-5">
-          <div id="critical" class="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-4">
-            <dt class="sm:w-32 sm:shrink-0">
-              <Badge variant="critical">critical</Badge>
+          <div id="required-strict" class="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-4">
+            <dt class="sm:w-40 sm:shrink-0">
+              <Badge variant="required_strict">Strict consent</Badge>
             </dt>
             <dd class="text-sm">
-              Cross-site tracking, ad targeting, fingerprinting, session recording, or any flow that
-              builds a durable profile of the visitor across properties. Under GDPR these require
-              <strong>explicit, prior, informed consent</strong>. Loading them before consent is
-              usually non-compliant.
+              Cross-site profiling, ad-tech retargeting, fingerprinting, full-session
+              recording. These build a durable identity for the visitor across properties.
+              They <strong>always</strong> need prior, informed, freely-given consent —
+              there is no realistic legitimate-interest argument for them under
+              <a href={GDPR_URL} target="_blank" rel="noopener noreferrer" class="link">GDPR Art. 6</a>
+              or the
+              <a href={EPRIVACY_URL} target="_blank" rel="noopener noreferrer" class="link">ePrivacy Directive Art. 5(3)</a>.
             </dd>
           </div>
 
-          <div id="high" class="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-4">
-            <dt class="sm:w-32 sm:shrink-0">
-              <Badge variant="high">high</Badge>
+          <div id="required" class="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-4">
+            <dt class="sm:w-40 sm:shrink-0">
+              <Badge variant="required">Consent required</Badge>
             </dt>
             <dd class="text-sm">
-              Persistent identifiers tied to personal data — cross-session analytics, CRM enrichment,
-              marketing-automation cookies, social-login SDKs. Almost always
-              <strong>consent-gated</strong>, though the personal-data footprint is smaller than
-              critical.
+              Standard analytics, marketing automation, social-login SDKs, CRM enrichment.
+              The personal-data footprint is smaller than strict-consent trackers, but
+              under nearly all current EU readings these still need
+              <strong>opt-in consent</strong> before being loaded.
             </dd>
           </div>
 
-          <div id="medium" class="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-4">
-            <dt class="sm:w-32 sm:shrink-0">
-              <Badge variant="medium">medium</Badge>
+          <div id="contested" class="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-4">
+            <dt class="sm:w-40 sm:shrink-0">
+              <Badge variant="contested">Contested</Badge>
             </dt>
             <dd class="text-sm">
-              Aggregate or privacy-aware analytics, limited-scope conversion tracking, A/B testing
-              without cross-site linkage. Typically consent-gated under GDPR, but with lower
-              personal-data impact and often easier legitimate-interest arguments in context.
+              Privacy-aware or aggregate analytics, A/B testing without cross-site linkage,
+              and tracking-adjacent functional cookies. Some authorities — France's CNIL
+              and certain
+              <a href={DSK_GUIDANCE_URL} target="_blank" rel="noopener noreferrer" class="link">DSK orientation papers</a> —
+              accept these under legitimate interest in narrow conditions; others treat
+              them as consent-required. <strong>Default to consent-required</strong> unless
+              you have a documented legal-basis analysis.
             </dd>
           </div>
 
-          <div id="low" class="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-4">
-            <dt class="sm:w-32 sm:shrink-0">
-              <Badge variant="low">low</Badge>
+          <div id="minimal" class="flex flex-col gap-2 sm:flex-row sm:items-start sm:gap-4">
+            <dt class="sm:w-40 sm:shrink-0">
+              <Badge variant="minimal">Minimal</Badge>
             </dt>
             <dd class="text-sm">
-              Functional and convenience — theme preference, language, CSRF tokens, shopping-cart
-              state. Strictly necessary for the service the user asked for.
-              <strong>Usually exempt from consent</strong> under GDPR Art. 5(3) ePrivacy "strictly
-              necessary" carve-out, provided the scope stays genuinely functional.
+              Functional and convenience — theme preference, language, CSRF tokens,
+              shopping-cart state, anti-fraud session tokens. Strictly necessary for the
+              service the user explicitly asked for. <strong>Usually exempt from consent
+              </strong> under the
+              <a href={EPRIVACY_URL} target="_blank" rel="noopener noreferrer" class="link">ePrivacy Directive Art. 5(3)</a>
+              "strictly necessary" carve-out, provided the scope stays genuinely functional.
             </dd>
           </div>
         </dl>
+
+        <p class="mt-5 text-xs text-muted-foreground">
+          The four levels above describe the <em>regulatory burden</em>, not how scary the
+          tool is. We deliberately avoid school-grade vocabulary like "critical" or "low":
+          a strict-consent tracker on a site that has properly collected consent is
+          completely lawful, while a minimal-burden cookie set in a way that exposes
+          personal data may not be.
+        </p>
       </section>
 
       <section id="categories">
         <h2 class="mb-2 font-display text-lg font-bold tracking-tight">Categories</h2>
         <p>
-          Category describes <em>what the tracker does</em>, not how invasive it is. A tracker in
-          the <span class="font-mono">analytics</span> category can be low or critical depending on
-          its design.
+          Category describes <em>what the tracker does</em>. It correlates with consent
+          burden but doesn't determine it: an analytics tracker can land anywhere from
+          <Badge variant="contested">Contested</Badge> to <Badge variant="required_strict">Strict consent</Badge>
+          depending on whether identifiers cross sites and sessions.
         </p>
 
         <dl class="mt-5 space-y-3">
           {[
-            ['advertising', 'Ad-serving, ad personalisation, ad-click attribution, retargeting. Usually critical severity.'],
-            ['analytics', 'Page-view and event measurement. Severity depends on whether identifiers cross sites and sessions.'],
+            ['advertising', 'Ad-serving, ad personalisation, ad-click attribution, retargeting. Almost always strict-consent.'],
+            ['analytics', 'Page-view and event measurement. Burden depends on whether identifiers cross sites and sessions.'],
             ['marketing', 'Email tracking, CRM enrichment, lead capture, sales intelligence. Personal-data heavy.'],
             ['social', 'Embedded share buttons, social logins, comment widgets. Frequently load third-party profile cookies even before interaction.'],
-            ['session_recording', 'Records keystrokes, clicks, scroll behaviour, or full pixel-level session replay. Inherently high-risk under GDPR.'],
+            ['session_recording', 'Records keystrokes, clicks, scroll behaviour, or full pixel-level session replay. Inherently strict-consent.'],
             ['fingerprinting', 'Canvas, WebGL, audio-context, font-enumeration, device-sensor fingerprinting — techniques that identify a browser without cookies.'],
             ['data_leak', "Transmits data (often email, phone, form-field values) to a third party in ways the user hasn't authorised. Frequently unintentional on the site operator's part."],
-            ['tag_manager', 'Injects other scripts at runtime. Severity depends entirely on what ends up being loaded.'],
+            ['tag_manager', 'Injects other scripts at runtime. Burden depends entirely on what ends up being loaded inside the container.'],
             ['consent', 'Consent-management platforms (CMPs) themselves. Reported so operators can verify their CMP is configured correctly.'],
             ['security', 'Bot detection, fraud prevention, CAPTCHA. Often necessary, but can carry significant personal-data fingerprinting as a side effect.'],
             ['functional', 'Language preference, UI state, shopping-cart session — things the site needs to work.']
@@ -119,27 +149,34 @@ const updated = '2026-04-23';
       </section>
 
       <section id="process">
-        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">How ratings are assigned</h2>
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">How tags are assigned</h2>
         <p>
           Each entry is reviewed against three questions:
         </p>
         <ol class="mt-3 list-decimal space-y-1 pl-6">
           <li>What does the vendor's own documentation say the tool is for?</li>
           <li>What does the tool actually do on the wire — cookies set, domains called, identifiers persisted?</li>
-          <li>How does that map onto the GDPR consent requirement (Art. 6, 7, and the ePrivacy "strictly necessary" test)?</li>
+          <li>
+            How does that map onto the
+            <a href={GDPR_URL} target="_blank" rel="noopener noreferrer" class="link">GDPR</a>
+            consent requirement (Art. 6 lawfulness, Art. 7 conditions for consent) and the
+            <a href={EPRIVACY_URL} target="_blank" rel="noopener noreferrer" class="link">ePrivacy Directive</a>
+            Art. 5(3) "strictly necessary" test?
+          </li>
         </ol>
         <p class="mt-3">
-          Ratings are conservative: when in doubt, we rate <em>up</em>. A borderline high/critical
-          entry will be marked critical until evidence shifts it.
+          Tags are conservative: <strong>when in doubt, treat as consent-required</strong>.
+          A borderline contested/required entry will be marked
+          <Badge variant="required">Consent required</Badge> until vendor evidence shifts it.
         </p>
       </section>
 
       <section id="source">
         <h2 class="mb-2 font-display text-lg font-bold tracking-tight">Where the data lives</h2>
         <p>
-          The full catalogue — every entry, its severity, its category, its description and
-          documentation link — is maintained as an open-source package called the <em>Playbill</em>.
-          It is distributed on npm as
+          The full catalogue — every entry, its category, its consent burden, its
+          description and documentation link — is maintained as an open-source package
+          called the <em>Playbill</em>. It is distributed on npm as
           <a
             href="https://www.npmjs.com/package/@consenttheater/playbill"
             target="_blank"
@@ -154,34 +191,72 @@ const updated = '2026-04-23';
           >github.com/ConsentTheater/playbill</a>.
         </p>
         <p class="mt-3">
-          Every classification is traceable to a specific commit. If you disagree with a rating, you
-          can open an issue or a pull request against that repository — include the vendor
-          documentation or wire evidence that supports the correction, and we'll review.
+          Every classification is traceable to a specific commit. If you disagree with a
+          tag, you can open an issue or a pull request against that repository — include
+          the vendor documentation or wire evidence that supports the correction, and we'll
+          review.
         </p>
+      </section>
+
+      <section id="sources">
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">Primary sources</h2>
+        <p>
+          Every legal reference on this page links directly to the canonical text on
+          <a href="https://eur-lex.europa.eu" target="_blank" rel="noopener noreferrer" class="link">eur-lex.europa.eu</a>,
+          the EU's official legal portal. The list below is what we consult while
+          maintaining the catalogue.
+        </p>
+        <ul class="mt-3 list-disc space-y-1 pl-6">
+          <li>
+            <a href={GDPR_URL} target="_blank" rel="noopener noreferrer" class="link">
+              GDPR — Regulation (EU) 2016/679
+            </a> (full consolidated text)
+          </li>
+          <li>
+            <a href={EPRIVACY_URL} target="_blank" rel="noopener noreferrer" class="link">
+              ePrivacy Directive 2002/58/EC
+            </a> (the "cookie law")
+          </li>
+          <li>
+            <a href={EDPB_CONSENT_URL} target="_blank" rel="noopener noreferrer" class="link">
+              EDPB Guidelines 05/2020 on consent under GDPR
+            </a>
+          </li>
+          <li>
+            <a href={DSK_GUIDANCE_URL} target="_blank" rel="noopener noreferrer" class="link">
+              DSK Orientierungshilfen
+            </a> (German DPA conference orientation papers, DE)
+          </li>
+          <li>
+            CNIL — guidance on cookies and trackers (consult the CNIL website
+            search; specific URLs change between versions of the guidelines)
+          </li>
+        </ul>
       </section>
 
       <section id="caveats">
         <h2 class="mb-2 font-display text-lg font-bold tracking-tight">Caveats</h2>
         <ul class="list-disc space-y-2 pl-6">
           <li>
-            <strong>This is not legal advice.</strong> A GDPR compliance determination for a
-            specific site depends on consent implementation, legal basis, data-subject rights, and
-            the site's specific context. Consult a qualified DPO or lawyer.
+            <strong>This is not legal advice.</strong> A GDPR compliance determination for
+            a specific site depends on consent implementation, legal basis, data-subject
+            rights, and the site's specific context. Consult a qualified DPO or lawyer.
           </li>
           <li>
-            <strong>The catalogue is a snapshot.</strong> Vendors change their tools and cookies
-            over time. We re-audit on a rolling basis, but any given entry may lag behind the
-            vendor's current implementation.
+            <strong>The catalogue is a snapshot.</strong> Vendors change their tools and
+            cookies over time. We re-audit on a rolling basis, but any given entry may lag
+            behind the vendor's current implementation.
           </li>
           <li>
-            <strong>Context changes severity.</strong> A cookie rated <Badge variant="medium">medium</Badge>
-            in one context can become <Badge variant="critical">critical</Badge> if combined with
-            other identifiers or loaded on a sensitive site (healthcare, minors). Use the rating as
-            a starting point, not a verdict.
+            <strong>Context changes everything.</strong> A cookie tagged
+            <Badge variant="contested">Contested</Badge> in isolation can effectively become
+            <Badge variant="required_strict">Strict consent</Badge> if combined with other
+            identifiers or loaded on a sensitive site (healthcare, minors). Use the tag as
+            a starting point, not a final answer.
           </li>
           <li>
-            <strong>Unknown &ne; safe.</strong> A cookie or domain that returns "no match" on this
-            site hasn't been audited by us — it is not a clean bill of health.
+            <strong>Unknown ≠ safe.</strong> A cookie or domain that returns "no match" on
+            this site hasn't been audited by us — it is not a clean bill of health.
           </li>
         </ul>
       </section>

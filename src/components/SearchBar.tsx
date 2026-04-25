@@ -10,14 +10,21 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { cn } from '@/lib/utils';
 
-type Severity = 'critical' | 'high' | 'medium' | 'low';
+type ConsentBurden = 'required_strict' | 'required' | 'contested' | 'minimal';
 type Category = string;
+
+const BURDEN_LABELS: Record<ConsentBurden, string> = {
+  required_strict: 'Strict consent',
+  required: 'Consent required',
+  contested: 'Contested',
+  minimal: 'Minimal'
+};
 
 interface Match {
   company: string;
   service: string;
   category: Category;
-  severity: Severity;
+  consent_burden: ConsentBurden;
   description?: string;
   lifetime?: string;
   docs_url?: string;
@@ -33,7 +40,7 @@ interface RelatedEntry {
   company: string;
   service: string;
   category: Category;
-  severity: Severity;
+  consent_burden: ConsentBurden;
   description?: string;
   lifetime?: string;
   docs_url?: string;
@@ -196,7 +203,7 @@ function PrimaryCard({
   query: string;
 }) {
   const ident = m.name ?? m.hostname ?? query;
-  const severityLabel = m.severity.toUpperCase();
+  const burdenLabel = BURDEN_LABELS[m.consent_burden] ?? m.consent_burden;
 
   return (
     <Card className="mt-6">
@@ -213,7 +220,7 @@ function PrimaryCard({
             </p>
           </div>
           <div className="flex items-center gap-2">
-            <Badge variant={m.severity as 'critical' | 'high' | 'medium' | 'low'}>{severityLabel}</Badge>
+            <Badge variant={m.consent_burden}>{burdenLabel}</Badge>
             <Badge variant="outline" className="font-mono normal-case">
               {m.category}
             </Badge>
@@ -298,8 +305,8 @@ function RelatedGroup({ label, entries }: { label: string; entries: RelatedEntry
               <p className="truncate text-xs text-muted-foreground">{e.service}</p>
             </div>
             <div className="flex items-center gap-2">
-              <Badge variant={e.severity as 'critical' | 'high' | 'medium' | 'low'}>
-                {e.severity.toUpperCase()}
+              <Badge variant={e.consent_burden}>
+                {BURDEN_LABELS[e.consent_burden] ?? e.consent_burden}
               </Badge>
               <Badge variant="outline" className="font-mono normal-case">
                 {e.category}
