@@ -1,0 +1,70 @@
+---
+import LawArticle from '@/layouts/LawArticle.astro';
+---
+<LawArticle
+  regulation="GDPR"
+  articleLabel="Article 5"
+  title="Principles relating to processing of personal data"
+  eurLexUrl="https://eur-lex.europa.eu/eli/reg/2016/679/oj"
+  citation="Regulation (EU) 2016/679"
+  updated="2026-04-25"
+>
+  <Fragment slot="summary">
+    <p>
+      Article 5 is the rulebook every other GDPR rule references back to. Six principles
+      describe <strong>how</strong> personal data may be handled, and a seventh — the
+      accountability principle — says the controller must be able to <strong>demonstrate
+      compliance</strong> with all of them.
+    </p>
+    <ol class="mt-3 list-decimal space-y-1.5 pl-6">
+      <li><strong>Lawfulness, fairness, transparency.</strong> Tell the user what you're doing, in plain language, and have a legal basis (Article 6) for it.</li>
+      <li><strong>Purpose limitation.</strong> Collect data for a specific, named purpose. Don't quietly reuse it for something else.</li>
+      <li><strong>Data minimisation.</strong> Collect only what you actually need for the named purpose.</li>
+      <li><strong>Accuracy.</strong> Keep the data correct and up to date; correct or delete if not.</li>
+      <li><strong>Storage limitation.</strong> Don't keep the data longer than necessary.</li>
+      <li><strong>Integrity and confidentiality.</strong> Protect the data against unauthorised processing, loss, destruction or damage.</li>
+    </ol>
+    <p class="mt-3">
+      The accountability principle in 5(2) is the one that turns the others into operating
+      requirements: it isn't enough to <em>do</em> the right thing, you have to be able to
+      <em>prove</em> you did. Logs, records, documented decisions, DPIA outputs.
+    </p>
+  </Fragment>
+
+  <Fragment slot="crossrefs">
+    <ul class="list-disc space-y-2 pl-6">
+      <li>
+        Our tracker observations are framed as factual reproducible measurements precisely
+        because Article 5(2) accountability requires controllers to demonstrate
+        compliance — observations like ours give them (and their auditors) something
+        concrete to work with.
+      </li>
+      <li>
+        The <a href="/methodology/#categories" class="link">data_leak category</a> in our
+        catalogue is essentially a flag for breaches of <strong>5(1)(f) integrity and
+        confidentiality</strong>: data that flows to a third party without authorisation.
+      </li>
+    </ul>
+  </Fragment>
+
+  <Fragment slot="text">
+    <ol class="list-none space-y-4">
+      <li>
+        <p><strong>1.</strong> Personal data shall be:</p>
+        <ol class="mt-2 list-[lower-alpha] space-y-1.5 pl-6">
+          <li>processed lawfully, fairly and in a transparent manner in relation to the data subject ('lawfulness, fairness and transparency');</li>
+          <li>collected for specified, explicit and legitimate purposes and not further processed in a manner that is incompatible with those purposes; further processing for archiving purposes in the public interest, scientific or historical research purposes or statistical purposes shall, in accordance with Article 89(1), not be considered to be incompatible with the initial purposes ('purpose limitation');</li>
+          <li>adequate, relevant and limited to what is necessary in relation to the purposes for which they are processed ('data minimisation');</li>
+          <li>accurate and, where necessary, kept up to date; every reasonable step must be taken to ensure that personal data that are inaccurate, having regard to the purposes for which they are processed, are erased or rectified without delay ('accuracy');</li>
+          <li>kept in a form which permits identification of data subjects for no longer than is necessary for the purposes for which the personal data are processed; personal data may be stored for longer periods insofar as the personal data will be processed solely for archiving purposes in the public interest, scientific or historical research purposes or statistical purposes in accordance with Article 89(1) subject to implementation of the appropriate technical and organisational measures required by this Regulation in order to safeguard the rights and freedoms of the data subject ('storage limitation');</li>
+          <li>processed in a manner that ensures appropriate security of the personal data, including protection against unauthorised or unlawful processing and against accidental loss, destruction or damage, using appropriate technical or organisational measures ('integrity and confidentiality').</li>
+        </ol>
+      </li>
+
+      <li>
+        <p><strong>2.</strong> The controller shall be responsible for, and be able to
+        demonstrate compliance with, paragraph 1 ('accountability').</p>
+      </li>
+    </ol>
+  </Fragment>
+</LawArticle>

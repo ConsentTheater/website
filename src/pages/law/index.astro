@@ -1,0 +1,116 @@
+---
+import Layout from '@/layouts/Layout.astro';
+
+const updated = '2026-04-25';
+
+const articles = [
+  {
+    href: '/law/gdpr/art-5/',
+    label: 'GDPR Article 5',
+    title: 'Principles relating to processing of personal data',
+    summary:
+      'The six core principles every controller must satisfy: lawfulness, purpose limitation, data minimisation, accuracy, storage limitation, and integrity. Plus the accountability rule.'
+  },
+  {
+    href: '/law/gdpr/art-6/',
+    label: 'GDPR Article 6',
+    title: 'Lawfulness of processing',
+    summary:
+      'The six legal bases for processing personal data: consent, contract, legal obligation, vital interests, public task, and legitimate interests.'
+  },
+  {
+    href: '/law/gdpr/art-7/',
+    label: 'GDPR Article 7',
+    title: 'Conditions for consent',
+    summary:
+      'What it means to "have consent" under the GDPR — burden of proof, plain language, the right to withdraw, and freely-given conditions.'
+  },
+  {
+    href: '/law/gdpr/art-17/',
+    label: 'GDPR Article 17',
+    title: 'Right to erasure ("right to be forgotten")',
+    summary:
+      'When a data subject can require erasure, what exceptions apply (free expression, public interest, legal claims, archiving for research), and how it interacts with public publication.'
+  },
+  {
+    href: '/law/gdpr/art-89/',
+    label: 'GDPR Article 89',
+    title: 'Safeguards for archiving, research and statistical purposes',
+    summary:
+      'The research-and-archiving carve-out that lets datasets like ours preserve historical observations under appropriate safeguards, even when other rights would otherwise apply.'
+  },
+  {
+    href: '/law/eprivacy/art-5/',
+    label: 'ePrivacy Directive Article 5',
+    title: 'Confidentiality of the communications',
+    summary:
+      'The "cookie article" — the rule that storing or accessing information on a user\'s terminal device requires prior informed consent, with a narrow strictly-necessary exemption.'
+  }
+];
+---
+<Layout
+  title="Law references — ConsentTheater"
+  description="Plain-language renderings of the GDPR and ePrivacy articles ConsentTheater relies on, with the verbatim official text alongside and a link back to the EU's canonical source."
+>
+  <section class="mx-auto w-full max-w-3xl px-6 pt-10 pb-12">
+    <div class="mb-6">
+      <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        Law references
+      </p>
+      <h1 class="mt-1 font-display text-2xl font-bold tracking-tight sm:text-3xl">
+        The articles we cite, in plain language
+      </h1>
+      <p class="mt-2 text-[11px] text-muted-foreground">
+        Last updated <time datetime={updated} class="font-mono">{updated}</time>
+      </p>
+      <p class="mt-3 text-sm leading-relaxed text-muted-foreground">
+        ConsentTheater's tracker classifications and policy pages reference a small number
+        of EU legal provisions. Each page below pairs a short, plain-language explainer
+        with the verbatim official text, and links back to the canonical source on
+        <a href="https://eur-lex.europa.eu" target="_blank" rel="noopener noreferrer" class="link">eur-lex.europa.eu</a>.
+        We host these articles for navigation convenience — for any binding legal use,
+        always consult the original.
+      </p>
+    </div>
+
+    <ul class="space-y-4">
+      {articles.map((a) => (
+        <li>
+          <a
+            href={a.href}
+            class="block border border-border bg-card px-5 py-4 transition-colors hover:bg-secondary"
+          >
+            <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+              {a.label}
+            </p>
+            <p class="mt-1 font-display text-base font-bold tracking-tight">
+              {a.title}
+            </p>
+            <p class="mt-2 text-sm leading-snug text-foreground/80">
+              {a.summary}
+            </p>
+          </a>
+        </li>
+      ))}
+    </ul>
+
+    <div class="mt-10 border-t border-border pt-6 text-xs text-muted-foreground">
+      <p>
+        Looking for a different article? The full GDPR (99 articles, 173 recitals) and the
+        full ePrivacy Directive are available on the EU's legal portal:
+      </p>
+      <ul class="mt-2 list-disc space-y-1 pl-5">
+        <li>
+          <a href="https://eur-lex.europa.eu/eli/reg/2016/679/oj" target="_blank" rel="noopener noreferrer" class="link">
+            Regulation (EU) 2016/679 — General Data Protection Regulation
+          </a>
+        </li>
+        <li>
+          <a href="https://eur-lex.europa.eu/eli/dir/2002/58/oj" target="_blank" rel="noopener noreferrer" class="link">
+            Directive 2002/58/EC — ePrivacy Directive
+          </a>
+        </li>
+      </ul>
+    </div>
+  </section>
+</Layout>

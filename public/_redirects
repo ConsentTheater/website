@@ -1,0 +1,12 @@
+# Cloudflare Workers Static Assets — redirects
+# https://developers.cloudflare.com/workers/static-assets/headers/#redirects
+#
+# Format: <source> <destination> <status>
+# Default status is 302; we use 301 for permanent redirects below.
+
+# /law/ sub-indexes — there's no per-regulation landing page yet, so trim
+# back to the law index where users see all six articles.
+/law/gdpr        /law/  301
+/law/gdpr/       /law/  301
+/law/eprivacy    /law/  301
+/law/eprivacy/   /law/  301

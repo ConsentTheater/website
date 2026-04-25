@@ -1,6 +1,6 @@
 {
   "name": "@consenttheater/website",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "description": "ConsentTheater — open-source tracker lookup and project site. Built on Astro + Cloudflare Workers, powered by @consenttheater/playbill.",
   "type": "module",
   "private": true,
