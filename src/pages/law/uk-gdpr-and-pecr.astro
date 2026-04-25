@@ -1,0 +1,197 @@
+---
+import Layout from '@/layouts/Layout.astro';
+
+const updated = '2026-04-25';
+
+const ICO_HUB = 'https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/';
+const ICO_CONSENT = 'https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/lawful-basis/consent/';
+const ICO_LAWFUL_BASIS = 'https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/lawful-basis/';
+const ICO_ERASURE = 'https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/individual-rights/individual-rights/right-to-erasure/';
+const ICO_ONLINE_TRACKING = 'https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/online-tracking/';
+const ICO_PECR_COOKIES = 'https://ico.org.uk/for-organisations/direct-marketing-and-privacy-and-electronic-communications/guide-to-pecr/cookies-and-similar-technologies/';
+const DPA_2018 = 'https://www.legislation.gov.uk/ukpga/2018/12/contents/enacted';
+const PECR_2003 = 'https://www.legislation.gov.uk/uksi/2003/2426/contents/made';
+
+const articleMap = [
+  {
+    eu: { href: '/law/gdpr/art-5/', label: 'GDPR Art. 5', title: 'Principles relating to processing of personal data' },
+    uk: { label: 'UK GDPR Art. 5', note: 'Same six principles plus accountability. Identical text.' }
+  },
+  {
+    eu: { href: '/law/gdpr/art-6/', label: 'GDPR Art. 6', title: 'Lawfulness of processing' },
+    uk: { label: 'UK GDPR Art. 6', note: 'Same six lawful bases. The ICO interprets legitimate interests under 6(1)(f) similarly to most EU authorities — narrow for ad-tech, generous for genuine functional needs.' }
+  },
+  {
+    eu: { href: '/law/gdpr/art-7/', label: 'GDPR Art. 7', title: 'Conditions for consent' },
+    uk: { label: 'UK GDPR Art. 7', note: 'Identical conditions. The ICO has been particularly active on dark-pattern banners — its 2023–2024 statements explicitly target sites where Reject is harder than Accept.' }
+  },
+  {
+    eu: { href: '/law/gdpr/art-17/', label: 'GDPR Art. 17', title: 'Right to erasure' },
+    uk: { label: 'UK GDPR Art. 17', note: 'Same grounds, same exceptions, including Art. 17(3)(d) for archiving / research processing.' }
+  },
+  {
+    eu: { href: '/law/gdpr/art-89/', label: 'GDPR Art. 89', title: 'Safeguards for archiving / research / statistics' },
+    uk: { label: 'UK GDPR Art. 89', note: 'Identical safeguards regime. Schedule 2 of the DPA 2018 makes corresponding domestic-law derogations.' }
+  },
+  {
+    eu: { href: '/law/eprivacy/art-5/', label: 'ePrivacy Directive Art. 5(3)', title: 'Confidentiality of the communications' },
+    uk: { label: 'PECR Reg. 6', note: 'The UK transposed ePrivacy via PECR (SI 2003/2426). Regulation 6 carries the same prior-consent requirement and the same "strictly necessary" exemption.' }
+  }
+];
+---
+<Layout
+  title="UK GDPR & PECR — Law references — ConsentTheater"
+  description="How the UK GDPR and PECR map onto the EU GDPR and ePrivacy Directive articles ConsentTheater cites. Substantively identical, regulated by the ICO, with stable links to the canonical UK legislation."
+>
+  <section class="mx-auto w-full max-w-3xl px-6 pt-10 pb-12">
+    <nav class="mb-4 text-[11px] text-muted-foreground" aria-label="Breadcrumb">
+      <ol class="flex flex-wrap items-center gap-1">
+        <li>
+          <a href="/law/" class="link font-semibold uppercase tracking-wider">
+            Law references
+          </a>
+        </li>
+        <li aria-hidden="true" class="font-mono">/</li>
+        <li class="font-semibold uppercase tracking-wider">UK GDPR &amp; PECR</li>
+      </ol>
+    </nav>
+
+    <header class="mb-8">
+      <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        Law references · United Kingdom
+      </p>
+      <h1 class="mt-1 font-display text-2xl font-bold tracking-tight sm:text-3xl">
+        UK GDPR and PECR — what changes after the channel
+      </h1>
+      <p class="mt-2 text-[11px] text-muted-foreground">
+        Last updated <time datetime={updated} class="font-mono">{updated}</time>
+      </p>
+    </header>
+
+    <div class="space-y-10 text-sm leading-relaxed text-foreground/90">
+
+      <section id="tldr">
+        <h2 class="mb-3 font-display text-lg font-bold tracking-tight">In one paragraph</h2>
+        <p>
+          When the United Kingdom left the European Union it took the GDPR with it. The
+          European text was retained in UK domestic law via the
+          <a href={DPA_2018} target="_blank" rel="noopener noreferrer" class="link">Data Protection Act 2018</a>,
+          forming what is now called the <strong>UK GDPR</strong>. The articles
+          ConsentTheater cites — Art. 5, 6, 7, 17, 89 — exist in the UK GDPR with the
+          same numbers and substantively the same text. The cookie rule is in
+          <a href={PECR_2003} target="_blank" rel="noopener noreferrer" class="link">PECR (SI 2003/2426)</a>,
+          Regulation 6, which transposed the ePrivacy Directive into UK law and
+          continues to apply. The regulator is the
+          <a href={ICO_HUB} target="_blank" rel="noopener noreferrer" class="link">Information Commissioner's Office (ICO)</a>.
+        </p>
+        <p class="mt-3">
+          For the kind of observations ConsentTheater publishes — pre-consent tracker
+          requests, missing reject buttons, dark-pattern consent banners — the analysis
+          is the same on either side of the channel. We therefore reference the EU
+          versions on this site and treat the UK as covered by the same reasoning,
+          with ICO guidance as the authoritative national-level source.
+        </p>
+      </section>
+
+      <section id="mapping">
+        <h2 class="mb-3 font-display text-lg font-bold tracking-tight">Article mapping</h2>
+        <p class="mb-4 text-sm text-muted-foreground">
+          Each EU article we host on this site has a UK counterpart with effectively
+          identical text. The note column flags any practical divergence in
+          enforcement style.
+        </p>
+        <div class="space-y-4">
+          {articleMap.map((row) => (
+            <div class="grid gap-3 border border-border bg-card p-4 sm:grid-cols-[1fr_1fr]">
+              <div>
+                <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  EU
+                </p>
+                <p class="mt-1 font-display text-sm font-bold">
+                  <a href={row.eu.href} class="link">{row.eu.label}</a>
+                </p>
+                <p class="mt-1 text-xs text-foreground/80">{row.eu.title}</p>
+              </div>
+              <div class="border-t border-border pt-3 sm:border-l sm:border-t-0 sm:pl-4 sm:pt-0">
+                <p class="text-[10px] font-semibold uppercase tracking-wider text-muted-foreground">
+                  UK
+                </p>
+                <p class="mt-1 font-display text-sm font-bold">{row.uk.label}</p>
+                <p class="mt-1 text-xs text-foreground/80">{row.uk.note}</p>
+              </div>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      <section id="ico">
+        <h2 class="mb-3 font-display text-lg font-bold tracking-tight">ICO guidance</h2>
+        <p>
+          The ICO publishes plain-language guidance on the points that matter for our
+          observations. The links below are stable enough to cite and are the ones we
+          consult while maintaining the catalogue.
+        </p>
+        <ul class="mt-4 list-disc space-y-1.5 pl-6">
+          <li>
+            <a href={ICO_HUB} target="_blank" rel="noopener noreferrer" class="link">UK GDPR guidance and resources</a> — top-level hub
+          </li>
+          <li>
+            <a href={ICO_LAWFUL_BASIS} target="_blank" rel="noopener noreferrer" class="link">Lawful basis for processing</a> — the UK reading of Article 6
+          </li>
+          <li>
+            <a href={ICO_CONSENT} target="_blank" rel="noopener noreferrer" class="link">Consent</a> — the UK reading of Article 7, including the practical conditions for "freely given"
+          </li>
+          <li>
+            <a href={ICO_ERASURE} target="_blank" rel="noopener noreferrer" class="link">Right to erasure</a> — the UK reading of Article 17 and its exceptions
+          </li>
+          <li>
+            <a href={ICO_ONLINE_TRACKING} target="_blank" rel="noopener noreferrer" class="link">Online tracking</a> — the ICO's framework for trackers, fingerprinting and similar techniques
+          </li>
+          <li>
+            <a href={ICO_PECR_COOKIES} target="_blank" rel="noopener noreferrer" class="link">PECR — cookies and similar technologies</a> — the ICO's interpretation of Regulation 6
+          </li>
+        </ul>
+      </section>
+
+      <section id="divergence">
+        <h2 class="mb-3 font-display text-lg font-bold tracking-tight">Where the UK and EU diverge in practice</h2>
+        <p>
+          The legislative text is essentially the same; enforcement style differs in a
+          few places worth noting:
+        </p>
+        <ul class="mt-3 list-disc space-y-2 pl-6">
+          <li>
+            <strong>The ICO has been more vocal on dark-pattern cookie banners</strong>
+            than most EU authorities, publishing direct call-outs and threatening
+            enforcement against sites where Reject takes more clicks than Accept.
+          </li>
+          <li>
+            <strong>UK adequacy with the EU is conditional</strong>. The European
+            Commission's adequacy decision for the UK is reviewed periodically; if it
+            lapsed, EU-to-UK personal-data transfers would need additional safeguards.
+            For our static-research data this is not a concern, but it shapes how UK
+            controllers approach EU-resident data subjects.
+          </li>
+          <li>
+            <strong>PECR predates UK GDPR.</strong> Regulation 6 has not been replaced
+            by a UK ePrivacy Regulation; the legacy directive transposition still
+            governs cookies on UK websites.
+          </li>
+        </ul>
+      </section>
+
+      <section id="legislation">
+        <h2 class="mb-3 font-display text-lg font-bold tracking-tight">Canonical UK legislation</h2>
+        <ul class="list-disc space-y-1.5 pl-6">
+          <li>
+            <a href={DPA_2018} target="_blank" rel="noopener noreferrer" class="link">Data Protection Act 2018 (c. 12)</a> — the statute that retains the GDPR in UK law and adds national derogations
+          </li>
+          <li>
+            <a href={PECR_2003} target="_blank" rel="noopener noreferrer" class="link">Privacy and Electronic Communications (EC Directive) Regulations 2003 (SI 2003/2426)</a> — the cookie / electronic-communications statute
+          </li>
+        </ul>
+      </section>
+
+    </div>
+  </section>
+</Layout>

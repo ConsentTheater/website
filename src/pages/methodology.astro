@@ -11,6 +11,8 @@ const GDPR_URL = 'https://eur-lex.europa.eu/eli/reg/2016/679/oj';
 const EPRIVACY_URL = 'https://eur-lex.europa.eu/eli/dir/2002/58/oj';
 const EDPB_CONSENT_URL = 'https://www.edpb.europa.eu/our-work-tools/our-documents/guidelines/guidelines-052020-consent-under-regulation-2016679_en';
 const DSK_GUIDANCE_URL = 'https://www.datenschutzkonferenz-online.de/orientierungshilfen.html';
+const ICO_HUB_URL = 'https://ico.org.uk/for-organisations/uk-gdpr-guidance-and-resources/';
+const ICO_PECR_COOKIES_URL = 'https://ico.org.uk/for-organisations/direct-marketing-and-privacy-and-electronic-communications/guide-to-pecr/cookies-and-similar-technologies/';
 ---
 <Layout
   title="Methodology — ConsentTheater"
@@ -82,9 +84,11 @@ const DSK_GUIDANCE_URL = 'https://www.datenschutzkonferenz-online.de/orientierun
             </dt>
             <dd class="text-sm">
               Privacy-aware or aggregate analytics, A/B testing without cross-site linkage,
-              and tracking-adjacent functional cookies. Some authorities — France's CNIL
-              and certain
-              <a href={DSK_GUIDANCE_URL} target="_blank" rel="noopener noreferrer" class="link">DSK orientation papers</a> —
+              and tracking-adjacent functional cookies. Some authorities — France's CNIL,
+              certain
+              <a href={DSK_GUIDANCE_URL} target="_blank" rel="noopener noreferrer" class="link">DSK orientation papers</a>,
+              and the
+              <a href={ICO_HUB_URL} target="_blank" rel="noopener noreferrer" class="link">UK ICO</a> —
               accept these under legitimate interest in narrow conditions; others treat
               them as consent-required. <strong>Default to consent-required</strong> unless
               you have a documented legal-basis analysis.
@@ -230,10 +234,23 @@ const DSK_GUIDANCE_URL = 'https://www.datenschutzkonferenz-online.de/orientierun
             </a> (German DPA conference orientation papers, DE)
           </li>
           <li>
+            <a href={ICO_HUB_URL} target="_blank" rel="noopener noreferrer" class="link">
+              ICO — UK GDPR guidance and resources
+            </a> and
+            <a href={ICO_PECR_COOKIES_URL} target="_blank" rel="noopener noreferrer" class="link">
+              ICO — PECR cookies and similar technologies
+            </a> (United Kingdom)
+          </li>
+          <li>
             CNIL — guidance on cookies and trackers (consult the CNIL website
             search; specific URLs change between versions of the guidelines)
           </li>
         </ul>
+        <p class="mt-3 text-xs text-muted-foreground">
+          The articles above are the EU versions; the
+          <a href="/law/uk-gdpr-and-pecr/" class="link">UK GDPR &amp; PECR mapping</a>
+          covers how the same provisions apply to UK websites under ICO supervision.
+        </p>
       </section>
 
       <section id="caveats">
