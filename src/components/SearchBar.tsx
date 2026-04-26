@@ -59,6 +59,20 @@ interface ApiResult {
 
 const EXAMPLES = ['_ga', '_fbp', 'connect.facebook.net', 'hotjar.com', '_ga_ABC123'];
 
+// Defence in depth: docs_url comes from playbill JSON (schema-validated,
+// reviewed in PR), but JSX `href` does not block `javascript:` or `data:`
+// schemes. Allow only http(s) and reject anything that fails to parse so
+// a malformed entry can't render a broken link or worse.
+function safeHttpUrl(raw: string | undefined): URL | null {
+  if (!raw) return null;
+  try {
+    const url = new URL(raw);
+    return url.protocol === 'https:' || url.protocol === 'http:' ? url : null;
+  } catch {
+    return null;
+  }
+}
+
 export function SearchBar() {
   const [query, setQuery] = React.useState('');
   const [loading, setLoading] = React.useState(false);
@@ -204,6 +218,7 @@ function PrimaryCard({
 }) {
   const ident = m.name ?? m.hostname ?? query;
   const burdenLabel = BURDEN_LABELS[m.consent_burden] ?? m.consent_burden;
+  const docsUrl = safeHttpUrl(m.docs_url);
 
   return (
     <Card className="mt-6">
@@ -231,17 +246,17 @@ function PrimaryCard({
           <FieldRow label="Company" value={m.company} />
           <FieldRow label="Service" value={m.service} />
           {m.lifetime && <FieldRow label="Lifetime" value={m.lifetime} />}
-          {m.docs_url && (
+          {docsUrl && (
             <FieldRow
               label="Docs"
               value={
                 <a
-                  href={m.docs_url}
+                  href={docsUrl.toString()}
                   target="_blank"
                   rel="noopener noreferrer"
                   className="link"
                 >
-                  {new URL(m.docs_url).hostname}
+                  {docsUrl.hostname}
                 </a>
               }
             />

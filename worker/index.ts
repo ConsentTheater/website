@@ -89,6 +89,28 @@ function collectByCompany(
 
 const app = new Hono<{ Bindings: Env }>();
 
+/**
+ * Security headers for /api/* responses. Static HTML/assets served by
+ * the ASSETS binding pick up their headers from `public/_headers`;
+ * worker-controlled paths (run_worker_first) apply theirs here.
+ *
+ * The CSP is JSON-tight — these endpoints never serve HTML, so almost
+ * everything is locked off. `frame-ancestors 'none'` blocks JSON
+ * smuggling via embedded frames.
+ */
+app.use('*', async (c, next) => {
+  await next();
+  c.header('X-Content-Type-Options', 'nosniff');
+  c.header('X-Frame-Options', 'DENY');
+  c.header('Referrer-Policy', 'strict-origin-when-cross-origin');
+  c.header('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+  c.header(
+    'Content-Security-Policy',
+    "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
+  );
+  c.header('Cross-Origin-Resource-Policy', 'same-origin');
+});
+
 app.get('/api/search', (c) => {
   const q = (c.req.query('q') ?? '').trim();
   const kindParam = (c.req.query('kind') ?? 'auto') as Kind;
