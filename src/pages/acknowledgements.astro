@@ -1,7 +1,7 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 
-const updated = '2026-04-24';
+const updated = '2026-04-27';
 
 interface Credit {
   name: string;
@@ -127,30 +127,30 @@ const sections: Section[] = [
         license: 'MIT / Apache-2.0',
         desc: 'Cloudflare Workers CLI used for local dev and deploys.'
       },
-      {
-        name: 'Cloudflare Analytics Engine',
-        href: 'https://developers.cloudflare.com/analytics/analytics-engine/',
-        license: 'Commercial platform',
-        desc: 'Aggregate-only metrics store written to from /api/event. 90-day retention, no IP storage. The same worker that serves the API talks to it directly — no third-party processor.'
-      },
-      {
-        name: 'Counterscale (inspiration only)',
-        href: 'https://counterscale.dev',
-        license: 'MIT',
-        desc: 'Self-hosted privacy-friendly analytics on Cloudflare. We do not ship Counterscale code; the writeDataPoint pattern they popularised is what /api/event uses, but everything is reimplemented inline in our worker so the analytics layer has no extra dependencies.'
-      }
     ]
   },
   {
     id: 'consent',
-    title: 'Consent & privacy plumbing',
-    lead: 'What handles the cookie banner, consent decisions, and opt-in analytics gating.',
+    title: 'Consent & analytics',
+    lead: 'What handles the cookie banner, consent decisions, and the opt-in analytics path.',
     items: [
       {
         name: '@freshjuice/zest',
         href: 'https://zest.freshjuice.dev',
         license: 'MIT',
         desc: 'Lightweight cookie-consent toolkit. We use the headless build for the consent state engine — DNT / GPC respect, signed consent proof in the zest_consent cookie — with our own UI for the banner.'
+      },
+      {
+        name: 'Plausible Analytics',
+        href: 'https://plausible.io',
+        license: 'AGPL-3.0',
+        desc: 'Privacy-friendly web analytics, EU-incorporated (Estonia) and EU-hosted (Hetzner, Falkenstein). When you opt in, your browser sends a single pageview event directly to plausible.io — no IP storage, no cookies, no fingerprint. Public dashboard at plausible.io/consenttheater.org.'
+      },
+      {
+        name: '@plausible-analytics/tracker',
+        href: 'https://www.npmjs.com/package/@plausible-analytics/tracker',
+        license: 'MIT',
+        desc: 'Plausible\'s official tracker as an npm module. Bundled into our own JavaScript so no third-party <script> loads from plausible.io. Initialised with autoCapturePageviews disabled — the pageview event is fired manually only after explicit consent.'
       }
     ]
   },
