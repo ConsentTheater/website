@@ -1,7 +1,7 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 
-const updated = '2026-04-24';
+const updated = '2026-04-26';
 ---
 <Layout
   title="Privacy Policy — ConsentTheater"
@@ -25,24 +25,70 @@ const updated = '2026-04-24';
         <h2 class="mb-2 font-display text-lg font-bold tracking-tight">Short version</h2>
         <p>
           We run a tracker lookup — you type a cookie name or a domain, we tell you who's behind it.
-          We don't set tracking cookies. We don't run analytics. We don't share your data with
-          anyone, because there is no data to share.
+          We don't set tracking cookies for marketing or advertising. We run anonymous,
+          opt-in, self-hosted analytics (off by default). We don't share your data with
+          anyone, because there is no personal data to share.
         </p>
       </section>
 
       <section>
         <h2 class="mb-2 font-display text-lg font-bold tracking-tight">What we store in your browser</h2>
         <p>
-          The only thing this site writes to your browser is a single
-          <code class="bg-secondary px-1 font-mono text-xs">localStorage</code> key
-          named <code class="bg-secondary px-1 font-mono text-xs">ct_settings</code>.
-          It holds your theme preference (light / dark / system) and whether you've enabled
-          high-contrast mode. It never leaves your browser. You can clear it any time through your
-          browser's site-data controls.
+          Two storage entries — both qualify as <em>strictly necessary</em> under
+          ePrivacy Art. 5(3) and require no consent:
+        </p>
+        <ul class="mt-3 list-disc space-y-1.5 pl-6">
+          <li>
+            <code class="bg-secondary px-1 font-mono text-xs">ct_settings</code>
+            <span class="text-muted-foreground"> · localStorage</span> — your theme,
+            contrast and language preferences. Set when you change them in the
+            settings panel. Never leaves your browser.
+          </li>
+          <li>
+            <code class="bg-secondary px-1 font-mono text-xs">zest_consent</code>
+            <span class="text-muted-foreground"> · cookie, 365-day expiry, SameSite=Lax</span>
+            — records the choice you made in the consent banner so we can honour
+            it on subsequent visits. Set by
+            <a href="https://zest.freshjuice.dev" target="_blank" rel="noopener noreferrer" class="link">@freshjuice/zest</a>,
+            our consent toolkit. Never leaves your browser.
+          </li>
+        </ul>
+        <p class="mt-3">
+          No fingerprinting, no session storage, no local databases. No third-party
+          marketing or advertising scripts.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">Analytics — opt-in only, first-party only</h2>
+        <p>
+          When you accept analytics through our consent banner, your browser sends a
+          single
+          <code class="bg-secondary px-1 font-mono text-xs">navigator.sendBeacon</code>
+          to <code class="bg-secondary px-1 font-mono text-xs">/api/event</code> on
+          this same origin. <strong>No third-party request, no cross-origin script,
+          no external processor.</strong> The endpoint is part of the same Cloudflare
+          Worker that serves the rest of this site, and it writes to a Cloudflare
+          Analytics Engine dataset on our own account.
         </p>
         <p class="mt-3">
-          No cookies, no fingerprinting, no session storage, no local databases. No third-party
-          scripts or embeds.
+          Analytics is <strong>off by default</strong>. Browsers sending <em>Do Not
+          Track</em> or <em>Global Privacy Control</em> are treated as a default
+          reject; you can still override that through the banner.
+        </p>
+        <p class="mt-3">
+          Each event records only path, page title (truncated), referrer host,
+          country (derived from IP by Cloudflare's edge layer and never logged), and
+          viewport class (mobile / tablet / desktop). The tracker sets no cookies,
+          stores no IP, and uses no cross-site identifier. Cloudflare's Analytics
+          Engine retains the raw events for 90 days.
+        </p>
+        <p class="mt-3">
+          A public aggregate dashboard is on the roadmap once we're confident
+          the dataset has settled — until then, the writes happen but no
+          rendered dashboard is shipped on this site. The full list of fields
+          collected is documented above, and the consent toggle is reachable
+          from the <em>Cookie preferences</em> link in the footer at any time.
         </p>
       </section>
 
@@ -110,20 +156,85 @@ const updated = '2026-04-24';
 
       <section>
         <h2 class="mb-2 font-display text-lg font-bold tracking-tight">Sub-processors</h2>
-        <ul class="list-disc space-y-1 pl-5">
+        <ul class="list-disc space-y-2 pl-5">
           <li>
-            <strong>Cloudflare, Inc.</strong> — edge network and Workers runtime.
-            <a
-              href="https://www.cloudflare.com/privacypolicy/"
-              target="_blank"
-              rel="noopener noreferrer"
-              class="link"
-            >Privacy</a>
+            <strong>Cloudflare, Inc.</strong> (101 Townsend Street, San Francisco, CA 94107, USA)
+            — edge network, Workers runtime, and Analytics Engine.
+            <ul class="mt-1 list-[circle] space-y-0.5 pl-5 text-xs">
+              <li>
+                Acts as our <strong>data processor</strong> under a signed
+                <a href="https://www.cloudflare.com/cloudflare-customer-dpa/" target="_blank" rel="noopener noreferrer" class="link">
+                  Cloudflare Data Processing Addendum (DPA)
+                </a>.
+              </li>
+              <li>
+                International transfers from the EU/UK to Cloudflare's US entities are covered
+                by the
+                <a href="https://www.dataprivacyframework.gov/list" target="_blank" rel="noopener noreferrer" class="link">
+                  EU-US Data Privacy Framework
+                </a>
+                (Cloudflare is a self-certified active participant) and, as a fallback, by
+                <a href="https://commission.europa.eu/law/law-topic/data-protection/international-dimension-data-protection/standard-contractual-clauses-scc_en" target="_blank" rel="noopener noreferrer" class="link">
+                  Standard Contractual Clauses (SCCs)
+                </a>
+                where DPF does not apply.
+              </li>
+              <li>
+                <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer" class="link">Cloudflare's privacy policy</a>
+                · <a href="https://www.cloudflare.com/trust-hub/gdpr/" target="_blank" rel="noopener noreferrer" class="link">GDPR resource hub</a>
+              </li>
+            </ul>
           </li>
         </ul>
-        <p class="mt-3">
+        <p class="mt-4">
           That's the whole list. If it ever grows, we'll update this page and note the change date
           at the top.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">International data transfers</h2>
+        <p>
+          ConsentTheater is operated from Berlin, Germany. The site, its API, and the
+          first-party analytics dataset all run on Cloudflare's network. Practically:
+        </p>
+        <ul class="mt-3 list-disc space-y-2 pl-5">
+          <li>
+            <strong>Page requests are served from the nearest Cloudflare PoP</strong> to
+            the visitor — for EU/UK visitors that's an EU/UK Point of Presence
+            (Frankfurt, Amsterdam, London, Paris, etc.). The visitor's IP terminates at
+            Cloudflare's edge, where the country code is derived. Our worker code
+            receives the country code only — it never sees, logs, or stores the IP.
+          </li>
+          <li>
+            <strong>Analytics Engine</strong>, where the
+            <code class="bg-secondary px-1 font-mono text-xs">/api/event</code> beacon
+            writes its rows, is part of Cloudflare's globally-distributed Workers
+            platform. Cloudflare does not currently offer EU-only data residency for
+            Analytics Engine. The transfer to Cloudflare's US entities is therefore
+            covered by the DPF / SCCs mechanism described above. Because the rows we
+            write contain no personal data (no IP, no identifier, no cookie value), the
+            substantive risk under GDPR Art. 44 et seq. is low — the transfer is of
+            aggregate technical metadata, not data subjects' personal data.
+          </li>
+          <li>
+            <strong>Cloudflare's processing of the IP itself</strong> at the network
+            layer (TLS termination, routing, DDoS / abuse defence) is carried out under
+            <strong>Cloudflare's own legitimate-interest basis</strong> as a network
+            operator (GDPR Art. 6(1)(f)), independent of any instruction from us.
+            Cloudflare publishes a
+            <a href="https://www.cloudflare.com/trust-hub/abuse-approach/" target="_blank" rel="noopener noreferrer" class="link">network-abuse policy</a>
+            and a
+            <a href="https://www.cloudflare.com/transparency/" target="_blank" rel="noopener noreferrer" class="link">transparency report</a>
+            covering this layer.
+          </li>
+        </ul>
+        <p class="mt-3 text-xs text-muted-foreground">
+          If the EU-US Data Privacy Framework is ever invalidated by the CJEU (as
+          Privacy Shield was in <em>Schrems II</em>), the SCCs fallback continues to
+          apply and we will publish a notice on this page within 14 days. We do not
+          rely on a single legal mechanism for international transfers; the redundancy
+          is deliberate.
         </p>
       </section>
 

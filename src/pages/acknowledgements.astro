@@ -126,6 +126,31 @@ const sections: Section[] = [
         href: 'https://github.com/cloudflare/workers-sdk',
         license: 'MIT / Apache-2.0',
         desc: 'Cloudflare Workers CLI used for local dev and deploys.'
+      },
+      {
+        name: 'Cloudflare Analytics Engine',
+        href: 'https://developers.cloudflare.com/analytics/analytics-engine/',
+        license: 'Commercial platform',
+        desc: 'Aggregate-only metrics store written to from /api/event. 90-day retention, no IP storage. The same worker that serves the API talks to it directly — no third-party processor.'
+      },
+      {
+        name: 'Counterscale (inspiration only)',
+        href: 'https://counterscale.dev',
+        license: 'MIT',
+        desc: 'Self-hosted privacy-friendly analytics on Cloudflare. We do not ship Counterscale code; the writeDataPoint pattern they popularised is what /api/event uses, but everything is reimplemented inline in our worker so the analytics layer has no extra dependencies.'
+      }
+    ]
+  },
+  {
+    id: 'consent',
+    title: 'Consent & privacy plumbing',
+    lead: 'What handles the cookie banner, consent decisions, and opt-in analytics gating.',
+    items: [
+      {
+        name: '@freshjuice/zest',
+        href: 'https://zest.freshjuice.dev',
+        license: 'MIT',
+        desc: 'Lightweight cookie-consent toolkit. We use the headless build for the consent state engine — DNT / GPC respect, signed consent proof in the zest_consent cookie — with our own UI for the banner.'
       }
     ]
   },

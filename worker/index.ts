@@ -3,6 +3,31 @@ import { loadPlaybill, matchCookie, matchDomain } from '@consenttheater/playbill
 
 const playbill = loadPlaybill('full');
 
+/**
+ * Cloudflare Worker bindings. Define matching entries in wrangler.jsonc.
+ *
+ * - ANALYTICS:                Cloudflare Analytics Engine dataset, written
+ *                             to from /api/event when a visitor has opted
+ *                             into anonymous analytics.
+ * - CLOUDFLARE_ACCOUNT_ID:    Account that owns the dataset, used by
+ *                             /api/stats to query Analytics Engine via SQL.
+ * - CLOUDFLARE_API_TOKEN:     Token with Analytics Engine read scope. Set
+ *                             via `wrangler secret put`.
+ */
+type Env = {
+  ANALYTICS?: AnalyticsEngineDataset;
+  CLOUDFLARE_ACCOUNT_ID?: string;
+  CLOUDFLARE_API_TOKEN?: string;
+};
+
+interface AnalyticsEngineDataset {
+  writeDataPoint(point: {
+    blobs?: string[];
+    doubles?: number[];
+    indexes?: string[];
+  }): void;
+}
+
 type Kind = 'cookie' | 'domain' | 'auto';
 type ResolvedKind = 'cookie' | 'domain' | 'company';
 
@@ -62,7 +87,7 @@ function collectByCompany(
   return out;
 }
 
-const app = new Hono();
+const app = new Hono<{ Bindings: Env }>();
 
 app.get('/api/search', (c) => {
   const q = (c.req.query('q') ?? '').trim();
@@ -125,6 +150,217 @@ app.get('/api/search', (c) => {
     source: `playbill@${playbill.version}`,
     stats: playbill.stats
   });
+});
+
+/**
+ * First-party analytics — `/api/event`. ACTIVE.
+ *
+ * Receives a single page-view beacon from the consent-gated tracker on
+ * the front-end. Writes one row to the Cloudflare Analytics Engine
+ * dataset bound as ANALYTICS.
+ *
+ * Status: writing in production. Public dashboard is intentionally not
+ * shipped yet (see /api/stats note below) — events accumulate, the
+ * project owner views them via the Cloudflare dashboard until a public
+ * /stats/ page is reintroduced.
+ *
+ * Privacy contract:
+ * - No IP is stored. Cloudflare gives us `cf.country` (already derived
+ *   from the IP and discarded by their network); we keep the country
+ *   only.
+ * - No cookies, no cross-site identifier, no fingerprint.
+ * - Path / title / referrer-host are bounded in length to prevent the
+ *   beacon from being abused as arbitrary storage.
+ *
+ * Schema (positional, must match /api/stats SQL queries):
+ *   blob1: path
+ *   blob2: title (truncated)
+ *   blob3: referrer host (no path, no query)
+ *   blob4: country code (ISO-3166 alpha-2, "XX" for unknown)
+ *   blob5: viewport class ("mobile" | "tablet" | "desktop")
+ *   double1: 1 (per-event sample, kept for SUM aggregations)
+ *
+ * TODO(future):
+ * - Optional UA-based bot filter (don't write events from obvious crawlers).
+ * - Time-on-page or scroll-depth signals if the team decides they're worth
+ *   the extra schema.
+ */
+
+const MAX_PATH = 256;
+const MAX_TITLE = 256;
+const MAX_HOST = 128;
+
+function clampString(value: unknown, max: number): string {
+  if (typeof value !== 'string') return '';
+  return value.slice(0, max);
+}
+
+function viewportClass(width: unknown): 'mobile' | 'tablet' | 'desktop' {
+  const w = typeof width === 'number' ? width : 0;
+  if (w > 0 && w < 600) return 'mobile';
+  if (w >= 600 && w < 1024) return 'tablet';
+  return 'desktop';
+}
+
+function refererHost(value: unknown): string {
+  if (typeof value !== 'string' || !value) return '';
+  try {
+    return new URL(value).host.slice(0, MAX_HOST);
+  } catch {
+    return '';
+  }
+}
+
+app.post('/api/event', async (c) => {
+  if (!c.env.ANALYTICS) {
+    return c.body(null, 204); // not configured — silently accept
+  }
+
+  let payload: Record<string, unknown> = {};
+  try {
+    payload = (await c.req.json()) as Record<string, unknown>;
+  } catch {
+    return c.json({ error: 'invalid json' }, 400);
+  }
+
+  const path = clampString(payload.p, MAX_PATH) || '/';
+  const title = clampString(payload.t, MAX_TITLE);
+  const ref = refererHost(payload.r);
+  const vp = viewportClass(payload.s);
+
+  const cf = (c.req.raw as Request & { cf?: { country?: string } }).cf;
+  const country =
+    typeof cf?.country === 'string' && /^[A-Z]{2}$/.test(cf.country)
+      ? cf.country
+      : 'XX';
+
+  c.env.ANALYTICS.writeDataPoint({
+    blobs: [path, title, ref, country, vp],
+    doubles: [1],
+    indexes: [path]
+  });
+
+  return c.body(null, 204);
+});
+
+/**
+ * First-party analytics — `/api/stats`. STAGED, NOT YET PUBLIC.
+ *
+ * Public, unauthenticated. Returns aggregate counts only: top paths,
+ * top referrers, top countries. No row-level data, no individual events.
+ *
+ * Reads from Analytics Engine via the Cloudflare SQL API. Both
+ * CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN must be set; without
+ * them, returns a 503 with an empty result.
+ *
+ * TODO(future): the public-facing /stats/ page that consumed this
+ * endpoint was intentionally taken out of scope while we are still on
+ * Cloudflare Workers Free (the Analytics Engine SQL API requires the
+ * Workers Paid plan — writes work on Free, reads do not). When we
+ * upgrade and have enough accumulated data to make the dashboard
+ * meaningful, restore /stats/ from git history and this endpoint will
+ * already be wired up to feed it. No code changes needed here.
+ */
+
+const STATS_DATASET = 'consenttheater_events';
+const STATS_WINDOW_DAYS = 90;
+const STATS_LIMIT = 30;
+
+async function runSql(env: Env, sql: string): Promise<unknown> {
+  const accountId = env.CLOUDFLARE_ACCOUNT_ID;
+  const apiToken = env.CLOUDFLARE_API_TOKEN;
+  if (!accountId || !apiToken) {
+    throw new Error('analytics not configured');
+  }
+  const url = `https://api.cloudflare.com/client/v4/accounts/${accountId}/analytics_engine/sql`;
+  const res = await fetch(url, {
+    method: 'POST',
+    headers: {
+      Authorization: `Bearer ${apiToken}`,
+      'Content-Type': 'text/plain'
+    },
+    body: sql
+  });
+  if (!res.ok) {
+    const text = await res.text().catch(() => '');
+    throw new Error(`analytics engine ${res.status}: ${text.slice(0, 200)}`);
+  }
+  return res.json();
+}
+
+app.get('/api/stats', async (c) => {
+  if (!c.env.CLOUDFLARE_ACCOUNT_ID || !c.env.CLOUDFLARE_API_TOKEN) {
+    c.header('cache-control', 'public, max-age=60');
+    return c.json(
+      {
+        configured: false,
+        window_days: STATS_WINDOW_DAYS,
+        total_views: 0,
+        top_paths: [],
+        top_referrers: [],
+        top_countries: []
+      },
+      503
+    );
+  }
+
+  const window = `INTERVAL '${STATS_WINDOW_DAYS}' DAY`;
+
+  try {
+    const [topPaths, topReferrers, topCountries, totalRow] = await Promise.all([
+      runSql(
+        c.env,
+        `SELECT blob1 AS path, SUM(_sample_interval) AS views
+         FROM ${STATS_DATASET}
+         WHERE timestamp > NOW() - ${window}
+         GROUP BY path
+         ORDER BY views DESC
+         LIMIT ${STATS_LIMIT}`
+      ),
+      runSql(
+        c.env,
+        `SELECT blob3 AS referrer, SUM(_sample_interval) AS views
+         FROM ${STATS_DATASET}
+         WHERE timestamp > NOW() - ${window} AND blob3 != ''
+         GROUP BY referrer
+         ORDER BY views DESC
+         LIMIT ${STATS_LIMIT}`
+      ),
+      runSql(
+        c.env,
+        `SELECT blob4 AS country, SUM(_sample_interval) AS views
+         FROM ${STATS_DATASET}
+         WHERE timestamp > NOW() - ${window}
+         GROUP BY country
+         ORDER BY views DESC
+         LIMIT ${STATS_LIMIT}`
+      ),
+      runSql(
+        c.env,
+        `SELECT SUM(_sample_interval) AS total
+         FROM ${STATS_DATASET}
+         WHERE timestamp > NOW() - ${window}`
+      )
+    ]);
+
+    type Row = { data: Array<Record<string, unknown>> };
+    const totals = (totalRow as Row).data?.[0]?.total ?? 0;
+
+    c.header('cache-control', 'public, max-age=300, s-maxage=600');
+    return c.json({
+      configured: true,
+      window_days: STATS_WINDOW_DAYS,
+      total_views: Number(totals) || 0,
+      top_paths: (topPaths as Row).data ?? [],
+      top_referrers: (topReferrers as Row).data ?? [],
+      top_countries: (topCountries as Row).data ?? []
+    });
+  } catch (err) {
+    return c.json(
+      { configured: true, error: err instanceof Error ? err.message : 'unknown' },
+      500
+    );
+  }
 });
 
 export default app;

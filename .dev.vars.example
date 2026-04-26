@@ -1,0 +1,26 @@
+# ConsentTheater website — local-dev secrets template
+#
+# Copy this file to `.dev.vars` (gitignored) and fill in real values.
+# Wrangler reads `.dev.vars` automatically when you run `wrangler dev`,
+# making the values available to the Worker via `c.env.*`.
+#
+# Astro itself does NOT read this file — these are runtime secrets for
+# the Cloudflare Worker, not build-time vars for the static site.
+#
+# In production, set the same keys via `wrangler secret put`:
+#
+#   wrangler secret put CLOUDFLARE_ACCOUNT_ID
+#   wrangler secret put CLOUDFLARE_API_TOKEN
+#
+# Until both are set, /api/stats returns 503 with an empty result and
+# the /stats/ page renders in "not yet wired up" mode without crashing.
+# /api/event always works as long as the ANALYTICS binding is present.
+
+# Cloudflare account that owns the Analytics Engine dataset.
+# 32-char hex, found in Cloudflare dashboard sidebar.
+CLOUDFLARE_ACCOUNT_ID=
+
+# Cloudflare API token with Account Analytics READ scope, used by
+# /api/stats to query the Analytics Engine SQL endpoint.
+# Create under Profile -> API Tokens -> Create Custom Token.
+CLOUDFLARE_API_TOKEN=
