@@ -253,7 +253,7 @@ function PrimaryCard({
                 <a
                   href={docsUrl.toString()}
                   target="_blank"
-                  rel="noopener noreferrer"
+                  rel="noopener"
                   className="link"
                 >
                   {docsUrl.hostname}

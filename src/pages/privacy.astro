@@ -1,7 +1,7 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 
-const updated = '2026-04-26';
+const updated = '2026-04-27';
 ---
 <Layout
   title="Privacy Policy — ConsentTheater"
@@ -26,8 +26,8 @@ const updated = '2026-04-26';
         <p>
           We run a tracker lookup — you type a cookie name or a domain, we tell you who's behind it.
           We don't set tracking cookies for marketing or advertising. We run anonymous,
-          opt-in, self-hosted analytics (off by default). We don't share your data with
-          anyone, because there is no personal data to share.
+          opt-in, EU-hosted analytics through Plausible (off by default). We don't share
+          your data with anyone, because there is no personal data to share.
         </p>
       </section>
 
@@ -49,7 +49,7 @@ const updated = '2026-04-26';
             <span class="text-muted-foreground"> · cookie, 365-day expiry, SameSite=Lax</span>
             — records the choice you made in the consent banner so we can honour
             it on subsequent visits. Set by
-            <a href="https://zest.freshjuice.dev" target="_blank" rel="noopener noreferrer" class="link">@freshjuice/zest</a>,
+            <a href="https://zest.freshjuice.dev" target="_blank" rel="noopener" class="link">@freshjuice/zest</a>,
             our consent toolkit. Never leaves your browser.
           </li>
         </ul>
@@ -60,16 +60,22 @@ const updated = '2026-04-26';
       </section>
 
       <section>
-        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">Analytics — opt-in only, first-party only</h2>
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">Analytics — opt-in only, EU-hosted</h2>
         <p>
           When you accept analytics through our consent banner, your browser sends a
-          single
-          <code class="bg-secondary px-1 font-mono text-xs">navigator.sendBeacon</code>
-          to <code class="bg-secondary px-1 font-mono text-xs">/api/event</code> on
-          this same origin. <strong>No third-party request, no cross-origin script,
-          no external processor.</strong> The endpoint is part of the same Cloudflare
-          Worker that serves the rest of this site, and it writes to a Cloudflare
-          Analytics Engine dataset on our own account.
+          single pageview event directly to
+          <code class="bg-secondary px-1 font-mono text-xs">plausible.io/api/event</code>.
+          We use <a
+            href="https://plausible.io/privacy-focused-web-analytics"
+            target="_blank"
+            rel="noopener"
+            class="link"
+          >Plausible Analytics</a> — open-source (AGPL), incorporated in Estonia,
+          hosted on Hetzner servers in <strong>Falkenstein, Germany</strong>.
+          <strong>No third-party script is loaded</strong>: we use Plausible's
+          official npm package, so the tracker code ships bundled inside our own
+          JavaScript. The only network request to plausible.io is the consent-gated
+          POST that delivers the pageview event.
         </p>
         <p class="mt-3">
           Analytics is <strong>off by default</strong>. Browsers sending <em>Do Not
@@ -77,18 +83,30 @@ const updated = '2026-04-26';
           reject; you can still override that through the banner.
         </p>
         <p class="mt-3">
-          Each event records only path, page title (truncated), referrer host,
-          country (derived from IP by Cloudflare's edge layer and never logged), and
-          viewport class (mobile / tablet / desktop). The tracker sets no cookies,
-          stores no IP, and uses no cross-site identifier. Cloudflare's Analytics
-          Engine retains the raw events for 90 days.
+          Each event records only the URL of the page, referrer, country (derived
+          from IP by Plausible's ingestion server at request time and discarded
+          without storage), and device class (mobile / tablet / desktop, derived
+          from User-Agent). The tracker sets no cookies, stores no IP, sets no
+          cross-site identifier, and does not fingerprint. See
+          <a
+            href="https://plausible.io/data-policy"
+            target="_blank"
+            rel="noopener"
+            class="link"
+          >Plausible's data policy</a> for the complete technical breakdown.
         </p>
         <p class="mt-3">
-          The aggregate dashboard is publicly readable — see
-          <a href="/stats/" class="link">our public stats page</a> for the live
-          counts, the exact list of fields, the raw
-          <a href="/api/stats" class="link font-mono">/api/stats</a> JSON endpoint,
-          and the toggle to opt in or out at any time.
+          The aggregate dashboard is <strong>publicly readable on Plausible's own
+          domain</strong> — anyone can audit what we collect at
+          <a
+            href="https://plausible.io/consenttheater.org"
+            target="_blank"
+            rel="noopener"
+            class="link font-mono"
+          >plausible.io/consenttheater.org</a>.
+          See <a href="/stats/" class="link">our public stats page</a> for the
+          methodology, the exact list of fields, and the toggle to opt in or out at
+          any time.
         </p>
       </section>
 
@@ -107,7 +125,7 @@ const updated = '2026-04-26';
           <a
             href="https://www.cloudflare.com/privacypolicy/"
             target="_blank"
-            rel="noopener noreferrer"
+            rel="noopener"
             class="link"
           >privacy policy</a>.
           We do not access or retain those logs for analytics or marketing.
@@ -146,7 +164,7 @@ const updated = '2026-04-26';
           <a
             href="https://github.com/ConsentTheater/extension/blob/main/PRIVACY.md"
             target="_blank"
-            rel="noopener noreferrer"
+            rel="noopener"
             class="link"
           >extension privacy policy</a>.
           Overview and install links: see the
@@ -159,29 +177,77 @@ const updated = '2026-04-26';
         <ul class="list-disc space-y-2 pl-5">
           <li>
             <strong>Cloudflare, Inc.</strong> (101 Townsend Street, San Francisco, CA 94107, USA)
-            — edge network, Workers runtime, and Analytics Engine.
+            — CDN edge network and Workers runtime that serves this site and the
+            <code class="bg-secondary px-1 font-mono text-xs">/api/search</code> lookup endpoint.
+            Cloudflare is <strong>not</strong> in the analytics data path: when you accept analytics,
+            your browser talks to Plausible directly (see below).
             <ul class="mt-1 list-[circle] space-y-0.5 pl-5 text-xs">
               <li>
                 Acts as our <strong>data processor</strong> under a signed
-                <a href="https://www.cloudflare.com/cloudflare-customer-dpa/" target="_blank" rel="noopener noreferrer" class="link">
+                <a href="https://www.cloudflare.com/cloudflare-customer-dpa/" target="_blank" rel="noopener" class="link">
                   Cloudflare Data Processing Addendum (DPA)
                 </a>.
               </li>
               <li>
                 International transfers from the EU/UK to Cloudflare's US entities are covered
                 by the
-                <a href="https://www.dataprivacyframework.gov/list" target="_blank" rel="noopener noreferrer" class="link">
+                <a href="https://www.dataprivacyframework.gov/list" target="_blank" rel="noopener" class="link">
                   EU-US Data Privacy Framework
                 </a>
                 (Cloudflare is a self-certified active participant) and, as a fallback, by
-                <a href="https://commission.europa.eu/law/law-topic/data-protection/international-dimension-data-protection/standard-contractual-clauses-scc_en" target="_blank" rel="noopener noreferrer" class="link">
+                <a href="https://commission.europa.eu/law/law-topic/data-protection/international-dimension-data-protection/standard-contractual-clauses-scc_en" target="_blank" rel="noopener" class="link">
                   Standard Contractual Clauses (SCCs)
                 </a>
                 where DPF does not apply.
               </li>
               <li>
-                <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener noreferrer" class="link">Cloudflare's privacy policy</a>
-                · <a href="https://www.cloudflare.com/trust-hub/gdpr/" target="_blank" rel="noopener noreferrer" class="link">GDPR resource hub</a>
+                <a href="https://www.cloudflare.com/privacypolicy/" target="_blank" rel="noopener" class="link">Cloudflare's privacy policy</a>
+                · <a href="https://www.cloudflare.com/trust-hub/gdpr/" target="_blank" rel="noopener" class="link">GDPR resource hub</a>
+              </li>
+            </ul>
+          </li>
+          <li>
+            <strong>Plausible Insights OÜ</strong> (Västriku tn 2, 50403 Tartu, Estonia)
+            — privacy-friendly web analytics, hosted on Hetzner servers in
+            <strong>Falkenstein, Germany</strong>. Receives consent-gated pageview events
+            directly from your browser. EU-incorporated, EU-hosted; no transfer to third
+            countries occurs in the analytics path.
+            <ul class="mt-1 list-[circle] space-y-0.5 pl-5 text-xs">
+              <li>
+                Acts as our <strong>data processor</strong> under their published
+                <a
+                  href="https://plausible.io/dpa"
+                  target="_blank"
+                  rel="noopener"
+                  class="link"
+                >Data Processing Addendum</a>.
+              </li>
+              <li>
+                Sets no cookies, stores no IP, uses no cross-site identifier or
+                fingerprint. Country is derived from IP at request time and the IP is
+                discarded without storage.
+              </li>
+              <li>
+                <a
+                  href="https://plausible.io/data-policy"
+                  target="_blank"
+                  rel="noopener"
+                  class="link"
+                >Plausible's data policy</a>
+                ·
+                <a
+                  href="https://plausible.io/privacy"
+                  target="_blank"
+                  rel="noopener"
+                  class="link"
+                >their privacy policy</a>
+                ·
+                <a
+                  href="https://github.com/plausible/analytics"
+                  target="_blank"
+                  rel="noopener"
+                  class="link"
+                >open-source code</a>
               </li>
             </ul>
           </li>
@@ -195,27 +261,26 @@ const updated = '2026-04-26';
       <section>
         <h2 class="mb-2 font-display text-lg font-bold tracking-tight">International data transfers</h2>
         <p>
-          ConsentTheater is operated from Berlin, Germany. The site, its API, and the
-          first-party analytics dataset all run on Cloudflare's network. Practically:
+          ConsentTheater is operated from Berlin, Germany. After weighing the
+          tradeoffs we deliberately split the stack so that personal-data flows stay
+          inside the EU, while the static site benefits from a global CDN:
         </p>
         <ul class="mt-3 list-disc space-y-2 pl-5">
           <li>
-            <strong>Page requests are served from the nearest Cloudflare PoP</strong> to
-            the visitor — for EU/UK visitors that's an EU/UK Point of Presence
-            (Frankfurt, Amsterdam, London, Paris, etc.). The visitor's IP terminates at
-            Cloudflare's edge, where the country code is derived. Our worker code
-            receives the country code only — it never sees, logs, or stores the IP.
+            <strong>Static page requests</strong> are served from the nearest
+            Cloudflare PoP to the visitor — for EU/UK visitors that's an EU/UK
+            Point of Presence (Frankfurt, Amsterdam, London, Paris, etc.). The
+            visitor's IP terminates at Cloudflare's edge, where the country code is
+            derived. Our worker code receives the country code only — it never sees,
+            logs, or stores the IP. No analytics events are written to Cloudflare.
           </li>
           <li>
-            <strong>Analytics Engine</strong>, where the
-            <code class="bg-secondary px-1 font-mono text-xs">/api/event</code> beacon
-            writes its rows, is part of Cloudflare's globally-distributed Workers
-            platform. Cloudflare does not currently offer EU-only data residency for
-            Analytics Engine. The transfer to Cloudflare's US entities is therefore
-            covered by the DPF / SCCs mechanism described above. Because the rows we
-            write contain no personal data (no IP, no identifier, no cookie value), the
-            substantive risk under GDPR Art. 44 et seq. is low — the transfer is of
-            aggregate technical metadata, not data subjects' personal data.
+            <strong>Analytics events</strong>, when you have explicitly accepted
+            them, go directly from your browser to
+            <code class="bg-secondary px-1 font-mono text-xs">plausible.io/api/event</code>.
+            Plausible is <strong>incorporated in Estonia and hosted on Hetzner
+            servers in Falkenstein, Germany</strong>. No transfer to a third country
+            occurs in the analytics path — the data stays inside the EU end-to-end.
           </li>
           <li>
             <strong>Cloudflare's processing of the IP itself</strong> at the network
@@ -223,18 +288,18 @@ const updated = '2026-04-26';
             <strong>Cloudflare's own legitimate-interest basis</strong> as a network
             operator (GDPR Art. 6(1)(f)), independent of any instruction from us.
             Cloudflare publishes a
-            <a href="https://www.cloudflare.com/trust-hub/abuse-approach/" target="_blank" rel="noopener noreferrer" class="link">network-abuse policy</a>
+            <a href="https://www.cloudflare.com/trust-hub/abuse-approach/" target="_blank" rel="noopener" class="link">network-abuse policy</a>
             and a
-            <a href="https://www.cloudflare.com/transparency/" target="_blank" rel="noopener noreferrer" class="link">transparency report</a>
+            <a href="https://www.cloudflare.com/transparency/" target="_blank" rel="noopener" class="link">transparency report</a>
             covering this layer.
           </li>
         </ul>
         <p class="mt-3 text-xs text-muted-foreground">
           If the EU-US Data Privacy Framework is ever invalidated by the CJEU (as
           Privacy Shield was in <em>Schrems II</em>), the SCCs fallback continues to
-          apply and we will publish a notice on this page within 14 days. We do not
-          rely on a single legal mechanism for international transfers; the redundancy
-          is deliberate.
+          apply for the Cloudflare static-content path, and our analytics path is
+          unaffected because it has no US sub-processor. We will publish a notice
+          on this page within 14 days of any material change.
         </p>
       </section>
 

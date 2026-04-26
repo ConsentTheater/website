@@ -21,31 +21,6 @@
     "not_found_handling": "404-page"
   },
 
-  /**
-   * First-party analytics dataset, written to from /api/event when a
-   * visitor has opted into anonymous analytics through the consent
-   * banner. Counts are read back via /api/stats using the Analytics
-   * Engine SQL API (requires CLOUDFLARE_ACCOUNT_ID and a
-   * CLOUDFLARE_API_TOKEN secret with Analytics Engine read scope).
-   */
-  "analytics_engine_datasets": [
-    {
-      "binding": "ANALYTICS",
-      "dataset": "consenttheater_analytics_events"
-    }
-  ],
-
-  /**
-   * Both CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN live as Cloudflare
-   * secrets — neither is committed to the repo. Set them with:
-   *
-   *   wrangler secret put CLOUDFLARE_ACCOUNT_ID
-   *   wrangler secret put CLOUDFLARE_API_TOKEN
-   *
-   * For local `wrangler dev`, override via the gitignored `.dev.vars`
-   * file at the repo root.
-   */
-
   "observability": {
     "enabled": true
   },

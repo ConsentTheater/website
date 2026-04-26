@@ -2,7 +2,7 @@ import * as React from 'react';
 import Zest from '@freshjuice/zest/headless';
 import { CookieIcon, XIcon } from '@phosphor-icons/react';
 import { Button } from '@/components/ui/button';
-import { trackPageview, resetTrackingCache } from '@/lib/analytics';
+import { startAnalytics, stopAnalytics } from '@/lib/analytics';
 
 /**
  * ConsentTheater consent banner.
@@ -47,7 +47,7 @@ export function ConsentBanner() {
     if (!Zest.hasConsentDecision()) {
       setOpen(true);
     } else if (Zest.hasConsent('analytics')) {
-      trackPageview();
+      startAnalytics();
     }
 
     const handleReopen = () => setOpen(true);
@@ -57,13 +57,13 @@ export function ConsentBanner() {
 
   const acceptAnalytics = () => {
     Zest.updateConsent({ essential: true, analytics: true });
-    trackPageview();
+    startAnalytics();
     setOpen(false);
   };
 
   const rejectAnalytics = () => {
     Zest.updateConsent({ essential: true, analytics: false });
-    resetTrackingCache();
+    stopAnalytics();
     setOpen(false);
   };
 
@@ -130,15 +130,21 @@ export function ConsentBanner() {
               Optional · anonymous analytics
             </p>
             <p className="mt-2 text-xs text-foreground/85">
-              <strong>First-party page-view counter.</strong> Your browser sends
-              a small <code className="bg-secondary px-1 font-mono text-[11px]">/api/event</code>
-              beacon to <em>this</em> site (no third party, no cross-origin
-              request) recording: path, page title, referrer host, country,
-              and viewport class.
-              <strong> No personal data, no IP storage, no cookies set by the
-              tracker, no fingerprint.</strong> 90-day retention. Aggregate
-              counts are public on <a href="/stats/" className="link">/stats/</a>.
-              Off by default.
+              <strong>Privacy-friendly page-view counter</strong> via{' '}
+              <a
+                href="https://plausible.io/privacy-focused-web-analytics"
+                target="_blank"
+                rel="noopener"
+                className="link"
+              >Plausible Analytics</a>{' '}
+              — open-source, EU-hosted (Falkenstein, Germany), no cookies, no
+              fingerprint, no cross-site identifier, no IP storage.{' '}
+              <strong>If you accept</strong>, your browser sends a single
+              pageview event directly to plausible.io recording path, referrer,
+              country, and device class.{' '}
+              The full dashboard is{' '}
+              <a href="/stats/" className="link">public</a>{' '}
+              — anyone can audit what we collect. Off by default.
             </p>
           </section>
 

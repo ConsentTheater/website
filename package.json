@@ -1,6 +1,6 @@
 {
   "name": "@consenttheater/website",
-  "version": "0.4.1",
+  "version": "0.5.0",
   "description": "ConsentTheater — open-source tracker lookup and project site. Built on Astro + Cloudflare Workers, powered by @consenttheater/playbill.",
   "type": "module",
   "private": true,
@@ -30,6 +30,7 @@
     "@consenttheater/playbill": "^0.2.0",
     "@freshjuice/zest": "^2.2.0",
     "@phosphor-icons/react": "^2.1.10",
+    "@plausible-analytics/tracker": "^0.4.4",
     "@radix-ui/react-dialog": "^1.1.15",
     "@radix-ui/react-slot": "^1.2.4",
     "@radix-ui/react-visually-hidden": "^1.2.4",

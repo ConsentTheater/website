@@ -1,73 +1,49 @@
 /**
- * First-party analytics for ConsentTheater.
+ * First-party analytics via Plausible (Hetzner Falkenstein, Germany).
  *
- * No external scripts, no cross-origin requests, no third-party processors.
- * The visitor's browser sends a single `navigator.sendBeacon` request to
- * `/api/event` on this origin, which is handled by our own Cloudflare
- * Worker and stored in our own Cloudflare Analytics Engine dataset.
+ * The tracker is bundled from the official npm package — no third-party
+ * <script> is loaded from plausible.io at runtime. The only network
+ * call to plausible.io is a single POST to /api/event when a pageview
+ * is captured, sent directly from the visitor's browser. Cloudflare is
+ * not in the analytics data path.
  *
- * The beacon fires only when:
- *   - the visitor has explicitly opted into analytics through the consent
- *     banner (Zest tracks this in the `analytics` category), AND
- *   - we haven't already fired a pageview for the current path on this
- *     page load (cheap dedupe to avoid double-counting on hydration).
+ * Init is gated on explicit analytics consent through Zest. Without
+ * consent the tracker is never initialised and no events are sent.
  *
- * Privacy contract — see /privacy/ for full disclosure.
+ * The Plausible package is browser-only — we dynamic-import it inside
+ * `startAnalytics` so the SSR/prerender pass never has to resolve it.
  */
 
-const FIRED = new Set<string>();
+const PLAUSIBLE_DOMAIN = 'consenttheater.org';
 
-interface EventPayload {
-  e: 'pageview';
-  p: string;            // path
-  t: string;            // title
-  r: string;            // document.referrer (full URL — server keeps host only)
-  s: number;            // viewport width — server derives mobile/tablet/desktop
-}
+let initialized = false;
 
-function buildPayload(): EventPayload {
-  return {
-    e: 'pageview',
-    p: location.pathname || '/',
-    t: (document.title || '').slice(0, 256),
-    r: document.referrer || '',
-    s: window.innerWidth || 0
-  };
-}
-
-function send(payload: EventPayload): void {
-  const body = JSON.stringify(payload);
-  if (typeof navigator.sendBeacon === 'function') {
-    const blob = new Blob([body], { type: 'application/json' });
-    navigator.sendBeacon('/api/event', blob);
-  } else {
-    // Best-effort fallback. keepalive lets the request survive page
-    // unload, which sendBeacon would otherwise have handled for us.
-    void fetch('/api/event', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body,
-      keepalive: true
-    }).catch(() => {});
-  }
+/**
+ * Boot Plausible. Idempotent — calling more than once on the same page
+ * load is a no-op. Safe to call from React effects and from consent
+ * banner click handlers.
+ */
+export function startAnalytics(): void {
+  if (typeof window === 'undefined' || initialized) return;
+  initialized = true;
+  void import('@plausible-analytics/tracker').then(({ init }) => {
+    init({
+      domain: PLAUSIBLE_DOMAIN,
+      autoCapturePageviews: true,
+      outboundLinks: false,
+      fileDownloads: false,
+      formSubmissions: false
+    });
+  });
 }
 
 /**
- * Fire a single pageview beacon for the current page. Idempotent per
- * page-load (rerunning on the same path is a no-op).
+ * Mark the tracker as inactive for this page load. Plausible's npm
+ * package binds its handlers in `init` and offers no public teardown,
+ * but the site is a static MPA — every navigation is a fresh document,
+ * so revoked consent simply means startAnalytics() won't be called on
+ * the next page load. The currently-fired pageview cannot be unsent.
  */
-export function trackPageview(): void {
-  if (typeof window === 'undefined') return;
-  const path = location.pathname || '/';
-  if (FIRED.has(path)) return;
-  FIRED.add(path);
-  send(buildPayload());
-}
-
-/**
- * Reset the local dedupe cache. Called when the visitor revokes
- * analytics consent so a future re-opt-in starts clean.
- */
-export function resetTrackingCache(): void {
-  FIRED.clear();
+export function stopAnalytics(): void {
+  initialized = false;
 }

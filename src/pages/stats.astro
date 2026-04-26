@@ -1,9 +1,12 @@
 ---
 import Layout from '@/layouts/Layout.astro';
+import { Icon } from 'astro-icon/components';
+
+const PLAUSIBLE_PUBLIC_DASHBOARD = 'https://plausible.io/consenttheater.org';
 ---
 <Layout
   title="Public stats — ConsentTheater"
-  description="Aggregate, anonymous, public visit stats for consenttheater.org. First-party only, opt-in, no third parties, no IP storage, no cookies set by the tracker."
+  description="Aggregate, anonymous, public visit stats for consenttheater.org. Hosted on Plausible (Hetzner, Germany). First-party only, opt-in, no IP storage, no cookies set by the tracker."
 >
   <section class="mx-auto w-full max-w-3xl px-6 pt-10 pb-12">
     <div class="mb-6">
@@ -14,11 +17,11 @@ import Layout from '@/layouts/Layout.astro';
         How this site is used — out in the open
       </h1>
       <p class="mt-3 text-sm leading-relaxed text-muted-foreground">
-        Most websites that collect analytics keep them locked behind a Google account.
-        We don't see the appeal: this is a non-commercial open-source project, the data
-        is already aggregate and anonymous, so we may as well publish it. The dashboard
-        below talks to the same Cloudflare Analytics Engine dataset that
-        <code class="bg-secondary px-1 font-mono text-xs">/api/event</code> writes to.
+        Most websites that collect analytics keep them locked behind a Google
+        account. We don't see the appeal: this is a non-commercial open-source
+        project, the data is already aggregate and anonymous, so we publish it.
+        The dashboard below lives on Plausible's own domain — go look, it's the
+        same data we see.
       </p>
     </div>
 
@@ -27,21 +30,28 @@ import Layout from '@/layouts/Layout.astro';
       <section id="dashboard">
         <h2 class="mb-3 font-display text-lg font-bold tracking-tight">Live dashboard</h2>
         <p class="mb-4 text-sm text-muted-foreground">
-          Pick a window. The API caches each one for ten minutes at the edge.
+          Hosted on Plausible. No login, no cookie required to view. Updates in real time.
         </p>
-        <div
-          id="ct-stats"
-          data-stats-endpoint="/api/stats"
-          data-default-window="90"
+        <a
+          href={PLAUSIBLE_PUBLIC_DASHBOARD}
+          target="_blank"
+          rel="noopener"
+          class="group flex w-full items-center justify-between gap-4 border border-border bg-card px-5 py-4 text-left transition-colors hover:bg-secondary"
         >
-          <p class="text-sm text-muted-foreground" data-state="loading">
-            Loading the latest counts…
-          </p>
-        </div>
-        <p class="mt-3 text-xs text-muted-foreground">
-          Raw JSON: <a href="/api/stats" target="_blank" rel="noopener noreferrer" class="link font-mono">/api/stats?days=7|30|90</a>.
-          Same data, no styling.
-        </p>
+          <div class="min-w-0">
+            <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              Open dashboard
+            </p>
+            <p class="mt-1 truncate font-mono text-sm text-foreground/90">
+              plausible.io/consenttheater.org
+            </p>
+          </div>
+          <Icon
+            name="ph:arrow-square-out"
+            class="h-5 w-5 shrink-0 text-muted-foreground transition-transform group-hover:translate-x-0.5"
+            aria-hidden="true"
+          />
+        </a>
       </section>
 
       <section id="what-we-collect">
@@ -53,25 +63,21 @@ import Layout from '@/layouts/Layout.astro';
             data-action="open-consent"
             class="link cursor-pointer bg-transparent p-0 underline-offset-2 hover:underline"
           >consent banner</button>,
-          your browser sends a single
-          <code class="bg-secondary px-1 font-mono text-xs">navigator.sendBeacon</code>
-          to <code class="bg-secondary px-1 font-mono text-xs">/api/event</code>
-          on this same origin — no third-party request, no cross-origin script.
-          Each event records:
+          your browser sends a single pageview event directly to
+          <code class="bg-secondary px-1 font-mono text-xs">plausible.io/api/event</code>.
+          No event is sent to ConsentTheater servers — Plausible is the only
+          recipient. Each event records:
         </p>
         <ul class="list-disc space-y-1.5 pl-6">
-          <li>The path you're on (e.g. <code class="bg-secondary px-1 font-mono text-xs">/methodology/</code>)</li>
-          <li>The page title (truncated to 256 chars)</li>
-          <li>The referrer host (e.g. <code class="bg-secondary px-1 font-mono text-xs">news.ycombinator.com</code>) — host only, never the full URL</li>
-          <li>Country derived from your IP by Cloudflare's edge — country code only, IP is never seen by our worker</li>
-          <li>Viewport class (mobile / tablet / desktop) derived from your reported window width</li>
+          <li>The page URL you're on (e.g. <code class="bg-secondary px-1 font-mono text-xs">/methodology/</code>)</li>
+          <li>Referrer (so Plausible can show entry sources, e.g. <em>Hacker News</em>)</li>
+          <li>Country, derived from your IP at request time by Plausible's ingestion server — IP is never stored</li>
+          <li>Device type (mobile / tablet / desktop) and browser, derived from your User-Agent</li>
         </ul>
         <p class="mt-3">
-          The events land in a Cloudflare Analytics Engine dataset called
-          <code class="bg-secondary px-1 font-mono text-xs">consenttheater_analytics_events</code>.
-          <strong>Cloudflare retains the raw events for 90 days, then drops them.</strong>
-          The aggregate counts shown above are computed from that 90-day window
-          via the Analytics Engine SQL API.
+          Plausible processes the event and discards the IP without storing it.
+          Aggregate counts land in their database in
+          <strong>Hetzner Falkenstein, Germany</strong>.
         </p>
       </section>
 
@@ -79,10 +85,10 @@ import Layout from '@/layouts/Layout.astro';
         <h2 class="mb-3 font-display text-lg font-bold tracking-tight">What we don't collect</h2>
         <ul class="list-disc space-y-1.5 pl-6">
           <li><strong>No personal data.</strong> No name, no email, no account.</li>
-          <li><strong>No IP addresses.</strong> Country is derived in flight by Cloudflare's edge layer; the IP never reaches our worker code, and we don't log it.</li>
-          <li><strong>No cookies set by the tracker.</strong> The beacon is a fire-and-forget POST.</li>
-          <li><strong>No cross-site identifiers.</strong> No fingerprinting probes. Same visitor on two visits looks like two different visits.</li>
-          <li><strong>No third-party processors.</strong> Everything stays inside our own Cloudflare account on the same domain you're already on.</li>
+          <li><strong>No IP storage.</strong> Country is derived in flight by Plausible's server; the IP is discarded immediately.</li>
+          <li><strong>No cookies set by the tracker.</strong> Plausible does not set any cookie at all.</li>
+          <li><strong>No cross-site identifiers, no fingerprinting.</strong> Same visitor on two visits looks like two different visits.</li>
+          <li><strong>No third-party script loaded in your browser.</strong> The Plausible tracker is bundled into our own JavaScript from the official open-source npm package — your browser never fetches anything from Plausible's CDN.</li>
           <li><strong>No advertising tracking</strong>, ever. There are no ad-tech toggles to flip — those technologies aren't on this site at all.</li>
         </ul>
       </section>
@@ -111,6 +117,25 @@ import Layout from '@/layouts/Layout.astro';
             credible if we run our own site that way.
           </li>
         </ol>
+      </section>
+
+      <section id="why-plausible">
+        <h2 class="mb-3 font-display text-lg font-bold tracking-tight">Why Plausible</h2>
+        <p>
+          We weighed pros and cons and decided analytics should live on
+          privacy-friendly European servers, not on US infrastructure. Plausible
+          checks every box we care about: open-source (AGPL), EU-incorporated
+          (Estonia) and EU-hosted (Hetzner, Germany), no cookies by design, no
+          fingerprinting, full GDPR / ePrivacy compliance posture documented in
+          public, and an explicit "no IP storage" guarantee.
+        </p>
+        <p class="mt-3">
+          We use their official npm package, so the tracker code ships with our
+          own JavaScript — no third-party script is loaded from plausible.io into
+          your browser. The only network call is the consent-gated POST to
+          <code class="bg-secondary px-1 font-mono text-xs">plausible.io/api/event</code>,
+          and only after you have explicitly accepted.
+        </p>
       </section>
 
       <section id="how-to-opt-out">
@@ -148,231 +173,4 @@ import Layout from '@/layouts/Layout.astro';
 
     </div>
   </section>
-
-  <script is:inline>
-    (function () {
-      var root = document.getElementById('ct-stats');
-      if (!root) return;
-      var endpoint = root.getAttribute('data-stats-endpoint') || '/api/stats';
-      var WINDOWS = [7, 30, 90];
-      var currentWindow = parseInt(root.getAttribute('data-default-window') || '90', 10);
-      if (WINDOWS.indexOf(currentWindow) === -1) currentWindow = 90;
-
-      function setHTML(html) { root.innerHTML = html; }
-
-      function fmt(n) {
-        var v = Number(n) || 0;
-        return v.toLocaleString('en-US');
-      }
-
-      function escapeHTML(s) {
-        return String(s == null ? '' : s)
-          .replace(/&/g, '&amp;').replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
-          .replace(/'/g, '&#39;');
-      }
-
-      // ISO-3166 alpha-2 country code -> emoji flag.
-      // Each ASCII letter maps to a regional indicator symbol (U+1F1E6 + offset).
-      function codeToFlag(code) {
-        if (typeof code !== 'string' || code.length !== 2) return '';
-        var c0 = code.toUpperCase().charCodeAt(0);
-        var c1 = code.toUpperCase().charCodeAt(1);
-        if (c0 < 65 || c0 > 90 || c1 < 65 || c1 > 90) return '';
-        return String.fromCodePoint(0x1F1E6 + c0 - 65) + String.fromCodePoint(0x1F1E6 + c1 - 65);
-      }
-
-      // Build a continuous N-day series, padding missing days with zero so
-      // the sparkline is visually honest about gaps.
-      function fillSeries(series, days) {
-        var byDay = {};
-        for (var i = 0; i < (series || []).length; i++) {
-          var s = series[i];
-          if (s && s.day) byDay[s.day] = Number(s.views) || 0;
-        }
-        var out = [];
-        var today = new Date();
-        for (var k = days - 1; k >= 0; k--) {
-          var d = new Date(today.getTime() - k * 86400000);
-          var key = d.toISOString().slice(0, 10);
-          out.push({ day: key, views: byDay[key] || 0 });
-        }
-        return out;
-      }
-
-      function renderSparkline(series, days) {
-        var filled = fillSeries(series, days);
-        if (!filled.length) return '';
-        var w = 280;
-        var h = 56;
-        var pad = 2;
-        var max = 1;
-        for (var i = 0; i < filled.length; i++) if (filled[i].views > max) max = filled[i].views;
-        var step = (w - 2 * pad) / Math.max(1, filled.length - 1);
-        var pts = '';
-        for (var j = 0; j < filled.length; j++) {
-          var x = pad + j * step;
-          var y = h - pad - (filled[j].views / max) * (h - 2 * pad);
-          pts += (j === 0 ? 'M' : 'L') + x.toFixed(2) + ',' + y.toFixed(2) + ' ';
-        }
-        // Closed area variant for the soft fill underneath
-        var area = pts + 'L' + (w - pad).toFixed(2) + ',' + (h - pad) + ' L' + pad + ',' + (h - pad) + ' Z';
-        return (
-          '<svg viewBox="0 0 ' + w + ' ' + h + '" width="' + w + '" height="' + h + '" preserveAspectRatio="none" class="w-full max-w-[18rem]" aria-hidden="true">' +
-            '<path d="' + area + '" fill="hsl(var(--primary) / 0.12)" stroke="none" />' +
-            '<path d="' + pts + '" fill="none" stroke="hsl(var(--primary))" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />' +
-          '</svg>'
-        );
-      }
-
-      function renderRangeSelector() {
-        var btns = '';
-        for (var i = 0; i < WINDOWS.length; i++) {
-          var w = WINDOWS[i];
-          var active = w === currentWindow;
-          var cls = active
-            ? 'border-primary bg-primary text-primary-foreground'
-            : 'border-border bg-card text-foreground hover:bg-secondary';
-          btns +=
-            '<button type="button" data-window="' + w + '" aria-pressed="' + active + '" ' +
-            'class="border ' + cls + ' px-3 py-1 font-mono text-[11px] font-semibold uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">' +
-            w + 'D' +
-            '</button>';
-        }
-        return '<div class="flex items-center gap-1" role="group" aria-label="Time range">' + btns + '</div>';
-      }
-
-      function emptyPanel(title) {
-        return (
-          '<section class="border border-border bg-card">' +
-          '<div class="border-b border-border px-4 py-3">' +
-          '<p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">' + escapeHTML(title) + '</p>' +
-          '</div>' +
-          '<p class="px-4 py-6 text-center text-xs text-muted-foreground">No data in this window yet.</p>' +
-          '</section>'
-        );
-      }
-
-      function renderPanel(title, rows, total, opts) {
-        opts = opts || {};
-        if (!rows || !rows.length) return emptyPanel(title);
-
-        var max = 0;
-        for (var j = 0; j < rows.length; j++) {
-          var rv = Number(rows[j].views) || 0;
-          if (rv > max) max = rv;
-        }
-
-        var rowsHtml = '';
-        var totalForPanel = 0;
-        for (var i = 0; i < rows.length; i++) {
-          var r = rows[i];
-          var labelKey = Object.keys(r).filter(function (k) { return k !== 'views'; })[0];
-          var label = r[labelKey];
-          var v = Number(r.views) || 0;
-          totalForPanel += v;
-          var barPct = max > 0 ? Math.max(2, Math.round(v / max * 100)) : 0;
-          var pctOfTotal = total > 0 ? (v / total * 100) : 0;
-          var pctText = pctOfTotal >= 10
-            ? pctOfTotal.toFixed(0) + '%'
-            : pctOfTotal.toFixed(1) + '%';
-
-          var displayLabel = '';
-          if (opts.flag && typeof label === 'string' && label.length === 2) {
-            var flag = codeToFlag(label);
-            displayLabel = (flag ? '<span class="mr-1">' + flag + '</span>' : '') +
-              '<span class="font-mono text-[12px]">' + escapeHTML(label) + '</span>';
-          } else {
-            displayLabel = '<span class="font-mono text-[12px]">' + escapeHTML(label) + '</span>';
-          }
-
-          rowsHtml +=
-            '<li class="relative border-b border-border last:border-b-0">' +
-              '<div class="absolute inset-y-0 left-0 bg-primary/10" style="width: ' + barPct + '%"></div>' +
-              '<div class="relative grid grid-cols-[1.5rem_1fr_4rem_3rem] items-baseline gap-2 px-3 py-2">' +
-                '<span class="font-mono text-[10px] text-muted-foreground tabular-nums">' + (i + 1) + '</span>' +
-                '<span class="truncate text-foreground/90" title="' + escapeHTML(String(label)) + '">' + displayLabel + '</span>' +
-                '<span class="text-right font-mono text-xs font-semibold text-foreground tabular-nums">' + fmt(v) + '</span>' +
-                '<span class="text-right font-mono text-[10px] text-muted-foreground tabular-nums">' + pctText + '</span>' +
-              '</div>' +
-            '</li>';
-        }
-
-        return (
-          '<section class="border border-border bg-card">' +
-          '<div class="flex items-baseline justify-between gap-3 border-b border-border px-4 py-3">' +
-          '<p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">' + escapeHTML(title) + '</p>' +
-          '<p class="font-mono text-[10px] uppercase tracking-wider text-muted-foreground tabular-nums">' + fmt(totalForPanel) + ' shown</p>' +
-          '</div>' +
-          '<ul class="list-none">' + rowsHtml + '</ul>' +
-          '</section>'
-        );
-      }
-
-      function renderHero(data) {
-        var sparkline = renderSparkline(data.time_series, data.window_days);
-        return (
-          '<div class="mb-6 border border-border bg-card px-5 py-5">' +
-          '<div class="mb-4 flex flex-wrap items-center justify-between gap-3">' +
-          '<p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">' +
-          'Total page views · last ' + data.window_days + ' days' +
-          '</p>' +
-          renderRangeSelector() +
-          '</div>' +
-          '<div class="grid gap-4 sm:grid-cols-[auto_1fr] sm:items-end">' +
-          '<p class="font-display text-3xl font-bold tracking-tight tabular-nums">' + fmt(data.total_views) + '</p>' +
-          '<div class="flex justify-end">' + sparkline + '</div>' +
-          '</div>' +
-          '<p class="mt-3 text-[10px] uppercase tracking-wider text-muted-foreground">' +
-          'Cached for 10 minutes at the edge · sparkline shows daily totals' +
-          '</p>' +
-          '</div>'
-        );
-      }
-
-      function bindRangeButtons() {
-        var btns = root.querySelectorAll('[data-window]');
-        btns.forEach(function (btn) {
-          btn.addEventListener('click', function () {
-            var w = parseInt(btn.getAttribute('data-window') || '90', 10);
-            if (WINDOWS.indexOf(w) === -1 || w === currentWindow) return;
-            currentWindow = w;
-            load();
-          });
-        });
-      }
-
-      function load() {
-        var url = endpoint + '?days=' + currentWindow;
-        // Keep current content visible while fetching — no flash to "loading…"
-        fetch(url, { headers: { Accept: 'application/json' } })
-          .then(function (r) { return r.ok ? r.json() : r.json().then(function (j) { throw j; }); })
-          .then(function (data) {
-            if (!data.configured) {
-              setHTML(
-                '<p class="text-sm text-foreground/85">The dashboard isn\'t wired up yet. Check back soon — once <code class="bg-secondary px-1 font-mono text-xs">CLOUDFLARE_API_TOKEN</code> is set on the worker, counts will appear here.</p>'
-              );
-              return;
-            }
-            var html = '';
-            html += renderHero(data);
-            html += '<div class="space-y-4">';
-            html += renderPanel('Top paths', data.top_paths, data.total_views);
-            html += '<div class="grid gap-4 sm:grid-cols-2">';
-            html += renderPanel('Top referrers', data.top_referrers, data.total_views);
-            html += renderPanel('Top countries', data.top_countries, data.total_views, { flag: true });
-            html += '</div>';
-            html += '</div>';
-            setHTML(html);
-            bindRangeButtons();
-          })
-          .catch(function (err) {
-            var msg = (err && err.error) || 'Could not reach /api/stats.';
-            setHTML('<p class="text-sm text-muted-foreground">' + escapeHTML(msg) + '</p>');
-          });
-      }
-
-      load();
-    })();
-  </script>
 </Layout>
