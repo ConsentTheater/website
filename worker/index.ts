@@ -157,12 +157,8 @@ app.get('/api/search', (c) => {
  *
  * Receives a single page-view beacon from the consent-gated tracker on
  * the front-end. Writes one row to the Cloudflare Analytics Engine
- * dataset bound as ANALYTICS.
- *
- * Status: writing in production. Public dashboard is intentionally not
- * shipped yet (see /api/stats note below) — events accumulate, the
- * project owner views them via the Cloudflare dashboard until a public
- * /stats/ page is reintroduced.
+ * dataset bound as ANALYTICS. Aggregates land on the public dashboard
+ * at /stats/ via the companion /api/stats endpoint.
  *
  * Privacy contract:
  * - No IP is stored. Cloudflare gives us `cf.country` (already derived
@@ -202,10 +198,15 @@ function viewportClass(width: unknown): 'mobile' | 'tablet' | 'desktop' {
   return 'desktop';
 }
 
-function refererHost(value: unknown): string {
+function refererHost(value: unknown, ownHost: string): string {
   if (typeof value !== 'string' || !value) return '';
   try {
-    return new URL(value).host.slice(0, MAX_HOST);
+    const host = new URL(value).host;
+    // Internal navigation between our own pages — collapse to empty so
+    // we never see "consenttheater.org" dominating Top referrers. Only
+    // external entry points are interesting there.
+    if (host === ownHost) return '';
+    return host.slice(0, MAX_HOST);
   } catch {
     return '';
   }
@@ -225,7 +226,10 @@ app.post('/api/event', async (c) => {
 
   const path = clampString(payload.p, MAX_PATH) || '/';
   const title = clampString(payload.t, MAX_TITLE);
-  const ref = refererHost(payload.r);
+  const ownHost = (() => {
+    try { return new URL(c.req.url).host; } catch { return ''; }
+  })();
+  const ref = refererHost(payload.r, ownHost);
   const vp = viewportClass(payload.s);
 
   const cf = (c.req.raw as Request & { cf?: { country?: string } }).cf;
@@ -244,27 +248,41 @@ app.post('/api/event', async (c) => {
 });
 
 /**
- * First-party analytics — `/api/stats`. STAGED, NOT YET PUBLIC.
+ * First-party analytics — `/api/stats`. ACTIVE.
  *
  * Public, unauthenticated. Returns aggregate counts only: top paths,
  * top referrers, top countries. No row-level data, no individual events.
  *
  * Reads from Analytics Engine via the Cloudflare SQL API. Both
  * CLOUDFLARE_ACCOUNT_ID and CLOUDFLARE_API_TOKEN must be set; without
- * them, returns a 503 with an empty result.
+ * them, returns a 503 with an empty `configured: false` payload so the
+ * /stats/ page can render a "not yet wired up" state instead of crashing.
  *
- * TODO(future): the public-facing /stats/ page that consumed this
- * endpoint was intentionally taken out of scope while we are still on
- * Cloudflare Workers Free (the Analytics Engine SQL API requires the
- * Workers Paid plan — writes work on Free, reads do not). When we
- * upgrade and have enough accumulated data to make the dashboard
- * meaningful, restore /stats/ from git history and this endpoint will
- * already be wired up to feed it. No code changes needed here.
+ * Cached for 5 minutes at the edge (`s-maxage=600`) — counts don't move
+ * fast enough to justify hitting the SQL API on every page-view of
+ * /stats/.
  */
 
 const STATS_DATASET = 'consenttheater_analytics_events';
-const STATS_WINDOW_DAYS = 90;
+const STATS_ALLOWED_WINDOWS = new Set([7, 30, 90]);
+const STATS_DEFAULT_WINDOW = 90;
 const STATS_LIMIT = 30;
+
+/**
+ * Referrer hosts to exclude from the Top Referrers panel. We filter
+ * self-referrals at write time (see refererHost above), but rows
+ * written before that fix landed still sit in the 90-day window. SQL
+ * filter ensures the dashboard never surfaces them. Extend as needed.
+ */
+const STATS_REFERRER_EXCLUDES = [
+  'consenttheater.org',
+  'www.consenttheater.org'
+];
+
+function resolveWindowDays(raw: string | undefined): number {
+  const parsed = parseInt(raw ?? '', 10);
+  return STATS_ALLOWED_WINDOWS.has(parsed) ? parsed : STATS_DEFAULT_WINDOW;
+}
 
 async function runSql(env: Env, sql: string): Promise<unknown> {
   const accountId = env.CLOUDFLARE_ACCOUNT_ID;
@@ -289,25 +307,28 @@ async function runSql(env: Env, sql: string): Promise<unknown> {
 }
 
 app.get('/api/stats', async (c) => {
+  const days = resolveWindowDays(c.req.query('days'));
+
   if (!c.env.CLOUDFLARE_ACCOUNT_ID || !c.env.CLOUDFLARE_API_TOKEN) {
     c.header('cache-control', 'public, max-age=60');
     return c.json(
       {
         configured: false,
-        window_days: STATS_WINDOW_DAYS,
+        window_days: days,
         total_views: 0,
         top_paths: [],
         top_referrers: [],
-        top_countries: []
+        top_countries: [],
+        time_series: []
       },
       503
     );
   }
 
-  const window = `INTERVAL '${STATS_WINDOW_DAYS}' DAY`;
+  const window = `INTERVAL '${days}' DAY`;
 
   try {
-    const [topPaths, topReferrers, topCountries, totalRow] = await Promise.all([
+    const [topPaths, topReferrers, topCountries, totalRow, timeSeries] = await Promise.all([
       runSql(
         c.env,
         `SELECT blob1 AS path, SUM(_sample_interval) AS views
@@ -319,12 +340,19 @@ app.get('/api/stats', async (c) => {
       ),
       runSql(
         c.env,
-        `SELECT blob3 AS referrer, SUM(_sample_interval) AS views
-         FROM ${STATS_DATASET}
-         WHERE timestamp > NOW() - ${window} AND blob3 != ''
-         GROUP BY referrer
-         ORDER BY views DESC
-         LIMIT ${STATS_LIMIT}`
+        (() => {
+          const excludesSql = STATS_REFERRER_EXCLUDES
+            .map((h) => `'${h.replace(/'/g, "''")}'`)
+            .join(', ');
+          return `SELECT blob3 AS referrer, SUM(_sample_interval) AS views
+            FROM ${STATS_DATASET}
+            WHERE timestamp > NOW() - ${window}
+              AND blob3 != ''
+              AND blob3 NOT IN (${excludesSql})
+            GROUP BY referrer
+            ORDER BY views DESC
+            LIMIT ${STATS_LIMIT}`;
+        })()
       ),
       runSql(
         c.env,
@@ -340,6 +368,14 @@ app.get('/api/stats', async (c) => {
         `SELECT SUM(_sample_interval) AS total
          FROM ${STATS_DATASET}
          WHERE timestamp > NOW() - ${window}`
+      ),
+      runSql(
+        c.env,
+        `SELECT toDate(timestamp) AS day, SUM(_sample_interval) AS views
+         FROM ${STATS_DATASET}
+         WHERE timestamp > NOW() - ${window}
+         GROUP BY day
+         ORDER BY day ASC`
       )
     ]);
 
@@ -349,11 +385,12 @@ app.get('/api/stats', async (c) => {
     c.header('cache-control', 'public, max-age=300, s-maxage=600');
     return c.json({
       configured: true,
-      window_days: STATS_WINDOW_DAYS,
+      window_days: days,
       total_views: Number(totals) || 0,
       top_paths: (topPaths as Row).data ?? [],
       top_referrers: (topReferrers as Row).data ?? [],
-      top_countries: (topCountries as Row).data ?? []
+      top_countries: (topCountries as Row).data ?? [],
+      time_series: (timeSeries as Row).data ?? []
     });
   } catch (err) {
     return c.json(

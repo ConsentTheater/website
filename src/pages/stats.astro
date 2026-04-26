@@ -1,0 +1,378 @@
+---
+import Layout from '@/layouts/Layout.astro';
+---
+<Layout
+  title="Public stats — ConsentTheater"
+  description="Aggregate, anonymous, public visit stats for consenttheater.org. First-party only, opt-in, no third parties, no IP storage, no cookies set by the tracker."
+>
+  <section class="mx-auto w-full max-w-3xl px-6 pt-10 pb-12">
+    <div class="mb-6">
+      <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        Public stats
+      </p>
+      <h1 class="mt-1 font-display text-2xl font-bold tracking-tight sm:text-3xl">
+        How this site is used — out in the open
+      </h1>
+      <p class="mt-3 text-sm leading-relaxed text-muted-foreground">
+        Most websites that collect analytics keep them locked behind a Google account.
+        We don't see the appeal: this is a non-commercial open-source project, the data
+        is already aggregate and anonymous, so we may as well publish it. The dashboard
+        below talks to the same Cloudflare Analytics Engine dataset that
+        <code class="bg-secondary px-1 font-mono text-xs">/api/event</code> writes to.
+      </p>
+    </div>
+
+    <div class="space-y-10 text-sm leading-relaxed text-foreground/90">
+
+      <section id="dashboard">
+        <h2 class="mb-3 font-display text-lg font-bold tracking-tight">Live dashboard</h2>
+        <p class="mb-4 text-sm text-muted-foreground">
+          Pick a window. The API caches each one for ten minutes at the edge.
+        </p>
+        <div
+          id="ct-stats"
+          data-stats-endpoint="/api/stats"
+          data-default-window="90"
+        >
+          <p class="text-sm text-muted-foreground" data-state="loading">
+            Loading the latest counts…
+          </p>
+        </div>
+        <p class="mt-3 text-xs text-muted-foreground">
+          Raw JSON: <a href="/api/stats" target="_blank" rel="noopener noreferrer" class="link font-mono">/api/stats?days=7|30|90</a>.
+          Same data, no styling.
+        </p>
+      </section>
+
+      <section id="what-we-collect">
+        <h2 class="mb-3 font-display text-lg font-bold tracking-tight">What we collect</h2>
+        <p class="mb-3">
+          When (and only when) you've explicitly accepted analytics through our
+          <button
+            type="button"
+            data-action="open-consent"
+            class="link cursor-pointer bg-transparent p-0 underline-offset-2 hover:underline"
+          >consent banner</button>,
+          your browser sends a single
+          <code class="bg-secondary px-1 font-mono text-xs">navigator.sendBeacon</code>
+          to <code class="bg-secondary px-1 font-mono text-xs">/api/event</code>
+          on this same origin — no third-party request, no cross-origin script.
+          Each event records:
+        </p>
+        <ul class="list-disc space-y-1.5 pl-6">
+          <li>The path you're on (e.g. <code class="bg-secondary px-1 font-mono text-xs">/methodology/</code>)</li>
+          <li>The page title (truncated to 256 chars)</li>
+          <li>The referrer host (e.g. <code class="bg-secondary px-1 font-mono text-xs">news.ycombinator.com</code>) — host only, never the full URL</li>
+          <li>Country derived from your IP by Cloudflare's edge — country code only, IP is never seen by our worker</li>
+          <li>Viewport class (mobile / tablet / desktop) derived from your reported window width</li>
+        </ul>
+        <p class="mt-3">
+          The events land in a Cloudflare Analytics Engine dataset called
+          <code class="bg-secondary px-1 font-mono text-xs">consenttheater_analytics_events</code>.
+          <strong>Cloudflare retains the raw events for 90 days, then drops them.</strong>
+          The aggregate counts shown above are computed from that 90-day window
+          via the Analytics Engine SQL API.
+        </p>
+      </section>
+
+      <section id="what-we-dont-collect">
+        <h2 class="mb-3 font-display text-lg font-bold tracking-tight">What we don't collect</h2>
+        <ul class="list-disc space-y-1.5 pl-6">
+          <li><strong>No personal data.</strong> No name, no email, no account.</li>
+          <li><strong>No IP addresses.</strong> Country is derived in flight by Cloudflare's edge layer; the IP never reaches our worker code, and we don't log it.</li>
+          <li><strong>No cookies set by the tracker.</strong> The beacon is a fire-and-forget POST.</li>
+          <li><strong>No cross-site identifiers.</strong> No fingerprinting probes. Same visitor on two visits looks like two different visits.</li>
+          <li><strong>No third-party processors.</strong> Everything stays inside our own Cloudflare account on the same domain you're already on.</li>
+          <li><strong>No advertising tracking</strong>, ever. There are no ad-tech toggles to flip — those technologies aren't on this site at all.</li>
+        </ul>
+      </section>
+
+      <section id="why-public">
+        <h2 class="mb-3 font-display text-lg font-bold tracking-tight">Why public</h2>
+        <p>
+          This project audits other people's privacy practices. The least we can do
+          is run our own analytics in glass. Three concrete reasons:
+        </p>
+        <ol class="mt-3 list-decimal space-y-2 pl-6">
+          <li>
+            <strong>Accountability.</strong> Anyone can verify what we said in the
+            consent banner against what the dashboard actually shows. If we ever
+            drift, the public record makes it obvious.
+          </li>
+          <li>
+            <strong>Useful research signal.</strong> If a regulator or journalist
+            wants to know how cookie-consent topics are trending in attention, our
+            traffic pattern is a small but honest data point — and they don't need
+            to ask permission to look.
+          </li>
+          <li>
+            <strong>Dogfooding.</strong> Our methodology argues that aggregate,
+            consent-gated, no-third-party analytics is fine under GDPR. It's only
+            credible if we run our own site that way.
+          </li>
+        </ol>
+      </section>
+
+      <section id="how-to-opt-out">
+        <h2 class="mb-3 font-display text-lg font-bold tracking-tight">How to opt in or out</h2>
+        <p>
+          Analytics is <strong>off by default</strong>. To toggle:
+        </p>
+        <ul class="mt-3 list-disc space-y-1.5 pl-6">
+          <li>
+            Open the
+            <button
+              type="button"
+              data-action="open-consent"
+              class="link cursor-pointer bg-transparent p-0 underline-offset-2 hover:underline"
+            >consent banner</button>
+            from the footer of any page (the "Cookie preferences" link).
+          </li>
+          <li>
+            Pick <em>Accept analytics</em> or <em>Reject analytics</em>. Your
+            choice is stored in a cookie called
+            <code class="bg-secondary px-1 font-mono text-xs">zest_consent</code>
+            for 365 days.
+          </li>
+          <li>
+            Browsers sending <strong>Do Not Track</strong> or <strong>Global Privacy
+            Control</strong> are treated as a default <em>reject</em>. You can still
+            override that through the banner if you want.
+          </li>
+        </ul>
+        <p class="mt-3 text-xs text-muted-foreground">
+          For the technical specifics — every cookie, every storage entry, every
+          permission — see <a href="/privacy/" class="link">the privacy policy</a>.
+        </p>
+      </section>
+
+    </div>
+  </section>
+
+  <script is:inline>
+    (function () {
+      var root = document.getElementById('ct-stats');
+      if (!root) return;
+      var endpoint = root.getAttribute('data-stats-endpoint') || '/api/stats';
+      var WINDOWS = [7, 30, 90];
+      var currentWindow = parseInt(root.getAttribute('data-default-window') || '90', 10);
+      if (WINDOWS.indexOf(currentWindow) === -1) currentWindow = 90;
+
+      function setHTML(html) { root.innerHTML = html; }
+
+      function fmt(n) {
+        var v = Number(n) || 0;
+        return v.toLocaleString('en-US');
+      }
+
+      function escapeHTML(s) {
+        return String(s == null ? '' : s)
+          .replace(/&/g, '&amp;').replace(/</g, '&lt;')
+          .replace(/>/g, '&gt;').replace(/"/g, '&quot;')
+          .replace(/'/g, '&#39;');
+      }
+
+      // ISO-3166 alpha-2 country code -> emoji flag.
+      // Each ASCII letter maps to a regional indicator symbol (U+1F1E6 + offset).
+      function codeToFlag(code) {
+        if (typeof code !== 'string' || code.length !== 2) return '';
+        var c0 = code.toUpperCase().charCodeAt(0);
+        var c1 = code.toUpperCase().charCodeAt(1);
+        if (c0 < 65 || c0 > 90 || c1 < 65 || c1 > 90) return '';
+        return String.fromCodePoint(0x1F1E6 + c0 - 65) + String.fromCodePoint(0x1F1E6 + c1 - 65);
+      }
+
+      // Build a continuous N-day series, padding missing days with zero so
+      // the sparkline is visually honest about gaps.
+      function fillSeries(series, days) {
+        var byDay = {};
+        for (var i = 0; i < (series || []).length; i++) {
+          var s = series[i];
+          if (s && s.day) byDay[s.day] = Number(s.views) || 0;
+        }
+        var out = [];
+        var today = new Date();
+        for (var k = days - 1; k >= 0; k--) {
+          var d = new Date(today.getTime() - k * 86400000);
+          var key = d.toISOString().slice(0, 10);
+          out.push({ day: key, views: byDay[key] || 0 });
+        }
+        return out;
+      }
+
+      function renderSparkline(series, days) {
+        var filled = fillSeries(series, days);
+        if (!filled.length) return '';
+        var w = 280;
+        var h = 56;
+        var pad = 2;
+        var max = 1;
+        for (var i = 0; i < filled.length; i++) if (filled[i].views > max) max = filled[i].views;
+        var step = (w - 2 * pad) / Math.max(1, filled.length - 1);
+        var pts = '';
+        for (var j = 0; j < filled.length; j++) {
+          var x = pad + j * step;
+          var y = h - pad - (filled[j].views / max) * (h - 2 * pad);
+          pts += (j === 0 ? 'M' : 'L') + x.toFixed(2) + ',' + y.toFixed(2) + ' ';
+        }
+        // Closed area variant for the soft fill underneath
+        var area = pts + 'L' + (w - pad).toFixed(2) + ',' + (h - pad) + ' L' + pad + ',' + (h - pad) + ' Z';
+        return (
+          '<svg viewBox="0 0 ' + w + ' ' + h + '" width="' + w + '" height="' + h + '" preserveAspectRatio="none" class="w-full max-w-[18rem]" aria-hidden="true">' +
+            '<path d="' + area + '" fill="hsl(var(--primary) / 0.12)" stroke="none" />' +
+            '<path d="' + pts + '" fill="none" stroke="hsl(var(--primary))" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />' +
+          '</svg>'
+        );
+      }
+
+      function renderRangeSelector() {
+        var btns = '';
+        for (var i = 0; i < WINDOWS.length; i++) {
+          var w = WINDOWS[i];
+          var active = w === currentWindow;
+          var cls = active
+            ? 'border-primary bg-primary text-primary-foreground'
+            : 'border-border bg-card text-foreground hover:bg-secondary';
+          btns +=
+            '<button type="button" data-window="' + w + '" aria-pressed="' + active + '" ' +
+            'class="border ' + cls + ' px-3 py-1 font-mono text-[11px] font-semibold uppercase tracking-wider transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2">' +
+            w + 'D' +
+            '</button>';
+        }
+        return '<div class="flex items-center gap-1" role="group" aria-label="Time range">' + btns + '</div>';
+      }
+
+      function emptyPanel(title) {
+        return (
+          '<section class="border border-border bg-card">' +
+          '<div class="border-b border-border px-4 py-3">' +
+          '<p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">' + escapeHTML(title) + '</p>' +
+          '</div>' +
+          '<p class="px-4 py-6 text-center text-xs text-muted-foreground">No data in this window yet.</p>' +
+          '</section>'
+        );
+      }
+
+      function renderPanel(title, rows, total, opts) {
+        opts = opts || {};
+        if (!rows || !rows.length) return emptyPanel(title);
+
+        var max = 0;
+        for (var j = 0; j < rows.length; j++) {
+          var rv = Number(rows[j].views) || 0;
+          if (rv > max) max = rv;
+        }
+
+        var rowsHtml = '';
+        var totalForPanel = 0;
+        for (var i = 0; i < rows.length; i++) {
+          var r = rows[i];
+          var labelKey = Object.keys(r).filter(function (k) { return k !== 'views'; })[0];
+          var label = r[labelKey];
+          var v = Number(r.views) || 0;
+          totalForPanel += v;
+          var barPct = max > 0 ? Math.max(2, Math.round(v / max * 100)) : 0;
+          var pctOfTotal = total > 0 ? (v / total * 100) : 0;
+          var pctText = pctOfTotal >= 10
+            ? pctOfTotal.toFixed(0) + '%'
+            : pctOfTotal.toFixed(1) + '%';
+
+          var displayLabel = '';
+          if (opts.flag && typeof label === 'string' && label.length === 2) {
+            var flag = codeToFlag(label);
+            displayLabel = (flag ? '<span class="mr-1">' + flag + '</span>' : '') +
+              '<span class="font-mono text-[12px]">' + escapeHTML(label) + '</span>';
+          } else {
+            displayLabel = '<span class="font-mono text-[12px]">' + escapeHTML(label) + '</span>';
+          }
+
+          rowsHtml +=
+            '<li class="relative border-b border-border last:border-b-0">' +
+              '<div class="absolute inset-y-0 left-0 bg-primary/10" style="width: ' + barPct + '%"></div>' +
+              '<div class="relative grid grid-cols-[1.5rem_1fr_4rem_3rem] items-baseline gap-2 px-3 py-2">' +
+                '<span class="font-mono text-[10px] text-muted-foreground tabular-nums">' + (i + 1) + '</span>' +
+                '<span class="truncate text-foreground/90" title="' + escapeHTML(String(label)) + '">' + displayLabel + '</span>' +
+                '<span class="text-right font-mono text-xs font-semibold text-foreground tabular-nums">' + fmt(v) + '</span>' +
+                '<span class="text-right font-mono text-[10px] text-muted-foreground tabular-nums">' + pctText + '</span>' +
+              '</div>' +
+            '</li>';
+        }
+
+        return (
+          '<section class="border border-border bg-card">' +
+          '<div class="flex items-baseline justify-between gap-3 border-b border-border px-4 py-3">' +
+          '<p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">' + escapeHTML(title) + '</p>' +
+          '<p class="font-mono text-[10px] uppercase tracking-wider text-muted-foreground tabular-nums">' + fmt(totalForPanel) + ' shown</p>' +
+          '</div>' +
+          '<ul class="list-none">' + rowsHtml + '</ul>' +
+          '</section>'
+        );
+      }
+
+      function renderHero(data) {
+        var sparkline = renderSparkline(data.time_series, data.window_days);
+        return (
+          '<div class="mb-6 border border-border bg-card px-5 py-5">' +
+          '<div class="mb-4 flex flex-wrap items-center justify-between gap-3">' +
+          '<p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">' +
+          'Total page views · last ' + data.window_days + ' days' +
+          '</p>' +
+          renderRangeSelector() +
+          '</div>' +
+          '<div class="grid gap-4 sm:grid-cols-[auto_1fr] sm:items-end">' +
+          '<p class="font-display text-3xl font-bold tracking-tight tabular-nums">' + fmt(data.total_views) + '</p>' +
+          '<div class="flex justify-end">' + sparkline + '</div>' +
+          '</div>' +
+          '<p class="mt-3 text-[10px] uppercase tracking-wider text-muted-foreground">' +
+          'Cached for 10 minutes at the edge · sparkline shows daily totals' +
+          '</p>' +
+          '</div>'
+        );
+      }
+
+      function bindRangeButtons() {
+        var btns = root.querySelectorAll('[data-window]');
+        btns.forEach(function (btn) {
+          btn.addEventListener('click', function () {
+            var w = parseInt(btn.getAttribute('data-window') || '90', 10);
+            if (WINDOWS.indexOf(w) === -1 || w === currentWindow) return;
+            currentWindow = w;
+            load();
+          });
+        });
+      }
+
+      function load() {
+        var url = endpoint + '?days=' + currentWindow;
+        // Keep current content visible while fetching — no flash to "loading…"
+        fetch(url, { headers: { Accept: 'application/json' } })
+          .then(function (r) { return r.ok ? r.json() : r.json().then(function (j) { throw j; }); })
+          .then(function (data) {
+            if (!data.configured) {
+              setHTML(
+                '<p class="text-sm text-foreground/85">The dashboard isn\'t wired up yet. Check back soon — once <code class="bg-secondary px-1 font-mono text-xs">CLOUDFLARE_API_TOKEN</code> is set on the worker, counts will appear here.</p>'
+              );
+              return;
+            }
+            var html = '';
+            html += renderHero(data);
+            html += '<div class="space-y-4">';
+            html += renderPanel('Top paths', data.top_paths, data.total_views);
+            html += '<div class="grid gap-4 sm:grid-cols-2">';
+            html += renderPanel('Top referrers', data.top_referrers, data.total_views);
+            html += renderPanel('Top countries', data.top_countries, data.total_views, { flag: true });
+            html += '</div>';
+            html += '</div>';
+            setHTML(html);
+            bindRangeButtons();
+          })
+          .catch(function (err) {
+            var msg = (err && err.error) || 'Could not reach /api/stats.';
+            setHTML('<p class="text-sm text-muted-foreground">' + escapeHTML(msg) + '</p>');
+          });
+      }
+
+      load();
+    })();
+  </script>
+</Layout>

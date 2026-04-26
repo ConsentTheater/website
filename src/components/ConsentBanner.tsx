@@ -78,7 +78,7 @@ export function ConsentBanner() {
       className="fixed inset-x-0 bottom-0 z-50 px-4 pb-4 sm:inset-x-auto sm:bottom-4 sm:left-1/2 sm:-translate-x-1/2 sm:px-0"
     >
       <div className="mx-auto w-full max-w-2xl border border-border bg-card text-card-foreground shadow-lg">
-        <div className="flex items-start justify-between gap-3 border-b border-border px-5 py-3">
+        <div className="flex items-center justify-between gap-3 border-b border-border px-5 py-3">
           <div className="flex items-center gap-2">
             <CookieIcon size={18} aria-hidden="true" className="text-muted-foreground" />
             <p id="consent-title" className="font-display text-sm font-bold tracking-tight">
@@ -136,7 +136,9 @@ export function ConsentBanner() {
               request) recording: path, page title, referrer host, country,
               and viewport class.
               <strong> No personal data, no IP storage, no cookies set by the
-              tracker, no fingerprint.</strong> 90-day retention. Off by default.
+              tracker, no fingerprint.</strong> 90-day retention. Aggregate
+              counts are public on <a href="/stats/" className="link">/stats/</a>.
+              Off by default.
             </p>
           </section>
 
