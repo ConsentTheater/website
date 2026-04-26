@@ -31,7 +31,7 @@
   "analytics_engine_datasets": [
     {
       "binding": "ANALYTICS",
-      "dataset": "consenttheater_events"
+      "dataset": "consenttheater_analytics_events"
     }
   ],
 

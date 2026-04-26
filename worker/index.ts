@@ -262,7 +262,7 @@ app.post('/api/event', async (c) => {
  * already be wired up to feed it. No code changes needed here.
  */
 
-const STATS_DATASET = 'consenttheater_events';
+const STATS_DATASET = 'consenttheater_analytics_events';
 const STATS_WINDOW_DAYS = 90;
 const STATS_LIMIT = 30;
 
