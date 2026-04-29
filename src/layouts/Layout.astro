@@ -4,7 +4,6 @@ import { Image } from 'astro:assets';
 import { Icon } from 'astro-icon/components';
 import { execSync } from 'node:child_process';
 import { SettingsDialog } from '@/components/SettingsDialog';
-import { ConsentBanner } from '@/components/ConsentBanner';
 import logo from '@/assets/logo.png';
 
 function readBuildInfo() {
@@ -174,12 +173,6 @@ const isActive = (href: string) =>
             <a href="/privacy/" class="py-1 transition-colors hover:text-foreground">Privacy</a>
             <a href="/license/" class="py-1 transition-colors hover:text-foreground">License</a>
             <a href="/acknowledgements/" class="py-1 transition-colors hover:text-foreground">Acknowledgements</a>
-            <a href="/stats/" class="py-1 transition-colors hover:text-foreground">Stats</a>
-            <button
-              type="button"
-              data-action="open-consent"
-              class="cursor-pointer py-1 text-left transition-colors hover:text-foreground"
-            >Cookie preferences</button>
             <a
               href="https://github.com/ConsentTheater"
               target="_blank"
@@ -228,21 +221,5 @@ const isActive = (href: string) =>
         </div>
       </footer>
     </div>
-
-    <ConsentBanner client:load />
-
-    <script is:inline>
-      // Wire up the footer "Cookie preferences" button to dispatch the
-      // event the ConsentBanner component listens for. Inline so it ships
-      // without an extra island.
-      document.addEventListener('click', function (e) {
-        var target = e.target;
-        if (!(target instanceof Element)) return;
-        var btn = target.closest('[data-action="open-consent"]');
-        if (!btn) return;
-        e.preventDefault();
-        window.dispatchEvent(new CustomEvent('ct:open-consent-banner'));
-      });
-    </script>
   </body>
 </html>

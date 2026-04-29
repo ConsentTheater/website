@@ -1,15 +1,13 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 
-const updated = '2026-04-27';
-
-type DescPart = string | { href: string; text: string };
+const updated = '2026-04-29';
 
 interface Credit {
   name: string;
   href: string;
   license: string;
-  desc: string | DescPart[];
+  desc: string;
 }
 
 interface Section {
@@ -132,35 +130,6 @@ const sections: Section[] = [
     ]
   },
   {
-    id: 'consent',
-    title: 'Consent & analytics',
-    lead: 'What handles the cookie banner, consent decisions, and the opt-in analytics path.',
-    items: [
-      {
-        name: '@freshjuice/zest',
-        href: 'https://zest.freshjuice.dev',
-        license: 'MIT',
-        desc: 'Lightweight cookie-consent toolkit. We use the headless build for the consent state engine — DNT / GPC respect, signed consent proof in the zest_consent cookie — with our own UI for the banner.'
-      },
-      {
-        name: 'Plausible Analytics',
-        href: 'https://plausible.io',
-        license: 'AGPL-3.0',
-        desc: [
-          'Privacy-friendly web analytics, EU-incorporated (Estonia) and EU-hosted (Hetzner, Falkenstein). When you opt in, your browser sends a single pageview event directly to plausible.io — no IP storage, no cookies, no fingerprint. Public dashboard at ',
-          { href: 'https://plausible.io/consenttheater.org', text: 'plausible.io/consenttheater.org' },
-          '.'
-        ]
-      },
-      {
-        name: '@plausible-analytics/tracker',
-        href: 'https://www.npmjs.com/package/@plausible-analytics/tracker',
-        license: 'MIT',
-        desc: 'Plausible\'s official tracker as an npm module. Bundled into our own JavaScript via dynamic import — no third-party script tag loads from plausible.io, and the tracker chunk is fetched only when init() runs. We call init() exclusively after explicit analytics consent, so until you accept, no Plausible code is loaded or executed in your browser at all.'
-      }
-    ]
-  },
-  {
     id: 'tooling',
     title: 'Build & tooling',
     lead: 'What the repository depends on but that never reaches your browser.',
@@ -252,22 +221,7 @@ const sections: Section[] = [
                     {item.license}
                   </span>
                 </dt>
-                <dd class="mt-1 text-sm text-foreground/80">
-                  {typeof item.desc === 'string'
-                    ? item.desc
-                    : item.desc.map((part) =>
-                        typeof part === 'string' ? (
-                          part
-                        ) : (
-                          <a
-                            href={part.href}
-                            target="_blank"
-                            rel="noopener"
-                            class="link"
-                          >{part.text}</a>
-                        )
-                      )}
-                </dd>
+                <dd class="mt-1 text-sm text-foreground/80">{item.desc}</dd>
               </div>
             ))}
           </dl>

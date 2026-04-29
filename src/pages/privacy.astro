@@ -1,11 +1,11 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 
-const updated = '2026-04-27';
+const updated = '2026-04-29';
 ---
 <Layout
   title="Privacy Policy — ConsentTheater"
-  description="How ConsentTheater handles your data. Short version: we don't set tracking cookies, we don't run analytics, and we don't share anything."
+  description="How ConsentTheater handles your data. Short version: we collect nothing. No analytics, no telemetry, no cookies, no consent banner — because there's nothing to consent to."
 >
   <section class="mx-auto w-full max-w-3xl px-6 pt-10 pb-12">
     <div class="mb-6">
@@ -24,89 +24,44 @@ const updated = '2026-04-27';
       <section>
         <h2 class="mb-2 font-display text-lg font-bold tracking-tight">Short version</h2>
         <p>
-          We run a tracker lookup — you type a cookie name or a domain, we tell you who's behind it.
-          We don't set tracking cookies for marketing or advertising. We run anonymous,
-          opt-in, EU-hosted analytics through Plausible (off by default). We don't share
-          your data with anyone, because there is no personal data to share.
+          We run a tracker lookup. You type a cookie name or a domain, we tell you
+          who's behind it. We collect <strong>nothing</strong> about you in the process —
+          no analytics, no telemetry, no advertising trackers, no cookies set by us
+          for marketing or measurement. There is no consent banner on this site
+          because there is nothing to consent to.
         </p>
       </section>
 
       <section>
         <h2 class="mb-2 font-display text-lg font-bold tracking-tight">What we store in your browser</h2>
         <p>
-          Two storage entries — both qualify as <em>strictly necessary</em> under
-          ePrivacy Art. 5(3) and require no consent:
+          One <code class="bg-secondary px-1 font-mono text-xs">ct_settings</code>
+          entry in localStorage — your theme, contrast and language preferences,
+          set when you change them in the settings panel. This qualifies as
+          <em>strictly necessary</em> under
+          <a href="/law/eprivacy/art-5/" class="link">ePrivacy Directive Art. 5(3)</a>
+          (it remembers a choice you explicitly made on this site) and never
+          leaves your browser.
         </p>
-        <ul class="mt-3 list-disc space-y-1.5 pl-6">
-          <li>
-            <code class="bg-secondary px-1 font-mono text-xs">ct_settings</code>
-            <span class="text-muted-foreground"> · localStorage</span> — your theme,
-            contrast and language preferences. Set when you change them in the
-            settings panel. Never leaves your browser.
-          </li>
-          <li>
-            <code class="bg-secondary px-1 font-mono text-xs">zest_consent</code>
-            <span class="text-muted-foreground"> · cookie, 365-day expiry, SameSite=Lax</span>
-            — records the choice you made in the consent banner so we can honour
-            it on subsequent visits. Set by
-            <a href="https://zest.freshjuice.dev" target="_blank" rel="noopener" class="link">@freshjuice/zest</a>,
-            our consent toolkit. Never leaves your browser.
-          </li>
-        </ul>
         <p class="mt-3">
-          No fingerprinting, no session storage, no local databases. No third-party
-          marketing or advertising scripts.
+          That's the entire list. No cookies, no session storage, no IndexedDB,
+          no fingerprinting probes, no third-party scripts.
         </p>
       </section>
 
       <section>
-        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">Analytics — opt-in only, EU-hosted</h2>
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">No analytics</h2>
         <p>
-          When you accept analytics through our consent banner, your browser sends a
-          single pageview event directly to
-          <code class="bg-secondary px-1 font-mono text-xs">plausible.io/api/event</code>.
-          We use <a
-            href="https://plausible.io/privacy-focused-web-analytics"
-            target="_blank"
-            rel="noopener"
-            class="link"
-          >Plausible Analytics</a> — open-source (AGPL), incorporated in Estonia,
-          hosted on Hetzner servers in <strong>Falkenstein, Germany</strong>.
-          <strong>No third-party script is loaded</strong>: we use Plausible's
-          official npm package, so the tracker code ships bundled inside our own
-          JavaScript. The only network request to plausible.io is the consent-gated
-          POST that delivers the pageview event.
+          ConsentTheater runs <strong>no analytics</strong>. No Plausible, no
+          Cloudflare Analytics Engine, no Google Analytics, no first-party visit
+          counter, nothing. Visitors are not counted, not classified by country,
+          not bucketed by device class. We don't know who reads this page and
+          neither does anyone else.
         </p>
         <p class="mt-3">
-          Analytics is <strong>off by default</strong>. Browsers sending <em>Do Not
-          Track</em> or <em>Global Privacy Control</em> are treated as a default
-          reject; you can still override that through the banner.
-        </p>
-        <p class="mt-3">
-          Each event records only the URL of the page, referrer, country (derived
-          from IP by Plausible's ingestion server at request time and discarded
-          without storage), and device class (mobile / tablet / desktop, derived
-          from User-Agent). The tracker sets no cookies, stores no IP, sets no
-          cross-site identifier, and does not fingerprint. See
-          <a
-            href="https://plausible.io/data-policy"
-            target="_blank"
-            rel="noopener"
-            class="link"
-          >Plausible's data policy</a> for the complete technical breakdown.
-        </p>
-        <p class="mt-3">
-          The aggregate dashboard is <strong>publicly readable on Plausible's own
-          domain</strong> — anyone can audit what we collect at
-          <a
-            href="https://plausible.io/consenttheater.org"
-            target="_blank"
-            rel="noopener"
-            class="link font-mono"
-          >plausible.io/consenttheater.org</a>.
-          See <a href="/stats/" class="link">our public stats page</a> for the
-          methodology, the exact list of fields, and the toggle to opt in or out at
-          any time.
+          A privacy-tool site that catalogues trackers should not, in our view,
+          be running trackers — even privacy-respecting ones. The integrity of
+          the project comes first.
         </p>
       </section>
 
@@ -179,8 +134,6 @@ const updated = '2026-04-27';
             <strong>Cloudflare, Inc.</strong> (101 Townsend Street, San Francisco, CA 94107, USA)
             — CDN edge network and Workers runtime that serves this site and the
             <code class="bg-secondary px-1 font-mono text-xs">/api/search</code> lookup endpoint.
-            Cloudflare is <strong>not</strong> in the analytics data path: when you accept analytics,
-            your browser talks to Plausible directly (see below).
             <ul class="mt-1 list-[circle] space-y-0.5 pl-5 text-xs">
               <li>
                 Acts as our <strong>data processor</strong> under a signed
@@ -206,64 +159,21 @@ const updated = '2026-04-27';
               </li>
             </ul>
           </li>
-          <li>
-            <strong>Plausible Insights OÜ</strong> (Västriku tn 2, 50403 Tartu, Estonia)
-            — privacy-friendly web analytics, hosted on Hetzner servers in
-            <strong>Falkenstein, Germany</strong>. Receives consent-gated pageview events
-            directly from your browser. EU-incorporated, EU-hosted; no transfer to third
-            countries occurs in the analytics path.
-            <ul class="mt-1 list-[circle] space-y-0.5 pl-5 text-xs">
-              <li>
-                Acts as our <strong>data processor</strong> under their published
-                <a
-                  href="https://plausible.io/dpa"
-                  target="_blank"
-                  rel="noopener"
-                  class="link"
-                >Data Processing Addendum</a>.
-              </li>
-              <li>
-                Sets no cookies, stores no IP, uses no cross-site identifier or
-                fingerprint. Country is derived from IP at request time and the IP is
-                discarded without storage.
-              </li>
-              <li>
-                <a
-                  href="https://plausible.io/data-policy"
-                  target="_blank"
-                  rel="noopener"
-                  class="link"
-                >Plausible's data policy</a>
-                ·
-                <a
-                  href="https://plausible.io/privacy"
-                  target="_blank"
-                  rel="noopener"
-                  class="link"
-                >their privacy policy</a>
-                ·
-                <a
-                  href="https://github.com/plausible/analytics"
-                  target="_blank"
-                  rel="noopener"
-                  class="link"
-                >open-source code</a>
-              </li>
-            </ul>
-          </li>
         </ul>
         <p class="mt-4">
-          That's the whole list. If it ever grows, we'll update this page and note the change date
-          at the top.
+          That's the whole list — one infrastructure provider for static content
+          and the lookup endpoint, and nothing else. If it ever grows, we'll
+          update this page and note the change date at the top.
         </p>
       </section>
 
       <section>
         <h2 class="mb-2 font-display text-lg font-bold tracking-tight">International data transfers</h2>
         <p>
-          ConsentTheater is operated from Berlin, Germany. After weighing the
-          tradeoffs we deliberately split the stack so that personal-data flows stay
-          inside the EU, while the static site benefits from a global CDN:
+          ConsentTheater is operated from the European Union. There are no
+          analytics flows, no telemetry, no event-collection backend — so there
+          is nothing about visitors that crosses borders. The only network layer
+          that carries any visitor data at all is Cloudflare's CDN:
         </p>
         <ul class="mt-3 list-disc space-y-2 pl-5">
           <li>
@@ -272,15 +182,7 @@ const updated = '2026-04-27';
             Point of Presence (Frankfurt, Amsterdam, London, Paris, etc.). The
             visitor's IP terminates at Cloudflare's edge, where the country code is
             derived. Our worker code receives the country code only — it never sees,
-            logs, or stores the IP. No analytics events are written to Cloudflare.
-          </li>
-          <li>
-            <strong>Analytics events</strong>, when you have explicitly accepted
-            them, go directly from your browser to
-            <code class="bg-secondary px-1 font-mono text-xs">plausible.io/api/event</code>.
-            Plausible is <strong>incorporated in Estonia and hosted on Hetzner
-            servers in Falkenstein, Germany</strong>. No transfer to a third country
-            occurs in the analytics path — the data stays inside the EU end-to-end.
+            logs, or stores the IP.
           </li>
           <li>
             <strong>Cloudflare's processing of the IP itself</strong> at the network
@@ -297,8 +199,7 @@ const updated = '2026-04-27';
         <p class="mt-3 text-xs text-muted-foreground">
           If the EU-US Data Privacy Framework is ever invalidated by the CJEU (as
           Privacy Shield was in <em>Schrems II</em>), the SCCs fallback continues to
-          apply for the Cloudflare static-content path, and our analytics path is
-          unaffected because it has no US sub-processor. We will publish a notice
+          apply for the Cloudflare static-content path. We will publish a notice
           on this page within 14 days of any material change.
         </p>
       </section>
