@@ -14,7 +14,7 @@ const releasesUrl = 'https://github.com/ConsentTheater/extension/releases';
 const changelogUrl = 'https://github.com/ConsentTheater/extension/blob/main/CHANGELOG.md';
 const privacyUrl = 'https://github.com/ConsentTheater/extension/blob/main/PRIVACY.md';
 
-const manualBuildVersion = '0.2.0';
+const manualBuildVersion = '0.3.0';
 const manualChromeZip = `${releasesUrl}/download/v${manualBuildVersion}/consenttheater-chrome-v${manualBuildVersion}.zip`;
 const manualFirefoxZip = `${releasesUrl}/download/v${manualBuildVersion}/consenttheater-firefox-v${manualBuildVersion}.zip`;
 
@@ -188,47 +188,64 @@ const features = [
       </div>
     </details>
 
-    <!-- What's new in 0.2.0 -->
+    <!-- What's new in 0.3.0 -->
     <section class="mb-12 border border-border bg-card p-5" aria-labelledby="whats-new">
       <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
         What's new
       </p>
       <h2 id="whats-new" class="mt-1 font-display text-lg font-bold tracking-tight">
-        Version 0.2.0 — observe, don't grade
+        Version 0.3.0 — Firefox stability &amp; UX polish
       </h2>
       <ul class="mt-3 space-y-1.5 text-sm leading-relaxed text-foreground/90">
         <li>
-          <strong>Site-level verdict removed.</strong> No more 0–100 score, no more
-          "Compliant / Violating" bands. The Scan view now lists facts only — the banner
-          shape, the cookies set before consent, the requests fired before consent.
-          Whether that adds up to a violation is a question for a regulator.
+          <strong>Firefox toolbar icon now actually opens the sidebar.</strong>
+          The HAR recorder was registering Chrome-only <code class="font-mono text-[11px]">webRequest</code>
+          options that Firefox rejected synchronously, which took the background
+          script down before the toolbar wiring registered. Both browsers now use
+          the right spec.
         </li>
         <li>
-          <strong>PDF export.</strong> One click opens a print-ready report in a new tab;
-          use the browser's <em>Save as PDF</em> to hand findings to a colleague or
-          regulator.
+          <strong>Always-on export bar.</strong> Copy, PDF and HAR are clickable
+          the moment the sidebar opens. Copy and PDF fall back to a live snapshot
+          built from <code class="font-mono text-[11px]">chrome.cookies</code> and
+          the live tracker map; HAR still requires a Test scan and surfaces an
+          in-sidebar toast if clicked early.
         </li>
         <li>
-          <strong>HAR 1.2 export.</strong> Saves the entire scan's network trace as a
-          standard HAR file that opens in DevTools, Charles, or HTTPToolkit. Each entry
-          is annotated with the matching Playbill classification.
+          <strong>Same-origin reloads no longer wipe the scan.</strong> Firefox
+          fires <code class="font-mono text-[11px]">tabs.onUpdated</code> on every
+          reload, not only on URL changes — the scan-state handler now only resets
+          when the origin actually changes.
         </li>
         <li>
-          <strong>Better banner detection</strong> across shadow DOM and iframes,
-          plus broader Reject-button patterns.
+          <strong>Smarter button classifier.</strong> "I do not agree" used to match
+          <code class="font-mono text-[11px]">\bagree\b</code> and got booked as
+          Accept. Replaced with reject &gt; manage &gt; accept precedence and
+          negation patterns across EN / DE / FR / ES / IT / PT.
         </li>
         <li>
-          <strong>Two permissions removed</strong> (<code class="font-mono text-[11px]">scripting</code>
-          and <code class="font-mono text-[11px]">activeTab</code>). The content script
-          is registered statically and <code class="font-mono text-[11px]">&lt;all_urls&gt;</code>
-          host access already covers what <code class="font-mono text-[11px]">activeTab</code>
-          would have given. Smaller surface area, same capability.
+          <strong>Iframe and shadow-DOM banners.</strong> Sourcepoint, Funding
+          Choices and other iframe-hosted CMPs are now detected
+          (<code class="font-mono text-[11px]">all_frames: true</code>), and the
+          detector recurses into open shadow roots for sites that hide their
+          banner there.
         </li>
         <li>
-          <strong>New consent-burden vocabulary.</strong> Tracker entries no longer carry
-          <em>critical / high / medium / low</em> severities. The new field is
-          <em>required_strict / required / contested / minimal</em>, mirroring the
-          Playbill data model — same hierarchy, honester labels.
+          <strong>Banner support for Ketch CMP</strong> (Demandbase and others),
+          plus extra IDs for OneTrust, Cookiebot, Usercentrics, Didomi, CookieYes,
+          TrustArc, Quantcast Choice, Klaro, Termly, Iubenda and Osano — built off
+          real scans, not guesses.
+        </li>
+        <li>
+          <strong>In-sidebar toast component.</strong> Replaces native
+          <code class="font-mono text-[11px]">alert()</code>: card-styled, auto-dismisses,
+          accessible (<code class="font-mono text-[11px]">role="status"</code>,
+          <code class="font-mono text-[11px]">aria-live="polite"</code>), no transparency.
+        </li>
+        <li>
+          <strong>@consenttheater/playbill 0.2.0 → 0.3.0.</strong> Data-quality
+          release driven by ten end-to-end scans of major B2B SaaS sites. Notable
+          re-attributions and tighter collision reporting; API surface unchanged.
         </li>
       </ul>
       <p class="mt-4 text-xs text-muted-foreground">
