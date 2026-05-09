@@ -1,0 +1,125 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { getCollection, render } from 'astro:content';
+import { HANDBOOK_CATEGORY_LABELS } from '@/content.config';
+
+export async function getStaticPaths() {
+  const all = await getCollection('handbook', ({ data }) => !data.draft);
+  return all.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry }
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content, headings } = await render(entry);
+
+const { title, summary, category, updated, created, legal_refs, related } = entry.data;
+const categoryLabel = HANDBOOK_CATEGORY_LABELS[category];
+
+const all = await getCollection('handbook', ({ data }) => !data.draft);
+const relatedEntries = (related ?? [])
+  .map((slug) => all.find((e) => e.id === slug))
+  .filter((e): e is NonNullable<typeof e> => !!e);
+
+// Only show h2's in TOC; h3's nest visually but aren't navigation targets.
+const toc = headings.filter((h) => h.depth === 2);
+---
+<Layout
+  title={`${title} — ConsentTheater Handbook`}
+  description={summary}
+>
+  <section class="mx-auto w-full max-w-3xl px-6 pt-10 pb-12">
+    <nav class="mb-4 text-[11px] text-muted-foreground" aria-label="Breadcrumb">
+      <ol class="flex flex-wrap items-center gap-1">
+        <li>
+          <a href="/handbook/" class="link font-semibold uppercase tracking-wider">
+            Handbook
+          </a>
+        </li>
+        <li aria-hidden="true" class="font-mono">/</li>
+        <li class="font-semibold uppercase tracking-wider">{categoryLabel}</li>
+      </ol>
+    </nav>
+
+    <header class="mb-8">
+      <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        {categoryLabel}
+      </p>
+      <h1 class="mt-1 font-display text-2xl font-bold tracking-tight sm:text-3xl">
+        {title}
+      </h1>
+      <p class="mt-3 text-sm leading-relaxed text-muted-foreground">
+        {summary}
+      </p>
+      <p class="mt-3 text-[11px] text-muted-foreground">
+        Updated <time datetime={updated} class="font-mono">{updated}</time>
+        {created && created !== updated && (
+          <>
+            {' · first published '}
+            <time datetime={created} class="font-mono">{created}</time>
+          </>
+        )}
+      </p>
+    </header>
+
+    {toc.length > 1 && (
+      <aside class="mb-8 border-l-2 border-border bg-card px-4 py-3" aria-label="On this page">
+        <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+          On this page
+        </p>
+        <ul class="mt-2 space-y-1 text-sm">
+          {toc.map((h) => (
+            <li>
+              <a href={`#${h.slug}`} class="link">{h.text}</a>
+            </li>
+          ))}
+        </ul>
+      </aside>
+    )}
+
+    <article class="prose-ct">
+      <Content />
+    </article>
+
+    {legal_refs && legal_refs.length > 0 && (
+      <section class="mt-12 border-t border-border pt-6">
+        <h2 class="font-display text-base font-semibold tracking-tight">
+          Legal references on this site
+        </h2>
+        <ul class="mt-3 space-y-1.5 text-sm">
+          {legal_refs.map((ref) => (
+            <li>
+              <a href={ref.href} class="link">{ref.label}</a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+
+    {relatedEntries.length > 0 && (
+      <section class="mt-10 border-t border-border pt-6">
+        <h2 class="font-display text-base font-semibold tracking-tight">
+          Related handbook entries
+        </h2>
+        <ul class="mt-3 space-y-3">
+          {relatedEntries.map((e) => (
+            <li>
+              <a
+                href={`/handbook/${e.id}/`}
+                class="block border border-border bg-card px-5 py-4 transition-colors hover:bg-secondary"
+              >
+                <p class="font-display text-sm font-bold leading-tight tracking-tight text-foreground">
+                  {e.data.title}
+                </p>
+                <p class="mt-1.5 text-xs leading-relaxed text-muted-foreground">
+                  {e.data.summary}
+                </p>
+              </a>
+            </li>
+          ))}
+        </ul>
+      </section>
+    )}
+  </section>
+</Layout>

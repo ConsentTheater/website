@@ -41,6 +41,7 @@ const year = new Date().getFullYear();
 const currentPath = Astro.url.pathname;
 const navItems = [
   { href: '/', label: 'Lookup', mobileLabel: 'Check an Actor', mobileOnly: true },
+  { href: '/handbook/', label: 'Handbook', mobileLabel: 'Handbook' },
   { href: '/methodology/', label: 'Methodology', mobileLabel: 'Our Methodology' },
   { href: '/extension/', label: 'Extension', mobileLabel: 'Free Browser Extension' },
   { href: '/about/', label: 'About', mobileLabel: 'About Project' }
@@ -168,6 +169,7 @@ const isActive = (href: string) =>
             aria-label="Footer"
           >
             <a href="/about/" class="py-1 transition-colors hover:text-foreground">About</a>
+            <a href="/handbook/" class="py-1 transition-colors hover:text-foreground">Handbook</a>
             <a href="/extension/" class="py-1 transition-colors hover:text-foreground">Extension</a>
             <a href="/methodology/" class="py-1 transition-colors hover:text-foreground">Methodology</a>
             <a href="/privacy/" class="py-1 transition-colors hover:text-foreground">Privacy</a>

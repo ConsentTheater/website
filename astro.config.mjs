@@ -6,6 +6,7 @@ import { join } from 'node:path';
 import sitemap from '@astrojs/sitemap';
 import icon from 'astro-icon';
 import tailwindcss from '@tailwindcss/vite';
+import rehypeExternalLinks from 'rehype-external-links';
 
 function readBuildInfo() {
   const builtAt = new Date().toISOString().slice(0, 10);
@@ -81,6 +82,15 @@ export default defineConfig({
     sitemapPostBuild,
     icon()
   ],
+  markdown: {
+    rehypePlugins: [
+      [rehypeExternalLinks, {
+        target: '_blank',
+        // Security only. We deliberately keep referrers and dofollow.
+        rel: ['noopener']
+      }]
+    ]
+  },
   vite: {
     plugins: [tailwindcss()],
     resolve: {

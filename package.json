@@ -38,6 +38,7 @@
     "@iconify-json/ph": "^1.2.2",
     "@types/node": "^25.6.2",
     "astro-icon": "^1.1.5",
+    "rehype-external-links": "^3.0.0",
     "typescript": "^5.9.3",
     "wrangler": "^4.90.0"
   },
