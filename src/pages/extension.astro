@@ -14,7 +14,7 @@ const releasesUrl = 'https://github.com/ConsentTheater/extension/releases';
 const changelogUrl = 'https://github.com/ConsentTheater/extension/blob/main/CHANGELOG.md';
 const privacyUrl = 'https://github.com/ConsentTheater/extension/blob/main/PRIVACY.md';
 
-const manualBuildVersion = '0.3.0';
+const manualBuildVersion = '0.4.0';
 const manualChromeZip = `${releasesUrl}/download/v${manualBuildVersion}/consenttheater-chrome-v${manualBuildVersion}.zip`;
 const manualFirefoxZip = `${releasesUrl}/download/v${manualBuildVersion}/consenttheater-firefox-v${manualBuildVersion}.zip`;
 
@@ -188,64 +188,49 @@ const features = [
       </div>
     </details>
 
-    <!-- What's new in 0.3.0 -->
+    <!-- What's new in 0.4.0 -->
     <section class="mb-12 border border-border bg-card p-5" aria-labelledby="whats-new">
       <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
         What's new
       </p>
       <h2 id="whats-new" class="mt-1 font-display text-lg font-bold tracking-tight">
-        Version 0.3.0 — Firefox stability &amp; UX polish
+        Version 0.4.0 — Playbill 0.4.0 data refresh
       </h2>
+      <p class="mt-3 text-sm leading-relaxed text-foreground/90">
+        A data-quality release. No new extension features — the work
+        happened in <code class="font-mono text-[11px]">@consenttheater/playbill</code>,
+        the tracker knowledge base bundled with the extension, which moves from
+        0.3.0 to 0.4.0.
+      </p>
       <ul class="mt-3 space-y-1.5 text-sm leading-relaxed text-foreground/90">
         <li>
-          <strong>Firefox toolbar icon now actually opens the sidebar.</strong>
-          The HAR recorder was registering Chrome-only <code class="font-mono text-[11px]">webRequest</code>
-          options that Firefox rejected synchronously, which took the background
-          script down before the toolbar wiring registered. Both browsers now use
-          the right spec.
+          <strong>Bigger catalogue.</strong> Settings now reports
+          <strong>4,028 cookies / 6,085 domains / 2,992 companies</strong>
+          (10,113 unique signatures after category-merge) — the size of the
+          in-memory tracker map the matcher actually consults on every scan.
         </li>
         <li>
-          <strong>Always-on export bar.</strong> Copy, PDF and HAR are clickable
-          the moment the sidebar opens. Copy and PDF fall back to a live snapshot
-          built from <code class="font-mono text-[11px]">chrome.cookies</code> and
-          the live tracker map; HAR still requires a Test scan and surfaces an
-          in-sidebar toast if clicked early.
+          <strong>Fewer cross-file collisions.</strong> Continued data-quality
+          work narrowed remaining
+          <code class="font-mono text-[11px]">COMPANY MISMATCH</code> cases:
+          cookie collisions down to 91 (from 109 in 0.3.0), domain collisions
+          down to 300 (from 344). Broader coverage across advertising,
+          analytics and marketing categories.
         </li>
         <li>
-          <strong>Same-origin reloads no longer wipe the scan.</strong> Firefox
-          fires <code class="font-mono text-[11px]">tabs.onUpdated</code> on every
-          reload, not only on URL changes — the scan-state handler now only resets
-          when the origin actually changes.
+          <strong>Same matching API.</strong> No extension-side code changes —
+          <code class="font-mono text-[11px]">loadPlaybill</code>,
+          <code class="font-mono text-[11px]">matchCookie</code>,
+          <code class="font-mono text-[11px]">matchDomain</code> and
+          <code class="font-mono text-[11px]">Playbill.stats</code> keep the
+          same surface. Settings picks up the new totals automatically as
+          soon as the package is rebuilt.
         </li>
         <li>
-          <strong>Smarter button classifier.</strong> "I do not agree" used to match
-          <code class="font-mono text-[11px]">\bagree\b</code> and got booked as
-          Accept. Replaced with reject &gt; manage &gt; accept precedence and
-          negation patterns across EN / DE / FR / ES / IT / PT.
-        </li>
-        <li>
-          <strong>Iframe and shadow-DOM banners.</strong> Sourcepoint, Funding
-          Choices and other iframe-hosted CMPs are now detected
-          (<code class="font-mono text-[11px]">all_frames: true</code>), and the
-          detector recurses into open shadow roots for sites that hide their
-          banner there.
-        </li>
-        <li>
-          <strong>Banner support for Ketch CMP</strong> (Demandbase and others),
-          plus extra IDs for OneTrust, Cookiebot, Usercentrics, Didomi, CookieYes,
-          TrustArc, Quantcast Choice, Klaro, Termly, Iubenda and Osano — built off
-          real scans, not guesses.
-        </li>
-        <li>
-          <strong>In-sidebar toast component.</strong> Replaces native
-          <code class="font-mono text-[11px]">alert()</code>: card-styled, auto-dismisses,
-          accessible (<code class="font-mono text-[11px]">role="status"</code>,
-          <code class="font-mono text-[11px]">aria-live="polite"</code>), no transparency.
-        </li>
-        <li>
-          <strong>@consenttheater/playbill 0.2.0 → 0.3.0.</strong> Data-quality
-          release driven by ten end-to-end scans of major B2B SaaS sites. Notable
-          re-attributions and tighter collision reporting; API surface unchanged.
+          <strong>Dependency refresh.</strong> Patch / minor bumps for
+          Tailwind, Vite, ESLint, typescript-eslint, addons-linter, postcss
+          and <code class="font-mono text-[11px]">@types/chrome</code> — none
+          with runtime impact on the shipped extension.
         </li>
       </ul>
       <p class="mt-4 text-xs text-muted-foreground">
