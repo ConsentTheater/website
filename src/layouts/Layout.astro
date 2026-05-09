@@ -3,7 +3,7 @@ import '@/styles/globals.css';
 import { Image } from 'astro:assets';
 import { Icon } from 'astro-icon/components';
 import { execSync } from 'node:child_process';
-import { SettingsDialog } from '@/components/SettingsDialog';
+import SettingsDialog from '@/components/SettingsDialog.astro';
 import logo from '@/assets/logo.png';
 
 function readBuildInfo() {
@@ -151,7 +151,7 @@ const isActive = (href: string) =>
               </ul>
             </nav>
 
-            <SettingsDialog client:load navItems={navItems} currentPath={currentPath} />
+            <SettingsDialog navItems={navItems} currentPath={currentPath} />
           </div>
         </div>
       </header>

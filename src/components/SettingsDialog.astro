@@ -1,0 +1,298 @@
+---
+import { Icon } from 'astro-icon/components';
+
+interface NavItem {
+  href: string;
+  label: string;
+  mobileLabel?: string;
+  mobileOnly?: boolean;
+}
+
+interface Props {
+  navItems?: NavItem[];
+  currentPath?: string;
+}
+
+const { navItems = [], currentPath = '' } = Astro.props;
+
+const isActive = (href: string) =>
+  currentPath === href || currentPath.startsWith(href);
+
+const triggerLabel = navItems.length > 0 ? 'Menu and preferences' : 'User preferences';
+const titleHasMenu = navItems.length > 0;
+---
+<button
+  type="button"
+  data-ct-settings-trigger
+  aria-label={triggerLabel}
+  aria-haspopup="dialog"
+  title={triggerLabel}
+  class="inline-flex h-9 items-center gap-2 border border-input bg-background px-2.5 text-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 sm:w-9 sm:justify-center sm:px-0"
+>
+  <span class="text-[11px] font-semibold uppercase tracking-wider sm:hidden">Menu</span>
+  <Icon name="ph:list" class="h-4 w-4 sm:hidden" aria-hidden="true" />
+  <Icon name="ph:gear" class="hidden h-4 w-4 sm:inline-block" aria-hidden="true" />
+</button>
+
+<dialog
+  data-ct-settings-dialog
+  aria-labelledby="ct-settings-title"
+  aria-describedby="ct-settings-desc"
+  class="ct-settings-dialog w-full max-w-sm border border-border bg-card p-0 text-card-foreground shadow-lg backdrop:bg-foreground/40 backdrop:backdrop-blur-sm"
+>
+  <div class="flex items-center justify-between border-b border-border px-4 py-3">
+    <h2 id="ct-settings-title" class="text-sm font-semibold">
+      {titleHasMenu ? (
+        <>
+          <span class="sm:hidden">Menu</span>
+          <span class="hidden sm:inline">User Preferences</span>
+        </>
+      ) : (
+        'User Preferences'
+      )}
+    </h2>
+    <p id="ct-settings-desc" class="sr-only">
+      Choose a theme and configure high-contrast mode. Preferences are saved in your browser only.
+    </p>
+    <button
+      type="button"
+      data-ct-settings-close
+      aria-label="Close preferences"
+      class="inline-flex h-7 w-7 items-center justify-center text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+    >
+      <Icon name="ph:x" class="h-3.5 w-3.5" aria-hidden="true" />
+    </button>
+  </div>
+
+  <div class="flex flex-col gap-5 p-4">
+    {titleHasMenu && (
+      <>
+        <nav aria-label="Primary" class="sm:hidden">
+          <ul class="flex flex-col">
+            {navItems.map((item) => {
+              const active = isActive(item.href);
+              return (
+                <li>
+                  <a
+                    href={item.href}
+                    aria-current={active ? 'page' : undefined}
+                    class:list={[
+                      'flex border-l-2 px-3 py-2 text-sm transition-colors focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2',
+                      active
+                        ? 'border-primary bg-secondary font-semibold text-foreground'
+                        : 'border-transparent text-foreground/90 hover:bg-secondary'
+                    ]}
+                  >
+                    {item.mobileLabel ?? item.label}
+                  </a>
+                </li>
+              );
+            })}
+          </ul>
+        </nav>
+
+        <div class="h-px bg-border sm:hidden"></div>
+
+        <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground sm:hidden">
+          User Preferences
+        </p>
+      </>
+    )}
+
+    <section>
+      <p class="text-xs font-semibold">Theme</p>
+      <p class="mt-0.5 text-[11px] text-muted-foreground">
+        Pick a palette or follow your system preference.
+      </p>
+      <div role="radiogroup" aria-label="Theme" data-ct-theme-group class="mt-3 flex gap-1">
+        <button type="button" role="radio" data-value="light" class="ct-toggle">
+          <Icon name="ph:sun" class="h-3.5 w-3.5" aria-hidden="true" />
+          Light
+        </button>
+        <button type="button" role="radio" data-value="dark" class="ct-toggle">
+          <Icon name="ph:moon" class="h-3.5 w-3.5" aria-hidden="true" />
+          Dark
+        </button>
+        <button type="button" role="radio" data-value="system" class="ct-toggle">
+          <Icon name="ph:desktop" class="h-3.5 w-3.5" aria-hidden="true" />
+          System
+        </button>
+      </div>
+    </section>
+
+    <div class="h-px bg-border"></div>
+
+    <section>
+      <div class="flex items-start gap-2">
+        <Icon name="ph:eye" class="mt-0.5 h-4 w-4 shrink-0 text-muted-foreground" aria-hidden="true" />
+        <div>
+          <p class="text-xs font-semibold">High Contrast</p>
+          <p class="mt-0.5 text-[11px] text-muted-foreground">
+            Sharper text and borders. <span class="font-mono">System</span> follows your OS setting.
+          </p>
+        </div>
+      </div>
+      <div role="radiogroup" aria-label="High contrast" data-ct-contrast-group class="mt-3 flex gap-1">
+        <button type="button" role="radio" data-value="off" class="ct-toggle">Off</button>
+        <button type="button" role="radio" data-value="on" class="ct-toggle">On</button>
+        <button type="button" role="radio" data-value="system" class="ct-toggle">System</button>
+      </div>
+    </section>
+  </div>
+</dialog>
+
+<script>
+  type ThemeMode = 'light' | 'dark' | 'system';
+  type ContrastMode = 'off' | 'on' | 'system';
+  interface Settings { theme: ThemeMode; highContrast: ContrastMode; }
+
+  const DEFAULTS: Settings = { theme: 'system', highContrast: 'system' };
+  const STORAGE_KEY = 'ct_settings';
+
+  const isTheme = (v: unknown): v is ThemeMode => v === 'light' || v === 'dark' || v === 'system';
+  const isContrast = (v: unknown): v is ContrastMode => v === 'off' || v === 'on' || v === 'system';
+
+  function readSettings(): Settings {
+    try {
+      const raw = window.localStorage.getItem(STORAGE_KEY);
+      if (!raw) return { ...DEFAULTS };
+      const parsed = JSON.parse(raw) as Record<string, unknown>;
+      const theme = isTheme(parsed.theme) ? parsed.theme : DEFAULTS.theme;
+      let hc: ContrastMode = DEFAULTS.highContrast;
+      if (typeof parsed.highContrast === 'boolean') {
+        hc = parsed.highContrast ? 'on' : 'off';
+      } else if (isContrast(parsed.highContrast)) {
+        hc = parsed.highContrast;
+      }
+      return { theme, highContrast: hc };
+    } catch {
+      return { ...DEFAULTS };
+    }
+  }
+
+  function writeSettings(s: Settings) {
+    try { window.localStorage.setItem(STORAGE_KEY, JSON.stringify(s)); }
+    catch { /* localStorage unavailable */ }
+  }
+
+  function applyToDocument(s: Settings) {
+    const html = document.documentElement;
+    const dark =
+      s.theme === 'dark' ||
+      (s.theme === 'system' && window.matchMedia('(prefers-color-scheme: dark)').matches);
+    const hc =
+      s.highContrast === 'on' ||
+      (s.highContrast === 'system' && window.matchMedia('(prefers-contrast: more)').matches);
+    html.classList.toggle('dark', dark);
+    html.classList.toggle('high-contrast', hc);
+  }
+
+  const trigger = document.querySelector<HTMLButtonElement>('[data-ct-settings-trigger]');
+  const dialog = document.querySelector<HTMLDialogElement>('[data-ct-settings-dialog]');
+  const closeBtn = document.querySelector<HTMLButtonElement>('[data-ct-settings-close]');
+  const themeGroup = document.querySelector<HTMLElement>('[data-ct-theme-group]');
+  const contrastGroup = document.querySelector<HTMLElement>('[data-ct-contrast-group]');
+
+  if (!trigger || !dialog || !closeBtn || !themeGroup || !contrastGroup) {
+    // Markup missing — bail out, page still works without dialog.
+  } else {
+    let settings = readSettings();
+    applyToDocument(settings);
+
+    const themeBtns = Array.from(themeGroup.querySelectorAll<HTMLButtonElement>('button[role="radio"]'));
+    const contrastBtns = Array.from(contrastGroup.querySelectorAll<HTMLButtonElement>('button[role="radio"]'));
+
+    function paintToggleState(buttons: HTMLButtonElement[], current: string) {
+      for (const btn of buttons) {
+        btn.setAttribute('aria-checked', String(btn.dataset.value === current));
+      }
+    }
+
+    function update(next: Partial<Settings>) {
+      settings = { ...settings, ...next };
+      applyToDocument(settings);
+      writeSettings(settings);
+      paintToggleState(themeBtns, settings.theme);
+      paintToggleState(contrastBtns, settings.highContrast);
+    }
+
+    paintToggleState(themeBtns, settings.theme);
+    paintToggleState(contrastBtns, settings.highContrast);
+
+    for (const btn of themeBtns) {
+      btn.addEventListener('click', () => {
+        const v = btn.dataset.value;
+        if (isTheme(v)) update({ theme: v });
+      });
+    }
+    for (const btn of contrastBtns) {
+      btn.addEventListener('click', () => {
+        const v = btn.dataset.value;
+        if (isContrast(v)) update({ highContrast: v });
+      });
+    }
+
+    // OS preference listeners — only effective when the corresponding setting is 'system'.
+    window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', () => {
+      if (settings.theme === 'system') applyToDocument(settings);
+    });
+    window.matchMedia('(prefers-contrast: more)').addEventListener('change', () => {
+      if (settings.highContrast === 'system') applyToDocument(settings);
+    });
+
+    trigger.addEventListener('click', () => dialog.showModal());
+    closeBtn.addEventListener('click', () => dialog.close());
+
+    // Click on backdrop closes the dialog. The backdrop is part of the <dialog>
+    // element itself — clicks land directly on `dialog` (event.target === dialog),
+    // while clicks inside the content land on a descendant.
+    dialog.addEventListener('click', (e) => {
+      if (e.target === dialog) dialog.close();
+    });
+
+    // In-dialog nav links should close the dialog before navigation.
+    dialog.querySelectorAll<HTMLAnchorElement>('nav a').forEach((a) => {
+      a.addEventListener('click', () => dialog.close());
+    });
+  }
+</script>
+
+<style>
+  /* Center natively-positioned <dialog> in the viewport. The browser places
+     <dialog> with default user-agent positioning; we override to centred
+     absolute positioning so it sits in the middle on every viewport size. */
+  .ct-settings-dialog {
+    margin: auto;
+  }
+
+  /* Toggle buttons share the same look-and-feel as the previous Radix-based
+     Theme/Contrast pickers. Active state is driven by aria-checked, which the
+     hydration script flips on click. */
+  .ct-toggle {
+    display: inline-flex;
+    flex: 1 1 0%;
+    height: 2.25rem;
+    align-items: center;
+    justify-content: center;
+    gap: 0.375rem;
+    border: 1px solid hsl(var(--input));
+    background-color: hsl(var(--background));
+    font-size: 0.75rem;
+    font-weight: 500;
+    color: hsl(var(--foreground));
+    transition: background-color 0.15s, color 0.15s, border-color 0.15s;
+  }
+  .ct-toggle:hover {
+    background-color: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+  }
+  .ct-toggle:focus-visible {
+    outline: none;
+    box-shadow: 0 0 0 2px hsl(var(--background)), 0 0 0 4px hsl(var(--ring));
+  }
+  .ct-toggle[aria-checked='true'] {
+    border-color: hsl(var(--primary));
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+  }
+</style>

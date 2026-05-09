@@ -27,43 +27,13 @@ const sections: Section[] = [
         name: 'Astro',
         href: 'https://astro.build',
         license: 'MIT',
-        desc: 'Content-driven framework with an islands architecture — lets us serve a near-static site with only a few interactive components.'
-      },
-      {
-        name: 'React & React-DOM',
-        href: 'https://react.dev',
-        license: 'MIT',
-        desc: 'Powers the search bar and settings dialog islands.'
+        desc: 'Content-driven framework with an islands architecture — every page renders to static HTML at build time, with small vanilla-TS scripts hydrating the search and settings UI.'
       },
       {
         name: 'Tailwind CSS',
         href: 'https://tailwindcss.com',
         license: 'MIT',
         desc: 'Utility-first styling layer. All design tokens live in a single globals.css file.'
-      },
-      {
-        name: 'Radix UI (Dialog, Slot, VisuallyHidden)',
-        href: 'https://www.radix-ui.com',
-        license: 'MIT',
-        desc: 'Accessible primitives for the settings / mobile-menu dialog and a few supporting utilities.'
-      },
-      {
-        name: 'tw-animate-css',
-        href: 'https://github.com/Wombosvideo/tw-animate-css',
-        license: 'MIT',
-        desc: 'Tailwind-v4 compatible replacement for tailwindcss-animate — used by Radix primitives for open/close transitions.'
-      },
-      {
-        name: 'clsx',
-        href: 'https://github.com/lukeed/clsx',
-        license: 'MIT',
-        desc: 'Tiny class-name joiner.'
-      },
-      {
-        name: 'tailwind-merge',
-        href: 'https://github.com/dcastil/tailwind-merge',
-        license: 'MIT',
-        desc: 'Resolves conflicting Tailwind utility classes in shadcn-style helpers.'
       },
       {
         name: 'class-variance-authority',
@@ -83,12 +53,6 @@ const sections: Section[] = [
         href: 'https://phosphoricons.com',
         license: 'MIT',
         desc: 'The icon family the whole project uses — friendly, geometric, and well-covered.'
-      },
-      {
-        name: '@phosphor-icons/react',
-        href: 'https://github.com/phosphor-icons/react',
-        license: 'MIT',
-        desc: 'React bindings for Phosphor; used inside React islands.'
       },
       {
         name: 'astro-icon',
@@ -147,10 +111,10 @@ const sections: Section[] = [
         desc: 'The bundler Astro uses under the hood; the Tailwind v4 Vite plugin wires in our utility classes.'
       },
       {
-        name: '@astrojs/react, @astrojs/sitemap, @astrojs/check',
+        name: '@astrojs/sitemap, @astrojs/check',
         href: 'https://github.com/withastro/astro/tree/main/packages/integrations',
         license: 'MIT',
-        desc: 'Official Astro integrations for React islands, XML sitemaps, and type-checking.'
+        desc: 'Official Astro integrations for XML sitemaps and type-checking.'
       }
     ]
   },

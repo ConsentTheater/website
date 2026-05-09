@@ -1,7 +1,7 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 import { Icon } from 'astro-icon/components';
-import { SearchBar } from '@/components/SearchBar';
+import SearchBar from '@/components/SearchBar.astro';
 ---
 <Layout>
   <section class="mx-auto flex w-full max-w-3xl flex-col items-center px-6 pt-16 pb-12 sm:pt-24">
@@ -14,7 +14,7 @@ import { SearchBar } from '@/components/SearchBar';
     </p>
 
     <div class="mt-10 w-full">
-      <SearchBar client:load />
+      <SearchBar />
     </div>
 
     <a

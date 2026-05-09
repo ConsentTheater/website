@@ -3,7 +3,6 @@ import { readFile, writeFile, readdir, access } from 'node:fs/promises';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
-import react from '@astrojs/react';
 import sitemap from '@astrojs/sitemap';
 import icon from 'astro-icon';
 import tailwindcss from '@tailwindcss/vite';
@@ -75,7 +74,6 @@ const sitemapPostBuild = {
 
 export default defineConfig({
   integrations: [
-    react(),
     sitemap({
       xslURL: '/sitemap.xsl',
       lastmod: new Date()

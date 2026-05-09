@@ -1,0 +1,400 @@
+---
+import { Icon } from 'astro-icon/components';
+import Button from '@/components/ui/Button.astro';
+---
+<div class="w-full max-w-2xl mx-auto">
+  <form data-ct-search-form class="relative flex items-stretch gap-2">
+    <div class="relative flex-1">
+      <Icon
+        name="ph:magnifying-glass"
+        class="pointer-events-none absolute left-3 top-1/2 h-[18px] w-[18px] -translate-y-1/2 text-muted-foreground"
+        aria-hidden="true"
+      />
+      <input
+        type="text"
+        name="q"
+        data-ct-search-input
+        placeholder="Cookie name or domain — e.g. _ga, connect.facebook.net"
+        autocomplete="off"
+        spellcheck="false"
+        aria-label="Search for a cookie or domain"
+        class="h-12 w-full rounded-md border border-input bg-background pl-10 pr-3 text-sm font-mono outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
+      />
+    </div>
+    <Button
+      type="submit"
+      size="lg"
+      disabled
+      data-ct-search-submit
+      class="h-12 cursor-pointer disabled:pointer-events-auto disabled:cursor-pointer disabled:opacity-100"
+    >
+      <span data-ct-label="default">Identify</span>
+      <span data-ct-label="loading" class="hidden items-center gap-2">
+        <Icon name="ph:spinner" class="h-4 w-4 animate-spin" aria-hidden="true" />
+        <span class="sr-only">Searching</span>
+      </span>
+    </Button>
+  </form>
+
+  <div class="mt-3 flex flex-wrap items-center gap-2 text-xs text-muted-foreground">
+    <span>Try:</span>
+    <button type="button" data-ct-example="_ga" class="ct-example">_ga</button>
+    <button type="button" data-ct-example="_fbp" class="ct-example">_fbp</button>
+    <button type="button" data-ct-example="connect.facebook.net" class="ct-example">connect.facebook.net</button>
+    <button type="button" data-ct-example="hotjar.com" class="ct-example">hotjar.com</button>
+    <button type="button" data-ct-example="_ga_ABC123" class="ct-example">_ga_ABC123</button>
+  </div>
+
+  <div data-ct-search-error class="hidden"></div>
+  <div data-ct-search-result aria-live="polite" aria-atomic="false"></div>
+
+  <!-- Build-time icons for dynamic result rendering. The script clones their
+       inner SVG markup into result HTML so we don't ship a runtime icon lib. -->
+  <template data-ct-tpl="warning">
+    <Icon name="ph:warning" class="h-[18px] w-[18px] shrink-0" aria-hidden="true" />
+  </template>
+  <template data-ct-tpl="check-circle">
+    <Icon name="ph:check-circle" class="mt-0.5 h-5 w-5 shrink-0 text-band-compliant" aria-hidden="true" />
+  </template>
+</div>
+
+<script>
+  import { badgeVariants, type BadgeVariant } from './ui/badge-variants';
+
+  type ConsentBurden = 'required_strict' | 'required' | 'contested' | 'minimal';
+
+  const BURDEN_LABELS: Record<ConsentBurden, string> = {
+    required_strict: 'Strict consent',
+    required: 'Consent required',
+    contested: 'Contested',
+    minimal: 'Minimal'
+  };
+
+  const BURDEN_VALUES = new Set(['required_strict', 'required', 'contested', 'minimal']);
+  const isBurden = (v: unknown): v is ConsentBurden =>
+    typeof v === 'string' && BURDEN_VALUES.has(v);
+
+  interface Match {
+    company: string;
+    service: string;
+    category: string;
+    consent_burden: ConsentBurden;
+    description?: string;
+    lifetime?: string;
+    docs_url?: string;
+    name?: string;
+    hostname?: string;
+    matchedPattern?: string;
+    matchedDomain?: string;
+  }
+
+  interface RelatedEntry {
+    kind: 'cookie' | 'domain';
+    name: string;
+    company: string;
+    service: string;
+    category: string;
+    consent_burden: ConsentBurden;
+    description?: string;
+    lifetime?: string;
+    docs_url?: string;
+    pattern?: boolean;
+  }
+
+  interface ApiResult {
+    query: string;
+    normalized?: string;
+    kind: 'cookie' | 'domain' | 'company';
+    match: Match | null;
+    related: RelatedEntry[];
+    source: string;
+    stats: { cookies: number; domains: number; companies: number };
+  }
+
+  // ---- Safe HTML templating ------------------------------------------------
+  // Default-escape interpolated values; opt-in to raw markup via raw().
+  class Raw { constructor(public readonly s: string) {} }
+  const raw = (s: string) => new Raw(s);
+
+  const ESCAPE_MAP: Record<string, string> = {
+    '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+  };
+  const escape = (s: string) => s.replace(/[&<>"']/g, (c) => ESCAPE_MAP[c]!);
+
+  function h(strings: TemplateStringsArray, ...values: unknown[]): string {
+    let out = '';
+    strings.forEach((str, i) => {
+      out += str;
+      if (i >= values.length) return;
+      const v = values[i];
+      if (v == null || v === false) return;
+      if (v instanceof Raw) { out += v.s; return; }
+      if (Array.isArray(v)) {
+        for (const item of v) {
+          if (item instanceof Raw) out += item.s;
+          else if (item != null && item !== false) out += escape(String(item));
+        }
+        return;
+      }
+      out += escape(String(v));
+    });
+    return out;
+  }
+
+  // Defence in depth: docs_url comes from playbill JSON (schema-validated,
+  // reviewed in PR), but href accepts javascript:/data: URIs by default.
+  // Allow only http(s) and reject anything that fails to parse.
+  function safeHttpUrl(rawUrl: string | undefined): URL | null {
+    if (!rawUrl) return null;
+    try {
+      const url = new URL(rawUrl);
+      return url.protocol === 'https:' || url.protocol === 'http:' ? url : null;
+    } catch {
+      return null;
+    }
+  }
+
+  function badge(variant: BadgeVariant, label: string): Raw {
+    return raw(h`<span class="${badgeVariants({ variant })}">${label}</span>`);
+  }
+
+  function burdenBadge(b: ConsentBurden): Raw {
+    return badge(b, BURDEN_LABELS[b] ?? b);
+  }
+
+  function categoryBadge(category: string): Raw {
+    return raw(h`<span class="${badgeVariants({ variant: 'outline' })} font-mono normal-case">${category}</span>`);
+  }
+
+  function fieldRow(label: string, value: string | Raw): string {
+    return h`
+      <div class="space-y-0.5">
+        <p class="text-[11px] font-semibold uppercase tracking-wide text-muted-foreground">${label}</p>
+        <p class="text-sm">${value}</p>
+      </div>`;
+  }
+
+  // ---- Renderers -----------------------------------------------------------
+  const tplWarning = document.querySelector<HTMLTemplateElement>('[data-ct-tpl="warning"]');
+  const tplCheck = document.querySelector<HTMLTemplateElement>('[data-ct-tpl="check-circle"]');
+  const warningSvg = tplWarning?.innerHTML.trim() ?? '';
+  const checkSvg = tplCheck?.innerHTML.trim() ?? '';
+
+  function renderError(msg: string): string {
+    return h`
+      <div role="alert" class="mt-6 rounded-lg border border-destructive/40 bg-destructive/5 text-card-foreground shadow-sm">
+        <div class="flex items-center gap-2 p-4 text-sm text-destructive">
+          ${raw(warningSvg)}
+          <span>Request failed: ${msg}</span>
+        </div>
+      </div>`;
+  }
+
+  function renderEmpty(label: string): string {
+    return h`
+      <div class="mt-6 rounded-lg border bg-card text-card-foreground shadow-sm">
+        <div class="flex items-start gap-3 p-5">
+          ${raw(checkSvg)}
+          <div class="space-y-1">
+            <p class="text-sm font-semibold">No known tracker matches</p>
+            <p class="text-xs text-muted-foreground leading-relaxed">
+              <span class="font-mono">${label}</span> isn't in our catalogue.
+              It may be first-party, niche, or not yet classified.
+            </p>
+          </div>
+        </div>
+      </div>`;
+  }
+
+  function renderPrimary(m: Match, kind: ApiResult['kind'], query: string): string {
+    const ident = m.name ?? m.hostname ?? query;
+    const burden = isBurden(m.consent_burden) ? m.consent_burden : null;
+    const docsUrl = safeHttpUrl(m.docs_url);
+
+    const meta: Raw[] = [];
+    if (m.matchedPattern) {
+      meta.push(raw(h` · matched pattern <code class="font-mono">${m.matchedPattern}</code>`));
+    }
+    if (m.matchedDomain && m.matchedDomain !== m.hostname) {
+      meta.push(raw(h` · matched <code class="font-mono">${m.matchedDomain}</code>`));
+    }
+
+    const fields: string[] = [];
+    fields.push(fieldRow('Company', m.company));
+    fields.push(fieldRow('Service', m.service));
+    if (m.lifetime) fields.push(fieldRow('Lifetime', m.lifetime));
+    if (docsUrl) {
+      const link = raw(h`<a href="${docsUrl.toString()}" target="_blank" rel="noopener" class="link">${docsUrl.hostname}</a>`);
+      fields.push(fieldRow('Docs', link));
+    }
+
+    return h`
+      <div class="mt-6 rounded-lg border bg-card text-card-foreground shadow-sm">
+        <div class="space-y-4 p-5">
+          <div class="flex flex-wrap items-start justify-between gap-3">
+            <div class="space-y-1">
+              <p class="font-mono text-base font-semibold">${ident}</p>
+              <p class="text-xs text-muted-foreground">
+                ${kind === 'cookie' ? 'Cookie' : 'Domain'}${meta}
+              </p>
+            </div>
+            <div class="flex items-center gap-2">
+              ${burden ? burdenBadge(burden) : ''}
+              ${categoryBadge(m.category)}
+            </div>
+          </div>
+
+          <div class="grid gap-3 sm:grid-cols-2">${raw(fields.join(''))}</div>
+
+          ${m.description
+            ? raw(h`<p class="text-sm leading-relaxed text-foreground/80 border-t border-border pt-4">${m.description}</p>`)
+            : ''}
+        </div>
+      </div>`;
+  }
+
+  function renderRelatedGroup(label: string, entries: RelatedEntry[]): string {
+    const items = entries.map((e) => {
+      const burden = isBurden(e.consent_burden) ? e.consent_burden : null;
+      return h`
+        <li class="flex flex-wrap items-center justify-between gap-3 py-2 text-sm">
+          <div class="min-w-0 flex-1 space-y-0.5">
+            <p class="font-mono text-sm">${e.name}</p>
+            <p class="truncate text-xs text-muted-foreground">${e.service}</p>
+          </div>
+          <div class="flex items-center gap-2">
+            ${burden ? burdenBadge(burden) : ''}
+            ${categoryBadge(e.category)}
+          </div>
+        </li>`;
+    }).join('');
+
+    return h`
+      <div class="space-y-2">
+        <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">${label}</p>
+        <ul class="divide-y divide-border border-y border-border">${raw(items)}</ul>
+      </div>`;
+  }
+
+  function renderRelated(entries: RelatedEntry[], company: string | null, query: string): string {
+    const cookies = entries.filter((e) => e.kind === 'cookie');
+    const domains = entries.filter((e) => e.kind === 'domain');
+    const heading = company ? `Also from ${company}` : `Entries matching "${query}"`;
+    const cookieWord = `${cookies.length} cookie${cookies.length === 1 ? '' : 's'}`;
+    const domainWord = `${domains.length} domain${domains.length === 1 ? '' : 's'}`;
+
+    return h`
+      <div class="mt-4 rounded-lg border bg-card text-card-foreground shadow-sm">
+        <div class="space-y-4 p-5">
+          <div class="flex flex-wrap items-baseline justify-between gap-2">
+            <p class="text-sm font-semibold">${heading}</p>
+            <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+              ${cookieWord} · ${domainWord}
+            </p>
+          </div>
+          ${cookies.length > 0 ? raw(renderRelatedGroup('Cookies', cookies)) : ''}
+          ${domains.length > 0 ? raw(renderRelatedGroup('Domains', domains)) : ''}
+        </div>
+      </div>`;
+  }
+
+  function renderResult(result: ApiResult): string {
+    const hasPrimary = !!result.match;
+    const hasRelated = result.related.length > 0;
+    if (!hasPrimary && !hasRelated) {
+      return renderEmpty(result.normalized ?? result.query);
+    }
+    let out = '';
+    if (hasPrimary && result.match) out += renderPrimary(result.match, result.kind, result.query);
+    if (hasRelated) {
+      out += renderRelated(result.related, result.match?.company ?? null, result.query);
+    }
+    return out;
+  }
+
+  // ---- Wiring --------------------------------------------------------------
+  const form = document.querySelector<HTMLFormElement>('[data-ct-search-form]');
+  const input = document.querySelector<HTMLInputElement>('[data-ct-search-input]');
+  const submit = document.querySelector<HTMLButtonElement>('[data-ct-search-submit]');
+  const errorBox = document.querySelector<HTMLElement>('[data-ct-search-error]');
+  const resultBox = document.querySelector<HTMLElement>('[data-ct-search-result]');
+  const labelDefault = submit?.querySelector<HTMLElement>('[data-ct-label="default"]');
+  const labelLoading = submit?.querySelector<HTMLElement>('[data-ct-label="loading"]');
+
+  if (form && input && submit && errorBox && resultBox && labelDefault && labelLoading) {
+    function setLoading(loading: boolean) {
+      submit!.disabled = loading || !input!.value.trim();
+      if (loading) {
+        labelDefault!.classList.add('hidden');
+        labelLoading!.classList.remove('hidden');
+        labelLoading!.classList.add('inline-flex');
+      } else {
+        labelLoading!.classList.add('hidden');
+        labelLoading!.classList.remove('inline-flex');
+        labelDefault!.classList.remove('hidden');
+      }
+    }
+
+    function showError(msg: string) {
+      errorBox!.innerHTML = renderError(msg);
+      errorBox!.classList.remove('hidden');
+      resultBox!.innerHTML = '';
+    }
+
+    function clearError() {
+      errorBox!.innerHTML = '';
+      errorBox!.classList.add('hidden');
+    }
+
+    async function runSearch(qRaw: string) {
+      const q = qRaw.trim();
+      if (!q) return;
+      setLoading(true);
+      clearError();
+      try {
+        const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+        if (!res.ok) throw new Error(`${res.status}`);
+        const data = (await res.json()) as ApiResult;
+        resultBox!.innerHTML = renderResult(data);
+      } catch (e) {
+        showError(e instanceof Error ? e.message : 'unknown error');
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    input.addEventListener('input', () => {
+      submit.disabled = !input.value.trim();
+    });
+
+    form.addEventListener('submit', (e) => {
+      e.preventDefault();
+      void runSearch(input.value);
+    });
+
+    document.querySelectorAll<HTMLButtonElement>('[data-ct-example]').forEach((btn) => {
+      btn.addEventListener('click', () => {
+        const ex = btn.dataset.ctExample ?? '';
+        input.value = ex;
+        submit.disabled = !ex.trim();
+        void runSearch(ex);
+      });
+    });
+  }
+</script>
+
+<style>
+  .ct-example {
+    font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, 'Liberation Mono', 'Courier New', monospace;
+    border: 1px solid hsl(var(--border));
+    background-color: hsl(var(--secondary));
+    color: hsl(var(--secondary-foreground));
+    padding: 0.125rem 0.5rem;
+    font-size: 11px;
+    transition: background-color 0.15s, color 0.15s;
+  }
+  .ct-example:hover {
+    background-color: hsl(var(--accent));
+    color: hsl(var(--accent-foreground));
+  }
+</style>

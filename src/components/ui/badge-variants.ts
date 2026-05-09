@@ -1,8 +1,6 @@
-import * as React from 'react';
 import { cva, type VariantProps } from 'class-variance-authority';
-import { cn } from '@/lib/utils';
 
-const badgeVariants = cva(
+export const badgeVariants = cva(
   'inline-flex items-center rounded-full border px-2.5 py-0.5 text-xs font-semibold tracking-wide transition-colors focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2',
   {
     variants: {
@@ -12,8 +10,6 @@ const badgeVariants = cva(
         destructive: 'border-transparent bg-destructive text-destructive-foreground',
         outline: 'text-foreground',
         gold: 'border-transparent bg-accent text-accent-foreground',
-        // Consent burden — visual hierarchy mirrors the regulatory burden,
-        // never a verdict on a specific website.
         required_strict: 'border-transparent bg-red-50 text-red-800 font-mono text-[10px] uppercase tracking-wider px-2 py-0 dark:bg-red-950 dark:text-red-200',
         required: 'border-transparent bg-orange-50 text-orange-800 font-mono text-[10px] uppercase tracking-wider px-2 py-0 dark:bg-orange-950 dark:text-orange-200',
         contested: 'border-transparent bg-amber-50 text-amber-800 font-mono text-[10px] uppercase tracking-wider px-2 py-0 dark:bg-amber-950 dark:text-amber-200',
@@ -24,12 +20,4 @@ const badgeVariants = cva(
   }
 );
 
-export interface BadgeProps
-  extends React.HTMLAttributes<HTMLDivElement>,
-    VariantProps<typeof badgeVariants> {}
-
-function Badge({ className, variant, ...props }: BadgeProps) {
-  return <div className={cn(badgeVariants({ variant }), className)} {...props} />;
-}
-
-export { Badge, badgeVariants };
+export type BadgeVariant = NonNullable<VariantProps<typeof badgeVariants>['variant']>;
