@@ -122,4 +122,12 @@ const toc = headings.filter((h) => h.depth === 2);
       </section>
     )}
   </section>
+
+  <script>
+    // Progressive enhancement for any <table-saw> wrappers the markdown
+    // rehype plugin produced. Without this script the table renders as a
+    // normal <table>; with it, the custom element kicks in on small
+    // viewports and stacks the rows with column-labels.
+    import '@zachleat/table-saw';
+  </script>
 </Layout>

@@ -275,4 +275,62 @@
   }
   .prose-ct h2 + p,
   .prose-ct h3 + p { margin-top: 0.5rem; }
+
+  /* Tables — themed via design tokens; wrapped at build time in <table-saw>
+     so the zachleat/table-saw web component can stack rows on small
+     viewports. The wrapper is inert without JS — the table just renders
+     as a regular <table>. */
+  .prose-ct table-saw { display: block; margin-top: 1rem; }
+  .prose-ct table {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: hsl(var(--card));
+    border: 1px solid hsl(var(--border));
+    font-size: 0.84rem;
+    line-height: 1.5;
+  }
+  .prose-ct table-saw + p,
+  .prose-ct table + p { margin-top: 1rem; }
+  .prose-ct th,
+  .prose-ct td {
+    padding: 0.55rem 0.85rem;
+    text-align: left;
+    vertical-align: top;
+    border-bottom: 1px solid hsl(var(--border));
+  }
+  .prose-ct th {
+    background-color: hsl(var(--secondary));
+    color: hsl(var(--foreground));
+    font-weight: 600;
+    font-size: 0.72rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+  .prose-ct tbody tr:last-child :is(th, td) { border-bottom: 0; }
+  .prose-ct tbody tr:hover { background-color: hsl(var(--secondary) / 0.4); }
+  .prose-ct td code,
+  .prose-ct th code { font-size: 0.95em; }
+
+  /* Stacked mode (table-saw kicks in below 39.9375em / 640px). The
+     component hides <thead> and prepends each cell with its column label
+     via ::before. Style the label and tighten the row separators. */
+  @media (max-width: 39.9375em) {
+    .prose-ct table-saw tbody tr {
+      display: block;
+      padding: 0.5rem 0;
+      border-bottom: 1px solid hsl(var(--border));
+    }
+    .prose-ct table-saw tbody tr:last-child { border-bottom: 0; }
+    .prose-ct table-saw :is(tbody, tfoot) :is(th, td) {
+      border-bottom: 0;
+      padding: 0.3rem 0.85rem;
+    }
+    .prose-ct table-saw :is(tbody, tfoot) :is(th, td)::before {
+      color: hsl(var(--muted-foreground));
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+    }
+  }
 }

@@ -7,6 +7,29 @@ import sitemap from '@astrojs/sitemap';
 import icon from 'astro-icon';
 import tailwindcss from '@tailwindcss/vite';
 import rehypeExternalLinks from 'rehype-external-links';
+import { visit, SKIP } from 'unist-util-visit';
+
+/**
+ * Wrap markdown <table> elements in <table-saw> so the zachleat/table-saw
+ * custom element can progressively enhance them on small viewports. The
+ * wrapper is inert without JS — table renders as a normal <table>.
+ */
+function rehypeWrapTablesInTableSaw() {
+  return (tree) => {
+    visit(tree, 'element', (node, index, parent) => {
+      if (node.tagName !== 'table') return;
+      if (!parent || index == null) return;
+      if (parent.type === 'element' && parent.tagName === 'table-saw') return;
+      parent.children[index] = {
+        type: 'element',
+        tagName: 'table-saw',
+        properties: {},
+        children: [node]
+      };
+      return [SKIP, index];
+    });
+  };
+}
 
 function readBuildInfo() {
   const builtAt = new Date().toISOString().slice(0, 10);
@@ -88,7 +111,8 @@ export default defineConfig({
         target: '_blank',
         // Security only. We deliberately keep referrers and dofollow.
         rel: ['noopener']
-      }]
+      }],
+      rehypeWrapTablesInTableSaw
     ]
   },
   vite: {
