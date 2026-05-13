@@ -11,6 +11,7 @@ created: '2026-05-09'
 related:
   - global-privacy-control
   - tracking-pixels
+  - dns-sinkholes
 ---
 
 The simplest, most effective privacy upgrade most people can make is to

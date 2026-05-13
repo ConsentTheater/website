@@ -138,6 +138,12 @@
     -webkit-font-smoothing: antialiased;
     -moz-osx-font-smoothing: grayscale;
   }
+  /* Breathing room above any anchor-link target — when an in-page hash
+     navigates to an [id], the browser leaves 2rem (32px) above it so the
+     heading isn't flush with the viewport top. */
+  [id] {
+    scroll-margin-top: 2rem;
+  }
 }
 
 @layer utilities {
