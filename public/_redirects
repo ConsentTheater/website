@@ -14,3 +14,8 @@
 # Sitemap conventional URL — @astrojs/sitemap emits /sitemap-index.xml,
 # but bots and humans typing /sitemap.xml expect to land somewhere.
 /sitemap.xml     /sitemap-index.xml  301
+
+# /stats/ — historical dashboard, removed but still indexed. Transfer
+# ranking signal to the homepage instead of leaving inbound links at 404.
+/stats           /  301
+/stats/*         /  301
