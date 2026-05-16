@@ -5,6 +5,7 @@ import { Icon } from 'astro-icon/components';
 import { execSync } from 'node:child_process';
 import SettingsDialog from '@/components/SettingsDialog.astro';
 import GithubCta from '@/components/GithubCta.astro';
+import { ogImagePath } from '@/utils/og';
 import logo from '@/assets/logo.png';
 
 function readBuildInfo() {
@@ -32,12 +33,12 @@ interface Props {
 const {
   title = 'ConsentTheater — GDPR cookie & tracker lookup',
   description = 'Identify cookies, domains and trackers. Look up any cookie name or domain to see the company, service, category and consent burden under GDPR.',
-  image = '/og-default.png',
+  image,
   showGithubCta = true
 } = Astro.props;
 
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site).toString();
-const imageUrl = new URL(image, Astro.site).toString();
+const imageUrl = new URL(image ?? ogImagePath(Astro.url.pathname), Astro.site).toString();
 
 const year = new Date().getFullYear();
 
