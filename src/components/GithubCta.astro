@@ -1,0 +1,31 @@
+---
+import { Icon } from 'astro-icon/components';
+---
+<a
+  href="https://github.com/ConsentTheater"
+  target="_blank"
+  rel="noopener"
+  class="group flex w-full items-center justify-between gap-4 border border-border bg-card px-5 py-4 text-left transition-colors hover:bg-secondary"
+>
+  <div class="flex min-w-0 items-center gap-3">
+    <Icon
+      name="ph:github-logo"
+      class="h-6 w-6 shrink-0 text-foreground/80"
+      aria-hidden="true"
+    />
+    <div class="min-w-0">
+      <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        Help the project
+      </p>
+      <p class="mt-1 text-sm leading-snug text-foreground/90 sm:text-[15px]">
+        Star us on GitHub, open an issue, or send a correction —
+        the catalogue is public so anyone can audit and improve it.
+      </p>
+    </div>
+  </div>
+  <Icon
+    name="ph:arrow-up-right"
+    class="h-5 w-5 shrink-0 text-muted-foreground transition-transform group-hover:-translate-y-0.5 group-hover:translate-x-0.5"
+    aria-hidden="true"
+  />
+</a>

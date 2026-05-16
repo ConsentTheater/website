@@ -4,6 +4,7 @@ import { Image } from 'astro:assets';
 import { Icon } from 'astro-icon/components';
 import { execSync } from 'node:child_process';
 import SettingsDialog from '@/components/SettingsDialog.astro';
+import GithubCta from '@/components/GithubCta.astro';
 import logo from '@/assets/logo.png';
 
 function readBuildInfo() {
@@ -25,12 +26,14 @@ interface Props {
   title?: string;
   description?: string;
   image?: string;
+  showGithubCta?: boolean;
 }
 
 const {
   title = 'ConsentTheater — GDPR cookie & tracker lookup',
   description = 'Identify cookies, domains and trackers. Look up any cookie name or domain to see the company, service, category and consent burden under GDPR.',
-  image = '/og-default.png'
+  image = '/og-default.png',
+  showGithubCta = true
 } = Astro.props;
 
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site).toString();
@@ -160,6 +163,12 @@ const isActive = (href: string) =>
       <main id="main" class="flex-1">
         <slot />
       </main>
+
+      {showGithubCta && (
+        <aside class="mx-auto w-full max-w-3xl px-6 pb-12">
+          <GithubCta />
+        </aside>
+      )}
 
       <footer class="border-t border-border bg-card">
         <div class="mx-auto grid w-full max-w-4xl gap-6 px-6 py-6 text-[11px] text-muted-foreground">

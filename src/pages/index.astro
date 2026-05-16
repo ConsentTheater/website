@@ -2,9 +2,58 @@
 import Layout from '@/layouts/Layout.astro';
 import { Icon } from 'astro-icon/components';
 import SearchBar from '@/components/SearchBar.astro';
+import GithubCta from '@/components/GithubCta.astro';
+
+const faqs = [
+  {
+    q: 'What is ConsentTheater?',
+    text: "ConsentTheater is a free, open-source lookup for cookies, domains, and trackers. Type a cookie name or domain and you'll see who's behind it, what it does, how invasive it is, and where it sits under GDPR. We also publish a handbook of plain-language privacy guides.",
+    html: `ConsentTheater is a free, open-source lookup for cookies, domains, and trackers. Type a cookie name or domain and you'll see who's behind it, what it does, how invasive it is, and where it sits under GDPR. We also publish a <a href="/handbook/" class="link">handbook</a> of plain-language privacy guides.`
+  },
+  {
+    q: 'Why does this exist?',
+    text: 'Every website silently talks to dozens of third parties — analytics, ad networks, fingerprinting libraries, session recorders — and almost none of it is explained to the visitor in understandable terms. We catalogue what those trackers actually do, so individuals can read it, and compliance teams, journalists, and researchers have a consistent reference to cite.',
+    html: `Every website silently talks to dozens of third parties — analytics, ad networks, fingerprinting libraries, session recorders — and almost none of it is explained to the visitor in understandable terms. We catalogue what those trackers actually do, so individuals can read it, and compliance teams, journalists, and researchers have a consistent reference to cite.`
+  },
+  {
+    q: 'Is it really free? Any ads or trackers?',
+    text: 'Yes, free. No ads, no sponsorships, no paid placements in the catalogue. The site loads no third-party scripts, sets no tracking cookies, and uses no external fonts. See our privacy policy for the full statement.',
+    html: `Yes, free. No ads, no sponsorships, no paid placements in the catalogue. The site loads no third-party scripts, sets no tracking cookies, and uses no external fonts. See our <a href="/privacy/" class="link">privacy policy</a> for the full statement.`
+  },
+  {
+    q: 'Where does the data come from?',
+    text: 'The catalogue lives in a separate open-source package called the Playbill (github.com/ConsentTheater/playbill, published on npm as @consenttheater/playbill). Every entry is public so the claims are auditable. Sources for each tracker are documented in the entry where possible.',
+    html: `The catalogue lives in a separate open-source package called the Playbill (<a href="https://github.com/ConsentTheater/playbill" target="_blank" rel="noopener" class="link font-mono">github.com/ConsentTheater/playbill</a>, published on npm as <a href="https://www.npmjs.com/package/@consenttheater/playbill" target="_blank" rel="noopener" class="link font-mono">@consenttheater/playbill</a>). Every entry is public so the claims are auditable. Sources for each tracker are documented in the entry where possible.`
+  },
+  {
+    q: 'I found something incorrect — how do I report it?',
+    text: 'Open an issue or pull request against the Playbill repo (github.com/ConsentTheater/playbill), or email developer@consenttheater.org. Corrections are welcome — that is the whole point of keeping the catalogue public and auditable.',
+    html: `Open an issue or pull request against the <a href="https://github.com/ConsentTheater/playbill/issues" target="_blank" rel="noopener" class="link">Playbill repo</a>, or email <a href="mailto:developer@consenttheater.org" class="link font-mono">developer@consenttheater.org</a>. Corrections are welcome — that is the whole point of keeping the catalogue public and auditable.`
+  },
+  {
+    q: 'How can I contribute?',
+    text: "Star the project on GitHub — it genuinely helps people find it. Beyond that: add or correct catalogue entries in the Playbill, file bugs, improve documentation, or contribute to the browser extension. The project is volunteer-run; there are no paid roles and there's no investor pressure to deliver anything you don't want to.",
+    html: `Star the project on <a href="https://github.com/ConsentTheater" target="_blank" rel="noopener" class="link">GitHub</a> — it genuinely helps people find it. Beyond that: add or correct catalogue entries in the <a href="https://github.com/ConsentTheater/playbill" target="_blank" rel="noopener" class="link">Playbill</a>, file bugs, improve documentation, or contribute to the <a href="https://github.com/ConsentTheater/extension" target="_blank" rel="noopener" class="link">browser extension</a>. The project is volunteer-run; there are no paid roles and there's no investor pressure to deliver anything you don't want to.`
+  },
+  {
+    q: 'Is this legal advice?',
+    text: 'No. Everything on this site is for educational use only. ConsentTheater is not a law firm and is not affiliated with any regulator. For a GDPR or ePrivacy assessment on a specific situation, talk to a qualified lawyer or DPO.',
+    html: `No. Everything on this site is for educational use only. ConsentTheater is not a law firm and is not affiliated with any regulator. For a GDPR or ePrivacy assessment on a specific situation, talk to a qualified lawyer or DPO.`
+  }
+];
+
+const faqSchema = {
+  '@context': 'https://schema.org',
+  '@type': 'FAQPage',
+  mainEntity: faqs.map((f) => ({
+    '@type': 'Question',
+    name: f.q,
+    acceptedAnswer: { '@type': 'Answer', text: f.text }
+  }))
+};
 ---
-<Layout>
-  <section class="mx-auto flex w-full max-w-3xl flex-col items-center px-6 pt-16 pb-12 sm:pt-24">
+<Layout showGithubCta={false}>
+  <section class="mx-auto flex w-full max-w-3xl flex-col items-center px-6 pt-16 pb-12 sm:pb-24 sm:pt-24">
     <h1 class="text-center font-display text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
       Check an actor
     </h1>
@@ -37,4 +86,33 @@ import SearchBar from '@/components/SearchBar.astro';
       />
     </a>
   </section>
+
+  <section class="mx-auto w-full max-w-3xl px-6 pt-4">
+    <GithubCta />
+  </section>
+
+  <section
+    aria-labelledby="faq-heading"
+    class="mx-auto w-full max-w-3xl px-6 pb-8 pt-12 sm:pt-24 sm:pb-12"
+  >
+    <h2
+      id="faq-heading"
+      class="font-display text-2xl font-bold tracking-tight sm:text-3xl"
+    >
+      Frequently asked questions
+    </h2>
+
+    <div class="mt-8 space-y-8 text-sm leading-relaxed text-foreground/90">
+      {faqs.map((f) => (
+        <article>
+          <h3 class="font-display text-base font-bold tracking-tight sm:text-lg">
+            {f.q}
+          </h3>
+          <p class="mt-2" set:html={f.html} />
+        </article>
+      ))}
+    </div>
+  </section>
+
+  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
 </Layout>
