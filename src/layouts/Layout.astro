@@ -108,6 +108,19 @@ const isActive = (href: string) =>
         } catch (e) { /* localStorage unavailable — fall back to defaults */ }
       })();
     </script>
+    <script type="speculationrules" is:inline set:html={JSON.stringify({
+      prerender: [{
+        where: {
+          and: [
+            { href_matches: '/*' },
+            { not: { href_matches: '/api/*' } },
+            { not: { selector_matches: '[rel~="external"]' } },
+            { not: { selector_matches: '[target="_blank"]' } }
+          ]
+        },
+        eagerness: 'moderate'
+      }]
+    })} />
   </head>
   <body class="min-h-full bg-background text-foreground">
     <a
