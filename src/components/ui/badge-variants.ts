@@ -10,10 +10,10 @@ export const badgeVariants = cva(
         destructive: 'border-transparent bg-destructive text-destructive-foreground',
         outline: 'text-foreground',
         gold: 'border-transparent bg-accent text-accent-foreground',
-        required_strict: 'border-transparent bg-red-50 text-red-800 font-mono text-[10px] uppercase tracking-wider px-2 py-0 dark:bg-red-950 dark:text-red-200',
-        required: 'border-transparent bg-orange-50 text-orange-800 font-mono text-[10px] uppercase tracking-wider px-2 py-0 dark:bg-orange-950 dark:text-orange-200',
-        contested: 'border-transparent bg-amber-50 text-amber-800 font-mono text-[10px] uppercase tracking-wider px-2 py-0 dark:bg-amber-950 dark:text-amber-200',
-        minimal: 'border-transparent bg-slate-100 text-slate-600 font-mono text-[10px] uppercase tracking-wider px-2 py-0 dark:bg-slate-800 dark:text-slate-300'
+        required_strict: 'border-transparent bg-red-50 text-red-900 font-mono text-[10px] uppercase tracking-wider px-2 py-0 dark:bg-red-950 dark:text-red-100',
+        required: 'border-transparent bg-orange-50 text-orange-900 font-mono text-[10px] uppercase tracking-wider px-2 py-0 dark:bg-orange-950 dark:text-orange-100',
+        contested: 'border-transparent bg-amber-50 text-amber-900 font-mono text-[10px] uppercase tracking-wider px-2 py-0 dark:bg-amber-950 dark:text-amber-100',
+        minimal: 'border-transparent bg-slate-100 text-slate-700 font-mono text-[10px] uppercase tracking-wider px-2 py-0 dark:bg-slate-800 dark:text-slate-200'
       }
     },
     defaultVariants: { variant: 'default' }

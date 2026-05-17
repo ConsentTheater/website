@@ -59,6 +59,11 @@
   --ring: 48 100% 55%;
   --warning: 40 96% 64%;
   --link: 48 100% 55%;
+
+  --band-compliant: 152 55% 60%;
+  --band-at-risk: 32 90% 60%;
+  --band-non-compliant: 16 80% 65%;
+  --band-violating: 0 70% 65%;
 }
 
 /* High contrast — WCAG AAA (7:1+). Mirrors extension/src/ui/styles/globals.css */
@@ -82,6 +87,10 @@
   --destructive: 0 80% 65%;
   --border: 220 10% 40%;
   --warning: 48 100% 75%;
+  --band-compliant: 152 60% 70%;
+  --band-at-risk: 32 95% 70%;
+  --band-non-compliant: 16 85% 75%;
+  --band-violating: 0 80% 75%;
 }
 
 @theme inline {
@@ -161,11 +170,13 @@
      Colour swaps via --link (EU blue in light, EU gold in dark). */
   .link {
     color: hsl(var(--link));
+    text-decoration-line: underline;
+    text-decoration-thickness: 1px;
     text-underline-offset: 2px;
-    transition: text-decoration-color 150ms, opacity 150ms;
+    transition: text-decoration-thickness 150ms, opacity 150ms;
   }
   .link:hover {
-    text-decoration-line: underline;
+    text-decoration-thickness: 2px;
   }
   .link:focus-visible {
     outline: 2px solid hsl(var(--ring));
