@@ -24,7 +24,12 @@
     "og": "node scripts/generate-og.mjs",
     "cf:typegen": "wrangler types",
     "astro": "astro",
-    "typecheck": "astro check"
+    "typecheck": "astro check",
+    "test:a11y": "astro build && start-server-and-test \"astro preview --port 4321\" \"http-get://localhost:4321/\" \"node scripts/a11y.mjs\"",
+    "test:a11y:dark": "astro build && start-server-and-test \"astro preview --port 4321\" \"http-get://localhost:4321/\" \"node scripts/a11y.mjs --theme=dark\"",
+    "test:a11y:hc": "astro build && start-server-and-test \"astro preview --port 4321\" \"http-get://localhost:4321/\" \"node scripts/a11y.mjs --contrast=high\"",
+    "test:a11y:hc:dark": "astro build && start-server-and-test \"astro preview --port 4321\" \"http-get://localhost:4321/\" \"node scripts/a11y.mjs --theme=dark --contrast=high\"",
+    "test:a11y:run": "node scripts/a11y.mjs"
   },
   "dependencies": {
     "@astrojs/sitemap": "^3.7.2",
@@ -47,7 +52,9 @@
     "rehype-external-links": "^3.0.0",
     "satori": "^0.26.0",
     "satori-html": "^0.3.2",
+    "pa11y-ci": "^4.1.1",
     "sharp": "^0.34.5",
+    "start-server-and-test": "^3.0.5",
     "typescript": "^5.9.3",
     "wrangler": "^4.90.0"
   },

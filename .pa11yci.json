@@ -1,0 +1,29 @@
+{
+  "defaults": {
+    "standard": "WCAG2AA",
+    "runners": ["axe"],
+    "timeout": 60000,
+    "wait": 300,
+    "concurrency": 1,
+    "includeNotices": false,
+    "includeWarnings": false,
+    "chromeLaunchConfig": {
+      "args": ["--no-sandbox", "--disable-dev-shm-usage"]
+    }
+  },
+  "urls": [
+    "http://localhost:4321/",
+    "http://localhost:4321/about/",
+    "http://localhost:4321/privacy/",
+    "http://localhost:4321/license/",
+    "http://localhost:4321/methodology/",
+    "http://localhost:4321/acknowledgements/",
+    "http://localhost:4321/extension/",
+    "http://localhost:4321/handbook/",
+    "http://localhost:4321/handbook/strict-necessary-cookies/",
+    "http://localhost:4321/law/",
+    "http://localhost:4321/law/gdpr/art-6/",
+    "http://localhost:4321/law/eprivacy/art-5/",
+    "http://localhost:4321/law/uk-gdpr-and-pecr/"
+  ]
+}
