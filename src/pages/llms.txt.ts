@@ -16,6 +16,10 @@ export const GET: APIRoute = async ({ site }) => {
     '> Plain-language reference handbook on GDPR, ePrivacy and the UK PECR — written for developers, DPOs and engineers who need to get cookie consent and tracking right. Topic-organised, current-state, no marketing.'
   );
   lines.push('');
+  lines.push(
+    `For one-shot ingestion of every handbook entry and law article in a single document, fetch [${new URL('/llms-full.txt', site!).toString()}](${new URL('/llms-full.txt', site!).toString()}).`
+  );
+  lines.push('');
 
   const projectPages: Array<[string, string, string]> = [
     ['About', '/about.md', 'What ConsentTheater is, what it is not, and how the project is run.'],
