@@ -5,6 +5,7 @@ import { fileURLToPath } from 'node:url';
 import { join } from 'node:path';
 import sitemap from '@astrojs/sitemap';
 import icon from 'astro-icon';
+import llms from 'astro-llms-md';
 import tailwindcss from '@tailwindcss/vite';
 import rehypeExternalLinks from 'rehype-external-links';
 import { visit, SKIP } from 'unist-util-visit';
@@ -103,7 +104,27 @@ export default defineConfig({
       lastmod: new Date()
     }),
     sitemapPostBuild,
-    icon()
+    icon(),
+    // Auto-generate .md siblings for hand-curated .astro pages (about,
+    // methodology, privacy, etc.). Lossy HTML→MD — fine for LLMs.
+    // Handbook and law collections have their own hand-rolled .md
+    // endpoints with richer metadata, so we exclude them here.
+    llms({
+      generateLlmsTxt: false,
+      generateLlmsFullTxt: false,
+      generateIndividualMd: true,
+      exclude: [
+        '404',
+        '404.html',
+        '_astro',
+        '**.xml',
+        '**.txt',
+        'node_modules',
+        'handbook/*/**',
+        'law/gdpr/**',
+        'law/eprivacy/**'
+      ]
+    })
   ],
   markdown: {
     rehypePlugins: [

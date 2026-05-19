@@ -1,0 +1,29 @@
+---
+import LawArticle from '@/layouts/LawArticle.astro';
+import { getCollection, render } from 'astro:content';
+
+export async function getStaticPaths() {
+  const all = await getCollection('law');
+  return all.map((entry) => ({
+    params: { slug: entry.id },
+    props: { entry }
+  }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+
+const { regulation, articleLabel, title, eurLexUrl, citation, updated } = entry.data;
+const markdownUrl = `/law/${entry.id}.md`;
+---
+<LawArticle
+  regulation={regulation}
+  articleLabel={articleLabel}
+  title={title}
+  eurLexUrl={eurLexUrl}
+  citation={citation}
+  updated={updated}
+  markdownUrl={markdownUrl}
+>
+  <Content />
+</LawArticle>

@@ -285,6 +285,16 @@
     font-style: italic;
   }
   .prose-ct blockquote > :first-child { margin-top: 0; }
+
+  /* Verbatim legal-text blockquotes inside law articles. Same boxed look,
+     but not italicised — a legislative reproduction is not commentary. */
+  .prose-law blockquote {
+    font-style: normal;
+    padding: 1rem 1.25rem;
+    color: hsl(var(--foreground) / 0.9);
+  }
+  .prose-law blockquote p { margin-top: 0.6rem; }
+  .prose-law blockquote p:first-child { margin-top: 0; }
   .prose-ct hr {
     border: 0;
     border-top: 1px solid hsl(var(--border));

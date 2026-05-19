@@ -1,52 +1,27 @@
 ---
 import Layout from '@/layouts/Layout.astro';
+import { getCollection } from 'astro:content';
 
-const updated = '2026-04-25';
+const all = await getCollection('law');
+const articles = all
+  .sort((a, b) => {
+    const ao = a.data.order ?? Number.POSITIVE_INFINITY;
+    const bo = b.data.order ?? Number.POSITIVE_INFINITY;
+    if (ao !== bo) return ao - bo;
+    return a.data.title.localeCompare(b.data.title);
+  })
+  .map((e) => ({
+    href: `/law/${e.id}/`,
+    label: `${e.data.regulation} ${e.data.articleLabel}`,
+    title: e.data.title,
+    summary: e.data.summary,
+    updated: e.data.updated
+  }));
 
-const articles = [
-  {
-    href: '/law/gdpr/art-5/',
-    label: 'GDPR Article 5',
-    title: 'Principles relating to processing of personal data',
-    summary:
-      'The six core principles every controller must satisfy: lawfulness, purpose limitation, data minimisation, accuracy, storage limitation, and integrity. Plus the accountability rule.'
-  },
-  {
-    href: '/law/gdpr/art-6/',
-    label: 'GDPR Article 6',
-    title: 'Lawfulness of processing',
-    summary:
-      'The six legal bases for processing personal data: consent, contract, legal obligation, vital interests, public task, and legitimate interests.'
-  },
-  {
-    href: '/law/gdpr/art-7/',
-    label: 'GDPR Article 7',
-    title: 'Conditions for consent',
-    summary:
-      'What it means to "have consent" under the GDPR — burden of proof, plain language, the right to withdraw, and freely-given conditions.'
-  },
-  {
-    href: '/law/gdpr/art-17/',
-    label: 'GDPR Article 17',
-    title: 'Right to erasure ("right to be forgotten")',
-    summary:
-      'When a data subject can require erasure, what exceptions apply (free expression, public interest, legal claims, archiving for research), and how it interacts with public publication.'
-  },
-  {
-    href: '/law/gdpr/art-89/',
-    label: 'GDPR Article 89',
-    title: 'Safeguards for archiving, research and statistical purposes',
-    summary:
-      'The research-and-archiving carve-out that lets datasets like ours preserve historical observations under appropriate safeguards, even when other rights would otherwise apply.'
-  },
-  {
-    href: '/law/eprivacy/art-5/',
-    label: 'ePrivacy Directive Article 5',
-    title: 'Confidentiality of the communications',
-    summary:
-      'The "cookie article" — the rule that storing or accessing information on a user\'s terminal device requires prior informed consent, with a narrow strictly-necessary exemption.'
-  }
-];
+const updated = articles
+  .map((a) => a.updated)
+  .sort()
+  .reverse()[0] ?? '';
 
 const ukOverview = {
   href: '/law/uk-gdpr-and-pecr/',
@@ -59,6 +34,7 @@ const ukOverview = {
 <Layout
   title="Law references — ConsentTheater"
   description="Plain-language renderings of the GDPR and ePrivacy articles ConsentTheater relies on, with the verbatim official text alongside and a link back to the EU's canonical source."
+  markdownUrl="/law.md"
 >
   <section class="mx-auto w-full max-w-3xl px-6 pt-10 pb-12">
     <div class="mb-6">

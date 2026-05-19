@@ -28,13 +28,15 @@ interface Props {
   description?: string;
   image?: string;
   showGithubCta?: boolean;
+  markdownUrl?: string;
 }
 
 const {
   title = 'ConsentTheater — GDPR cookie & tracker lookup',
   description = 'Identify cookies, domains and trackers. Look up any cookie name or domain to see the company, service, category and consent burden under GDPR.',
   image,
-  showGithubCta = true
+  showGithubCta = true,
+  markdownUrl
 } = Astro.props;
 
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site).toString();
@@ -64,6 +66,9 @@ const isActive = (href: string) =>
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
+    {markdownUrl && (
+      <link rel="alternate" type="text/markdown" href={markdownUrl} title="Markdown version (for LLMs)" />
+    )}
 
     <meta property="og:title" content={title} />
     <meta property="og:description" content={description} />

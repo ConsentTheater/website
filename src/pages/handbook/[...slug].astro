@@ -24,10 +24,13 @@ const relatedEntries = (related ?? [])
 
 // Only show h2's in TOC; h3's nest visually but aren't navigation targets.
 const toc = headings.filter((h) => h.depth === 2);
+
+const markdownUrl = `/handbook/${entry.id}.md`;
 ---
 <Layout
   title={`${title} — ConsentTheater Handbook`}
   description={summary}
+  markdownUrl={markdownUrl}
 >
   <section class="mx-auto w-full max-w-3xl px-6 pt-10 pb-12">
     <nav class="mb-4 text-[11px] text-muted-foreground" aria-label="Breadcrumb">
