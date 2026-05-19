@@ -2,8 +2,10 @@
  * ConsentTheater — Cloudflare Workers config
  *
  * Astro builds the site as static HTML into `./dist`. Cloudflare serves it via
- * the ASSETS binding. Requests matching `/api/*` hit the Worker in `./worker`
- * instead of static assets.
+ * the ASSETS binding. The Worker in `./worker` intercepts every request so it
+ * can (a) serve `/api/*` endpoints and (b) hand AI crawlers the `.md` variant
+ * of each page instead of the rendered HTML. Normal browser traffic falls
+ * through to the static asset.
  *
  * Docs: https://developers.cloudflare.com/workers/wrangler/configuration/
  */
@@ -17,7 +19,7 @@
   "assets": {
     "binding": "ASSETS",
     "directory": "./dist",
-    "run_worker_first": ["/api/*"],
+    "run_worker_first": ["/*"],
     "not_found_handling": "404-page"
   },
 
