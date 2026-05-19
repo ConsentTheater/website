@@ -14,3 +14,13 @@
   Cross-Origin-Opener-Policy: same-origin
   Cross-Origin-Resource-Policy: same-origin
   Content-Security-Policy: default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; frame-ancestors 'none'; form-action 'self'; base-uri 'self'; object-src 'none'; upgrade-insecure-requests
+
+# Declare UTF-8 explicitly for LLM-facing assets. Without this Cloudflare
+# serves them as text/plain (no charset), which combined with our nosniff
+# policy forces clients to fall back to the default encoding (often
+# Latin-1), garbling em-dashes and other non-ASCII bytes.
+/*.md
+  Content-Type: text/markdown; charset=utf-8
+
+/*.txt
+  Content-Type: text/plain; charset=utf-8
