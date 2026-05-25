@@ -38,7 +38,7 @@
     "@zachleat/table-saw": "^1.0.7",
     "astro": "^6.3.3",
     "class-variance-authority": "^0.7.1",
-    "hono": "^4.12.19",
+    "hono": "^4.12.23",
     "tailwindcss": "^4.3.0"
   },
   "devDependencies": {
