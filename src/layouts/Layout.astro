@@ -96,7 +96,7 @@ const isActive = (href: string) =>
     <script is:inline>
       (function () {
         try {
-          var raw = localStorage.getItem('ct_settings');
+          var raw = localStorage.getItem('consenttheater.preferences');
           var s = raw ? JSON.parse(raw) : {};
           var theme = s.theme || 'system';
           var dark = theme === 'dark' ||
@@ -189,59 +189,109 @@ const isActive = (href: string) =>
         </aside>
       )}
 
-      <footer class="border-t border-border bg-card">
-        <div class="mx-auto grid w-full max-w-4xl gap-6 px-6 py-6 text-[11px] text-muted-foreground">
-          <!-- 1. Menu -->
-          <nav
-            class="flex flex-col items-start gap-3 sm:flex-row sm:flex-wrap sm:items-center sm:gap-x-5 sm:gap-y-2"
-            aria-label="Footer"
-          >
-            <a href="/about/" class="py-1 transition-colors hover:text-foreground">About</a>
-            <a href="/handbook/" class="py-1 transition-colors hover:text-foreground">Handbook</a>
-            <a href="/extension/" class="py-1 transition-colors hover:text-foreground">Extension</a>
-            <a href="/methodology/" class="py-1 transition-colors hover:text-foreground">Methodology</a>
-            <a href="/privacy/" class="py-1 transition-colors hover:text-foreground">Privacy</a>
-            <a href="/license/" class="py-1 transition-colors hover:text-foreground">License</a>
-            <a href="/acknowledgements/" class="py-1 transition-colors hover:text-foreground">Acknowledgements</a>
-            <a
-              href="https://codeberg.org/ConsentTheater"
-              target="_blank"
-              rel="noopener"
-              class="inline-flex items-center gap-1 py-1 transition-colors hover:text-foreground"
-              aria-label="ConsentTheater on Codeberg"
-            >
-              <Icon name="codeberg" class="h-3.5 w-3.5" aria-hidden="true" />
-              Codeberg
-            </a>
-            <a
-              href="https://github.com/ConsentTheater"
-              target="_blank"
-              rel="noopener"
-              class="inline-flex items-center gap-1 py-1 transition-colors hover:text-foreground"
-              aria-label="ConsentTheater read-only mirror on GitHub"
-            >
-              <Icon name="ph:github-logo" class="h-3.5 w-3.5" aria-hidden="true" />
-              GitHub mirror
-            </a>
-          </nav>
+      <footer class="border-t border-border bg-card" aria-label="Footer">
+        <div class="mx-auto w-full max-w-4xl px-6 py-10 text-[11px] text-muted-foreground">
+          <!-- Top: brand + link columns -->
+          <div class="grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-4">
+            <!-- Brand + social -->
+            <div class="col-span-2 flex flex-col gap-3 md:col-span-1">
+              <a
+                href="/"
+                class="inline-flex items-center gap-2 text-foreground transition-opacity hover:opacity-80"
+                aria-label="ConsentTheater home"
+              >
+                <Image
+                  src={logo}
+                  alt=""
+                  width={28}
+                  height={28}
+                  densities={[2, 3]}
+                  class="h-7 w-7 rounded-full"
+                  aria-hidden="true"
+                />
+                <span class="font-display text-sm font-bold tracking-tight">ConsentTheater</span>
+              </a>
+              <p class="leading-relaxed">
+                Independent, open-source project documenting cookies, trackers and
+                consent under GDPR.
+              </p>
+              <div class="mt-1 flex items-center gap-4">
+                <a
+                  href="https://codeberg.org/ConsentTheater"
+                  target="_blank"
+                  rel="noopener"
+                  class="transition-colors hover:text-foreground"
+                  aria-label="ConsentTheater on Codeberg"
+                >
+                  <Icon name="codeberg" class="h-5 w-5" aria-hidden="true" />
+                </a>
+                <a
+                  href="https://github.com/ConsentTheater"
+                  target="_blank"
+                  rel="noopener"
+                  class="transition-colors hover:text-foreground"
+                  aria-label="ConsentTheater read-only mirror on GitHub"
+                >
+                  <Icon name="github" class="h-5 w-5" aria-hidden="true" />
+                </a>
+                <a
+                  href="https://www.linkedin.com/company/consenttheater"
+                  target="_blank"
+                  rel="noopener"
+                  class="transition-colors hover:text-foreground"
+                  aria-label="ConsentTheater on LinkedIn"
+                >
+                  <Icon name="linkedin" class="h-5 w-5" aria-hidden="true" />
+                </a>
+              </div>
+            </div>
 
-          <!-- 2. Copyright & fine print -->
-          <div class="grid gap-2">
+            <!-- Law -->
+            <nav class="flex flex-col gap-2.5" aria-label="Law references">
+              <h2 class="font-semibold uppercase tracking-wider text-foreground">Law</h2>
+              <a href="/law/gdpr/art-6/" class="text-[13px] transition-colors hover:text-foreground">GDPR Art. 6 — Lawful bases</a>
+              <a href="/law/gdpr/art-7/" class="text-[13px] transition-colors hover:text-foreground">GDPR Art. 7 — Consent</a>
+              <a href="/law/gdpr/art-17/" class="text-[13px] transition-colors hover:text-foreground">GDPR Art. 17 — Right to erasure</a>
+              <a href="/law/eprivacy/art-5/" class="text-[13px] transition-colors hover:text-foreground">ePrivacy Art. 5 — Cookies</a>
+              <a href="/law/uk-gdpr-and-pecr/" class="text-[13px] transition-colors hover:text-foreground">UK GDPR &amp; PECR</a>
+              <a href="/law/" class="text-[13px] transition-colors hover:text-foreground">All law references</a>
+            </nav>
+
+            <!-- Handbook -->
+            <nav class="flex flex-col gap-2.5" aria-label="Handbook">
+              <h2 class="font-semibold uppercase tracking-wider text-foreground">Handbook</h2>
+              <a href="/handbook/" class="text-[13px] transition-colors hover:text-foreground">All guides</a>
+              <a href="/handbook/strict-necessary-cookies/" class="text-[13px] transition-colors hover:text-foreground">Strict-necessary cookies</a>
+              <a href="/handbook/tracking-pixels/" class="text-[13px] transition-colors hover:text-foreground">Tracking pixels</a>
+              <a href="/handbook/privacy-friendly-browsers/" class="text-[13px] transition-colors hover:text-foreground">Privacy-friendly browsers</a>
+              <a href="/handbook/dns-sinkholes/" class="text-[13px] transition-colors hover:text-foreground">DNS sinkholes</a>
+            </nav>
+
+            <!-- Project -->
+            <nav class="flex flex-col gap-2.5" aria-label="Project">
+              <h2 class="font-semibold uppercase tracking-wider text-foreground">Project</h2>
+              <a href="/extension/" class="text-[13px] transition-colors hover:text-foreground">Browser extension</a>
+              <a href="/methodology/" class="text-[13px] transition-colors hover:text-foreground">Methodology</a>
+              <a href="/about/" class="text-[13px] transition-colors hover:text-foreground">About</a>
+              <a href="/privacy/" class="text-[13px] transition-colors hover:text-foreground">Privacy</a>
+              <a href="/license/" class="text-[13px] transition-colors hover:text-foreground">License</a>
+              <a href="/acknowledgements/" class="text-[13px] transition-colors hover:text-foreground">Acknowledgements</a>
+            </nav>
+          </div>
+
+          <!-- Bottom: copyright, fine print, then build as the final line -->
+          <div class="mt-10 grid gap-3 border-t border-border pt-6">
             <span>
               © {year} ConsentTheater · Non-commercial, open-source project <span class="whitespace-nowrap">(AGPL-3.0)</span>
             </span>
-            <p class="leading-relaxed text-muted-foreground">
+            <p class="leading-relaxed">
               ConsentTheater is an independent, volunteer-run, non-commercial project.
               Content on this site is provided for educational purposes only and is
               not legal advice. Not affiliated with or endorsed by any regulator, law
               firm, browser vendor, or service listed in the catalogue. All trademarks
               and product names are the property of their respective owners.
             </p>
-          </div>
-
-          <!-- 3. Build -->
-          <div class="text-muted-foreground">
-            <span class="whitespace-nowrap">
+            <div class="whitespace-nowrap">
               Build
               {' '}
               {commit ? (
@@ -256,7 +306,7 @@ const isActive = (href: string) =>
               )}
               {' · '}
               <time datetime={builtAt} class="font-mono">{builtAt}</time>
-            </span>
+            </div>
           </div>
         </div>
       </footer>
