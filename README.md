@@ -1,5 +1,13 @@
 # ConsentTheater — Website
 
+> [!IMPORTANT]
+> **Active development lives on [Codeberg](https://codeberg.org/ConsentTheater/website).**
+> The GitHub copy is a public mirror and isn't monitored for contributions.
+>
+> Please open issues, pull requests, questions and proposals on
+> [Codeberg](https://codeberg.org/ConsentTheater/website/issues).
+> Anything filed on the GitHub mirror is closed automatically.
+
 The public website of ConsentTheater, a non-commercial, open-source project
 for GDPR and tracker transparency on the web.
 
