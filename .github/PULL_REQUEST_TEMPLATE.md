@@ -23,7 +23,7 @@ If anything doesn't apply, leave it unchecked or delete the line.
 - [ ] No new third-party scripts, fonts, or analytics were added
 - [ ] If touching accessibility: keyboard and screen reader behaviour verified
 - [ ] If touching UI: works in light mode, dark mode, and with high-contrast on
-- [ ] If changing tracker data: submitted to the [playbill](https://github.com/ConsentTheater/playbill) repository instead
+- [ ] If changing tracker data: submitted to the [playbill](https://codeberg.org/ConsentTheater/playbill) repository instead
 
 ## Related issue
 
