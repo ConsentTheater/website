@@ -13,7 +13,7 @@
   "homepage": "https://consenttheater.org",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/consenttheater/website.git"
+    "url": "git+https://codeberg.org/ConsentTheater/website.git"
   },
   "scripts": {
     "dev": "astro dev",

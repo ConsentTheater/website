@@ -4,7 +4,7 @@ import { Image } from 'astro:assets';
 import { Icon } from 'astro-icon/components';
 import { execSync } from 'node:child_process';
 import SettingsDialog from '@/components/SettingsDialog.astro';
-import GithubCta from '@/components/GithubCta.astro';
+import CodebergCta from '@/components/CodebergCta.astro';
 import { ogImagePath } from '@/utils/og';
 import logo from '@/assets/logo.png';
 
@@ -27,7 +27,7 @@ interface Props {
   title?: string;
   description?: string;
   image?: string;
-  showGithubCta?: boolean;
+  showCodebergCta?: boolean;
   markdownUrl?: string;
 }
 
@@ -35,7 +35,7 @@ const {
   title = 'ConsentTheater — GDPR cookie & tracker lookup',
   description = 'Identify cookies, domains and trackers. Look up any cookie name or domain to see the company, service, category and consent burden under GDPR.',
   image,
-  showGithubCta = true,
+  showCodebergCta = true,
   markdownUrl
 } = Astro.props;
 
@@ -183,9 +183,9 @@ const isActive = (href: string) =>
         <slot />
       </main>
 
-      {showGithubCta && (
+      {showCodebergCta && (
         <aside class="mx-auto w-full max-w-3xl px-6 pb-12">
-          <GithubCta />
+          <CodebergCta />
         </aside>
       )}
 
@@ -204,14 +204,24 @@ const isActive = (href: string) =>
             <a href="/license/" class="py-1 transition-colors hover:text-foreground">License</a>
             <a href="/acknowledgements/" class="py-1 transition-colors hover:text-foreground">Acknowledgements</a>
             <a
+              href="https://codeberg.org/ConsentTheater"
+              target="_blank"
+              rel="noopener"
+              class="inline-flex items-center gap-1 py-1 transition-colors hover:text-foreground"
+              aria-label="ConsentTheater on Codeberg"
+            >
+              <Icon name="codeberg" class="h-3.5 w-3.5" aria-hidden="true" />
+              Codeberg
+            </a>
+            <a
               href="https://github.com/ConsentTheater"
               target="_blank"
               rel="noopener"
               class="inline-flex items-center gap-1 py-1 transition-colors hover:text-foreground"
-              aria-label="ConsentTheater on GitHub"
+              aria-label="ConsentTheater read-only mirror on GitHub"
             >
               <Icon name="ph:github-logo" class="h-3.5 w-3.5" aria-hidden="true" />
-              GitHub
+              GitHub mirror
             </a>
           </nav>
 
@@ -236,7 +246,7 @@ const isActive = (href: string) =>
               {' '}
               {commit ? (
                 <a
-                  href={`https://github.com/ConsentTheater/website/commit/${commit}`}
+                  href={`https://codeberg.org/ConsentTheater/website/commit/${commit}`}
                   target="_blank"
                   rel="noopener"
                   class="font-mono transition-colors hover:text-foreground"

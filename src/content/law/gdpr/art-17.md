@@ -31,7 +31,7 @@ The research / archiving exception is the one that allows the Internet Archive, 
 ## How we use this on consenttheater.org
 
 - The website's [privacy policy](/privacy/) describes how we handle the limited request metadata our infrastructure provider sees.
-- For the planned snapshots dataset (see the [server repository](https://github.com/ConsentTheater/server)), Article 17(3)(d) and Article 89(1) are the legal anchor for keeping historical observations in append-only git history while still honouring legitimate takedown requests for active scanning.
+- For the planned snapshots dataset (see the [server repository](https://codeberg.org/ConsentTheater/server)), Article 17(3)(d) and Article 89(1) are the legal anchor for keeping historical observations in append-only git history while still honouring legitimate takedown requests for active scanning.
 
 ## Original text
 

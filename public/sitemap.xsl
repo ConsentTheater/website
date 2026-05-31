@@ -245,7 +245,7 @@
               and product names are the property of their respective owners.
             </p>
             <p class="build">
-              Build <a href="https://github.com/ConsentTheater/website/commit/__COMMIT__"><span class="mono">__COMMIT__</span></a>
+              Build <a href="https://codeberg.org/ConsentTheater/website/commit/__COMMIT__"><span class="mono">__COMMIT__</span></a>
               · <time datetime="__BUILT_AT__" class="mono">__BUILT_AT__</time>
             </p>
           </div>

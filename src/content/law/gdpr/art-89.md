@@ -32,7 +32,7 @@ Article 89 is the legal anchor for the Internet Archive, library digitisation pr
 
 ## How we use this on consenttheater.org
 
-- The append-only git history of the planned [snapshots dataset](https://github.com/ConsentTheater/server) is justified under Article 89 in conjunction with [Article 17(3)(d)](/law/gdpr/art-17/) — historical scans remain in the chain because rewriting them would defeat the integrity of the research archive.
+- The append-only git history of the planned [snapshots dataset](https://codeberg.org/ConsentTheater/server) is justified under Article 89 in conjunction with [Article 17(3)(d)](/law/gdpr/art-17/) — historical scans remain in the chain because rewriting them would defeat the integrity of the research archive.
 - Even with this anchor, our snapshots policy provides for cessation of *active* scanning on substantiated takedown requests, and for visible correction of any factually erroneous record. That is the kind of safeguard Article 89(1) requires.
 
 ## Original text

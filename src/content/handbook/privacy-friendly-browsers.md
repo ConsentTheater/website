@@ -256,7 +256,7 @@ Even on Brave or Firefox, a small set of extensions is worth running:
   CDN, removing one tracking surface.
 - **Cookie AutoDelete** — wipes cookies for closed tabs after a delay,
   retaining only whitelisted sites.
-- **[ConsentTheater](https://github.com/ConsentTheater/extension)**
+- **[ConsentTheater](https://codeberg.org/ConsentTheater/extension)**
   (full disclosure: this is our own project) — shows what trackers and
   cookies are present on the current site and what consent burden they
   carry under GDPR. It does not block; it informs.
