@@ -147,7 +147,7 @@ const titleHasMenu = navItems.length > 0;
   interface Settings { theme: ThemeMode; highContrast: ContrastMode; }
 
   const DEFAULTS: Settings = { theme: 'system', highContrast: 'system' };
-  const STORAGE_KEY = 'ct_settings';
+  const STORAGE_KEY = 'consenttheater.preferences';
 
   const isTheme = (v: unknown): v is ThemeMode => v === 'light' || v === 'dark' || v === 'system';
   const isContrast = (v: unknown): v is ContrastMode => v === 'off' || v === 'on' || v === 'system';
