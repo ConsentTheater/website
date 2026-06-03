@@ -2,6 +2,8 @@
 import Layout from '@/layouts/Layout.astro';
 import { getCollection, render } from 'astro:content';
 import { HANDBOOK_CATEGORY_LABELS } from '@/content.config';
+import { techArticle, breadcrumbList } from '@/utils/schema';
+import { ogImagePath } from '@/utils/og';
 
 export async function getStaticPaths() {
   const all = await getCollection('handbook', ({ data }) => !data.draft);
@@ -26,11 +28,30 @@ const relatedEntries = (related ?? [])
 const toc = headings.filter((h) => h.depth === 2);
 
 const markdownUrl = `/handbook/${entry.id}.md`;
+
+const canonicalUrl = new URL(Astro.url.pathname, Astro.site).toString();
+const schema = [
+  techArticle(Astro.site!, {
+    url: canonicalUrl,
+    headline: title,
+    description: summary,
+    datePublished: created ?? updated,
+    dateModified: updated,
+    image: new URL(ogImagePath(Astro.url.pathname), Astro.site).toString(),
+    section: categoryLabel
+  }),
+  breadcrumbList(Astro.site!, [
+    { name: 'Home', path: '/' },
+    { name: 'Handbook', path: '/handbook/' },
+    { name: title }
+  ])
+];
 ---
 <Layout
   title={`${title} — ConsentTheater Handbook`}
   description={summary}
   markdownUrl={markdownUrl}
+  schema={schema}
 >
   <section class="mx-auto w-full max-w-3xl px-6 pt-10 pb-12">
     <nav class="mb-4 text-[11px] text-muted-foreground" aria-label="Breadcrumb">

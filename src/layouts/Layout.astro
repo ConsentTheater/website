@@ -6,6 +6,7 @@ import { execSync } from 'node:child_process';
 import SettingsDialog from '@/components/SettingsDialog.astro';
 import CodebergCta from '@/components/CodebergCta.astro';
 import { ogImagePath } from '@/utils/og';
+import { baseNodes } from '@/utils/schema';
 import logo from '@/assets/logo.png';
 
 function readBuildInfo() {
@@ -29,6 +30,7 @@ interface Props {
   image?: string;
   showCodebergCta?: boolean;
   markdownUrl?: string;
+  schema?: Record<string, unknown>[];
 }
 
 const {
@@ -36,11 +38,17 @@ const {
   description = 'Identify cookies, domains and trackers. Look up any cookie name or domain to see the company, service, category and consent burden under GDPR.',
   image,
   showCodebergCta = true,
-  markdownUrl
+  markdownUrl,
+  schema = []
 } = Astro.props;
 
 const canonicalUrl = new URL(Astro.url.pathname, Astro.site).toString();
 const imageUrl = new URL(image ?? ogImagePath(Astro.url.pathname), Astro.site).toString();
+
+const jsonLd = {
+  '@context': 'https://schema.org',
+  '@graph': [...baseNodes(Astro.site!), ...schema]
+};
 
 const year = new Date().getFullYear();
 
@@ -66,6 +74,7 @@ const isActive = (href: string) =>
     <title>{title}</title>
     <meta name="description" content={description} />
     <link rel="canonical" href={canonicalUrl} />
+    <script type="application/ld+json" is:inline set:html={JSON.stringify(jsonLd)} />
     {markdownUrl && (
       <link rel="alternate" type="text/markdown" href={markdownUrl} title="Markdown version (for LLMs)" />
     )}

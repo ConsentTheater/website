@@ -98,7 +98,7 @@ app.get('/api/search', (c) => {
   if (!q) {
     return c.json({ error: 'missing q', hint: 'try ?q=_ga or ?q=apollo.com' }, 400);
   }
-  if (q.length > 200) {
+  if (q.length > 100) {
     return c.json({ error: 'query too long' }, 400);
   }
 

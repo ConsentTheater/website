@@ -1,5 +1,6 @@
 ---
 import Layout from '@/layouts/Layout.astro';
+import { breadcrumbList } from '@/utils/schema';
 
 interface Props {
   regulation: string;
@@ -29,8 +30,16 @@ const fullMetaTitle =
   metaTitle ?? `${regulation} ${articleLabel} — ${title} — ConsentTheater`;
 const fullMetaDescription =
   metaDescription ?? `${regulation} ${articleLabel}: ${title}. Plain-language explainer paired with the verbatim official text. Reproduced from ${citation} on eur-lex.europa.eu.`;
+
+const schema = [
+  breadcrumbList(Astro.site!, [
+    { name: 'Home', path: '/' },
+    { name: 'Law references', path: '/law/' },
+    { name: `${regulation} ${articleLabel}` }
+  ])
+];
 ---
-<Layout title={fullMetaTitle} description={fullMetaDescription} markdownUrl={markdownUrl}>
+<Layout title={fullMetaTitle} description={fullMetaDescription} markdownUrl={markdownUrl} schema={schema}>
   <section class="mx-auto w-full max-w-3xl px-6 pt-10 pb-12">
     <nav class="mb-4 text-[11px] text-muted-foreground" aria-label="Breadcrumb">
       <ol class="flex flex-wrap items-center gap-1">

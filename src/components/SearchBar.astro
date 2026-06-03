@@ -17,6 +17,7 @@ import Button from '@/components/ui/Button.astro';
         placeholder="Cookie name or domain — e.g. _ga, connect.facebook.net"
         autocomplete="off"
         spellcheck="false"
+        maxlength="100"
         aria-label="Search for a cookie or domain"
         class="h-12 w-full rounded-md border border-input bg-background pl-10 pr-3 text-sm font-mono outline-none ring-offset-background placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2"
       />
@@ -346,9 +347,20 @@ import Button from '@/components/ui/Button.astro';
       errorBox!.classList.add('hidden');
     }
 
+    // Mirror the worker's cap (worker/index.ts rejects q.length > 100). Real
+    // cookie names and tracker hostnames are well under this; the query is also
+    // surfaced via ?q= in the URL, so clamp before it reaches the bar or the API.
+    const MAX_Q = 100;
+
+    function syncUrl(q: string) {
+      const next = q ? `${location.pathname}?q=${encodeURIComponent(q)}` : location.pathname;
+      history.replaceState(history.state, '', next);
+    }
+
     async function runSearch(qRaw: string) {
-      const q = qRaw.trim();
+      const q = qRaw.trim().slice(0, MAX_Q);
       if (!q) return;
+      syncUrl(q);
       setLoading(true);
       clearError();
       try {
@@ -380,6 +392,15 @@ import Button from '@/components/ui/Button.astro';
         void runSearch(ex);
       });
     });
+
+    // Deep link: /?q=_ga runs the lookup on load, so the link is shareable and
+    // the WebSite SearchAction target points at a page that actually works.
+    const initialQuery = new URLSearchParams(location.search).get('q')?.trim().slice(0, MAX_Q);
+    if (initialQuery) {
+      input.value = initialQuery;
+      submit.disabled = false;
+      void runSearch(initialQuery);
+    }
   }
 </script>
 

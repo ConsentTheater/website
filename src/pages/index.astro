@@ -3,6 +3,7 @@ import Layout from '@/layouts/Layout.astro';
 import { Icon } from 'astro-icon/components';
 import SearchBar from '@/components/SearchBar.astro';
 import CodebergCta from '@/components/CodebergCta.astro';
+import { faqPage } from '@/utils/schema';
 
 const faqs = [
   {
@@ -47,17 +48,8 @@ const faqs = [
   }
 ];
 
-const faqSchema = {
-  '@context': 'https://schema.org',
-  '@type': 'FAQPage',
-  mainEntity: faqs.map((f) => ({
-    '@type': 'Question',
-    name: f.q,
-    acceptedAnswer: { '@type': 'Answer', text: f.text }
-  }))
-};
 ---
-<Layout showCodebergCta={false}>
+<Layout showCodebergCta={false} schema={[faqPage(faqs)]}>
   <section class="mx-auto flex w-full max-w-3xl flex-col items-center px-6 pt-16 pb-12 sm:pb-24 sm:pt-24">
     <h1 class="text-center font-display text-3xl font-bold leading-tight tracking-tight sm:text-4xl">
       Check an actor
@@ -118,6 +110,4 @@ const faqSchema = {
       ))}
     </div>
   </section>
-
-  <script type="application/ld+json" set:html={JSON.stringify(faqSchema)} />
 </Layout>

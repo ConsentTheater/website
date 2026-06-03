@@ -2,6 +2,8 @@
 import Layout from '@/layouts/Layout.astro';
 import { Image } from 'astro:assets';
 import { Icon } from 'astro-icon/components';
+import { softwareApplication } from '@/utils/schema';
+import { ogImagePath } from '@/utils/og';
 import screenshotLightWelcome from '@/assets/extension/screenshot-light-welcome.png';
 import screenshotDarkWelcome from '@/assets/extension/screenshot-dark-welcome.png';
 import screenshotLightScan from '@/assets/extension/screenshot-light-scan.png';
@@ -48,11 +50,23 @@ const features = [
     body: 'Copy a clean text summary, hand it to a friend, a support team, or (if you go that far) a regulator.'
   }
 ];
+
+const metaDescription =
+  'Free, open-source browser extension for Chrome and Firefox. See trackers, cookies and pre-consent data flows before you click Accept. No telemetry, no accounts, nothing leaves your browser.';
+
+const extensionSchema = softwareApplication(Astro.site!, {
+  url: new URL(Astro.url.pathname, Astro.site).toString(),
+  description: metaDescription,
+  version: manualBuildVersion,
+  image: new URL(ogImagePath(Astro.url.pathname), Astro.site).toString(),
+  downloadUrl: chromeStoreUrl
+});
 ---
 <Layout
   title="ConsentTheater browser extension — see what a site really tracks"
-  description="Free, open-source browser extension for Chrome and Firefox. See trackers, cookies and pre-consent data flows before you click Accept. No telemetry, no accounts, nothing leaves your browser."
+  description={metaDescription}
   markdownUrl="/extension.md"
+  schema={[extensionSchema]}
 >
   <section class="mx-auto w-full max-w-4xl px-6 pt-10 pb-12">
 
