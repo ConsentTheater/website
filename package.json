@@ -13,7 +13,7 @@
   "homepage": "https://consenttheater.org",
   "repository": {
     "type": "git",
-    "url": "git+https://codeberg.org/ConsentTheater/website.git"
+    "url": "https://codeberg.org/ConsentTheater/website"
   },
   "scripts": {
     "dev": "astro dev",
@@ -32,11 +32,11 @@
     "test:a11y:run": "node scripts/a11y.mjs"
   },
   "dependencies": {
-    "@astrojs/sitemap": "^3.7.2",
-    "@consenttheater/playbill": "^0.4.0",
+    "@astrojs/sitemap": "^3.7.3",
+    "@consenttheater/playbill": "^0.5.0",
     "@tailwindcss/vite": "^4.3.0",
     "@zachleat/table-saw": "^1.0.7",
-    "astro": "^6.3.7",
+    "astro": "^6.4.4",
     "class-variance-authority": "^0.7.1",
     "hono": "^4.12.23",
     "tailwindcss": "^4.3.0"
@@ -46,18 +46,18 @@
     "@fontsource/lora": "^5.2.8",
     "@iconify-json/ph": "^1.2.2",
     "@resvg/resvg-js": "^2.6.2",
-    "@types/node": "^25.9.1",
+    "@types/node": "^25.9.2",
     "astro-icon": "^1.1.5",
-    "astro-llms-md": "^2.1.0",
+    "astro-llms-md": "^2.2.0",
     "gray-matter": "^4.0.3",
     "pa11y-ci": "^4.1.1",
     "rehype-external-links": "^3.0.0",
     "satori": "^0.26.0",
     "satori-html": "^0.3.2",
     "sharp": "^0.34.5",
-    "start-server-and-test": "^3.0.5",
+    "start-server-and-test": "^3.0.8",
     "typescript": "^5.9.3",
-    "wrangler": "^4.94.0"
+    "wrangler": "^4.98.0"
   },
   "engines": {
     "node": ">=24.0.0"
