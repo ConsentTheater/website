@@ -16,7 +16,7 @@ const releasesUrl = 'https://codeberg.org/ConsentTheater/extension/releases';
 const changelogUrl = 'https://codeberg.org/ConsentTheater/extension/src/branch/main/CHANGELOG.md';
 const privacyUrl = 'https://codeberg.org/ConsentTheater/extension/src/branch/main/PRIVACY.md';
 
-const manualBuildVersion = '0.4.0';
+const manualBuildVersion = '0.5.0';
 const manualChromeZip = `${releasesUrl}/download/v${manualBuildVersion}/consenttheater-chrome-v${manualBuildVersion}.zip`;
 const manualFirefoxZip = `${releasesUrl}/download/v${manualBuildVersion}/consenttheater-firefox-v${manualBuildVersion}.zip`;
 
@@ -209,27 +209,25 @@ const extensionSchema = softwareApplication(Astro.site!, {
         What's new
       </p>
       <h2 id="whats-new" class="mt-1 font-display text-lg font-bold tracking-tight">
-        Version 0.4.0 — Playbill 0.4.0 data refresh
+        Version 0.5.0 — Playbill 0.5.0 data refresh
       </h2>
       <p class="mt-3 text-sm leading-relaxed text-foreground/90">
         A data-quality release. No new extension features — the work
         happened in <code class="font-mono text-[11px]">@consenttheater/playbill</code>,
         the tracker knowledge base bundled with the extension, which moves from
-        0.3.0 to 0.4.0.
+        0.4.0 to 0.5.0.
       </p>
       <ul class="mt-3 space-y-1.5 text-sm leading-relaxed text-foreground/90">
         <li>
           <strong>Bigger catalogue.</strong> Settings now reports
-          <strong>4,028 cookies / 6,085 domains / 2,992 companies</strong>
-          (10,113 unique signatures after category-merge) — the size of the
-          in-memory tracker map the matcher actually consults on every scan.
+          <strong>4,064 cookies / 6,087 domains / 2,998 companies</strong>
+          (10,151 unique signatures after category-merge) — the size of the
+          in-memory tracker map the matcher actually consults on every scan,
+          up from 10,113 in 0.4.0.
         </li>
         <li>
-          <strong>Fewer cross-file collisions.</strong> Continued data-quality
-          work narrowed remaining
-          <code class="font-mono text-[11px]">COMPANY MISMATCH</code> cases:
-          cookie collisions down to 91 (from 109 in 0.3.0), domain collisions
-          down to 300 (from 344). Broader coverage across advertising,
+          <strong>Broader coverage.</strong> Continued data-quality work
+          across the catalogue, with wider coverage spanning the advertising,
           analytics and marketing categories.
         </li>
         <li>
@@ -243,8 +241,8 @@ const extensionSchema = softwareApplication(Astro.site!, {
         </li>
         <li>
           <strong>Dependency refresh.</strong> Patch / minor bumps for
-          Tailwind, Vite, ESLint, typescript-eslint, addons-linter, postcss
-          and <code class="font-mono text-[11px]">@types/chrome</code> — none
+          Radix UI, Vite, Vitest, typescript-eslint and
+          <code class="font-mono text-[11px]">@types/chrome</code> — none
           with runtime impact on the shipped extension.
         </li>
       </ul>
