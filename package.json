@@ -37,7 +37,7 @@
     "@tailwindcss/vite": "^4.3.1",
     "@zachleat/table-saw": "^1.0.7",
     "astro": "^6.4.8",
-    "@freshjuice/astro-webmcp": "^1.0.0",
+    "@freshjuice/astro-webmcp": "^1.1.0",
     "class-variance-authority": "^0.7.1",
     "hono": "^4.12.25",
     "tailwindcss": "^4.3.1"
@@ -55,10 +55,13 @@
     "rehype-external-links": "^3.0.0",
     "satori": "^0.26.0",
     "satori-html": "^0.3.2",
-    "sharp": "^0.34.5",
+    "sharp": "^0.35.1",
     "start-server-and-test": "^3.0.11",
     "typescript": "^5.9.3",
     "wrangler": "^4.101.0"
+  },
+  "overrides": {
+    "sharp": "$sharp"
   },
   "engines": {
     "node": ">=24.0.0"
