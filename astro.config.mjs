@@ -6,7 +6,7 @@ import { join } from 'node:path';
 import sitemap from '@astrojs/sitemap';
 import icon from 'astro-icon';
 import llms from 'astro-llms-md';
-import webmcp from 'astro-webmcp';
+import webmcp from '@freshjuice/astro-webmcp';
 import tailwindcss from '@tailwindcss/vite';
 import rehypeExternalLinks from 'rehype-external-links';
 import { visit, SKIP } from 'unist-util-visit';
@@ -106,7 +106,33 @@ export default defineConfig({
     }),
     sitemapPostBuild,
     icon(),
-    webmcp(),
+    webmcp({
+      customTools: [
+        {
+          name: 'search_tracker',
+          description:
+            'Search the ConsentTheater tracker database by cookie name or domain. ' +
+            'Returns structured data: company, service, category, consent burden, ' +
+            'lifetime, and related cookies/domains. Examples: _ga, _fbp, hotjar.com.',
+          inputSchema: {
+            type: 'object',
+            properties: {
+              query: {
+                type: 'string',
+                description: 'Cookie name or tracker domain to look up (max 100 chars)',
+              },
+            },
+            required: ['query'],
+          },
+          executeBody: `const q = String(params.query ?? '').trim().slice(0, 100);
+if (!q) return { error: 'query is required' };
+const res = await fetch('/api/search?q=' + encodeURIComponent(q));
+if (!res.ok) return { error: 'API error ' + res.status };
+return safeOutput(await res.json());`,
+          annotations: { readOnlyHint: true, untrustedContentHint: true },
+        },
+      ],
+    }),
     // Auto-generate .md siblings for hand-curated .astro pages (about,
     // methodology, privacy, etc.). Lossy HTML→MD — fine for LLMs.
     // Handbook and law collections have their own hand-rolled .md

@@ -1,7 +1,7 @@
 ---
 import Layout from '@/layouts/Layout.astro';
 
-const updated = '2026-04-29';
+const updated = '2026-06-17';
 
 interface Credit {
   name: string;
@@ -121,6 +121,12 @@ const sections: Section[] = [
         href: 'https://github.com/tfmurad/astro-llms-md',
         license: 'MIT',
         desc: 'Auto-generates a markdown sibling for every HTML page at build time, so language models can fetch the content as plain markdown instead of parsing HTML.'
+      },
+      {
+        name: '@freshjuice/astro-webmcp',
+        href: 'https://github.com/freshjuice-dev/astro-webmcp',
+        license: 'MIT',
+        desc: 'Astro integration that exposes site content and the tracker search API as AI-callable tools via WebMCP — the Chrome standard for AI agent interaction.'
       },
       {
         name: 'satori, satori-html, @resvg/resvg-js, sharp, gray-matter',
