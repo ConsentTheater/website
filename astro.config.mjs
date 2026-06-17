@@ -6,6 +6,7 @@ import { join } from 'node:path';
 import sitemap from '@astrojs/sitemap';
 import icon from 'astro-icon';
 import llms from 'astro-llms-md';
+import webmcp from 'astro-webmcp';
 import tailwindcss from '@tailwindcss/vite';
 import rehypeExternalLinks from 'rehype-external-links';
 import { visit, SKIP } from 'unist-util-visit';
@@ -105,6 +106,7 @@ export default defineConfig({
     }),
     sitemapPostBuild,
     icon(),
+    webmcp(),
     // Auto-generate .md siblings for hand-curated .astro pages (about,
     // methodology, privacy, etc.). Lossy HTML→MD — fine for LLMs.
     // Handbook and law collections have their own hand-rolled .md

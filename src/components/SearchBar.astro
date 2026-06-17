@@ -401,6 +401,36 @@ import Button from '@/components/ui/Button.astro';
       submit.disabled = false;
       void runSearch(initialQuery);
     }
+
+    // ---- WebMCP: expose tracker lookup as an AI-callable tool -----------------
+    // Register when navigator.modelContext is available (Chrome 146+ with flag).
+    // Falls through silently on browsers without WebMCP support.
+    if ('modelContext' in navigator) {
+      (navigator as any).modelContext.registerTool({
+        name: 'search_tracker',
+        description:
+          'Search the ConsentTheater tracker database by cookie name or domain. ' +
+          'Returns structured data: company, service, category, consent burden, ' +
+          'lifetime, and related cookies/domains. Examples: _ga, _fbp, hotjar.com.',
+        inputSchema: {
+          type: 'object',
+          properties: {
+            query: {
+              type: 'string',
+              description: 'Cookie name or tracker domain to look up (max 100 chars)',
+            },
+          },
+          required: ['query'],
+        },
+        execute: async (params: { query: string }) => {
+          const q = String(params.query ?? '').trim().slice(0, 100);
+          if (!q) return { error: 'query is required' };
+          const res = await fetch(`/api/search?q=${encodeURIComponent(q)}`);
+          if (!res.ok) return { error: `API error ${res.status}` };
+          return res.json();
+        },
+      });
+    }
   }
 </script>
 
