@@ -100,6 +100,7 @@ const sitemapPostBuild = {
 };
 
 export default defineConfig({
+  compressHTML: true,
   integrations: [
     sitemap({
       xslURL: '/sitemap.xsl',
