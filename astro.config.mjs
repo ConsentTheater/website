@@ -3,7 +3,7 @@ import { unified } from '@astrojs/markdown-remark';
 import { readFile, writeFile, readdir, access } from 'node:fs/promises';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
-import { join } from 'node:path';
+import { join, relative } from 'node:path';
 import sitemap from '@astrojs/sitemap';
 import icon from 'astro-icon';
 import llms from 'astro-llms-md';
@@ -11,6 +11,7 @@ import webmcp from '@freshjuice/astro-webmcp';
 import tailwindcss from '@tailwindcss/vite';
 import rehypeExternalLinks from 'rehype-external-links';
 import { visit, SKIP } from 'unist-util-visit';
+import { minify as minifyHtml } from 'html-minifier-terser';
 
 /**
  * Wrap markdown <table> elements in <table-saw> so the zachleat/table-saw
@@ -99,6 +100,62 @@ const sitemapPostBuild = {
   }
 };
 
+async function walkHtml(dir) {
+  const out = [];
+  const entries = await readdir(dir, { withFileTypes: true });
+  for (const e of entries) {
+    const p = join(dir, e.name);
+    if (e.isDirectory()) {
+      out.push(...(await walkHtml(p)));
+    } else if (e.isFile() && p.endsWith('.html')) {
+      out.push(p);
+    }
+  }
+  return out;
+}
+
+const htmlMinifyPostBuild = {
+  name: 'html-minify-post-build',
+  hooks: {
+    'astro:build:done': async ({ dir, logger }) => {
+      const distDir = fileURLToPath(dir);
+      const files = await walkHtml(distDir);
+      let totalBefore = 0;
+      let totalAfter = 0;
+      for (const path of files) {
+        try {
+          const before = await readFile(path, 'utf8');
+          totalBefore += before.length;
+          const after = await minifyHtml(before, {
+            collapseWhitespace: true,
+            conservativeCollapse: true,
+            collapseBooleanAttributes: true,
+            removeComments: true,
+            removeRedundantAttributes: true,
+            removeScriptTypeAttributes: true,
+            removeStyleLinkTypeAttributes: true,
+            useShortDoctype: true,
+            minifyCSS: true,
+            minifyJS: true,
+            keepClosingSlash: true,
+            sortAttributes: false,
+            sortClassName: false,
+          });
+          await writeFile(path, after);
+          totalAfter += after.length;
+        } catch (err) {
+          logger.warn(`html-minify skipped ${relative(distDir, path)}: ${err.message}`);
+        }
+      }
+      const saved = totalBefore - totalAfter;
+      const pct = totalBefore > 0 ? ((saved / totalBefore) * 100).toFixed(1) : '0';
+      logger.info(
+        `html-minify: ${files.length} files, ${(totalBefore / 1024).toFixed(0)} KB → ${(totalAfter / 1024).toFixed(0)} KB (-${pct}%)`
+      );
+    }
+  }
+};
+
 export default defineConfig({
   compressHTML: true,
   integrations: [
@@ -107,6 +164,7 @@ export default defineConfig({
       lastmod: new Date()
     }),
     sitemapPostBuild,
+    htmlMinifyPostBuild,
     icon(),
     webmcp({
       customTools: [
