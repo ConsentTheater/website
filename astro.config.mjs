@@ -1,4 +1,5 @@
 import { defineConfig } from 'astro/config';
+import { unified } from '@astrojs/markdown-remark';
 import { readFile, writeFile, readdir, access } from 'node:fs/promises';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -155,14 +156,16 @@ return safeOutput(await res.json());`,
     })
   ],
   markdown: {
-    rehypePlugins: [
-      [rehypeExternalLinks, {
-        target: '_blank',
-        // Security only. We deliberately keep referrers and dofollow.
-        rel: ['noopener']
-      }],
-      rehypeWrapTablesInTableSaw
-    ]
+    processor: unified({
+      rehypePlugins: [
+        [rehypeExternalLinks, {
+          target: '_blank',
+          // Security only. We deliberately keep referrers and dofollow.
+          rel: ['noopener']
+        }],
+        rehypeWrapTablesInTableSaw
+      ]
+    })
   },
   vite: {
     plugins: [tailwindcss()],
