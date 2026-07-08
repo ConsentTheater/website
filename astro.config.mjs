@@ -1,5 +1,5 @@
 import { defineConfig } from 'astro/config';
-import { unified } from '@astrojs/markdown-remark';
+import { satteri } from '@astrojs/markdown-satteri';
 import { readFile, writeFile, readdir, access } from 'node:fs/promises';
 import { execSync } from 'node:child_process';
 import { fileURLToPath } from 'node:url';
@@ -9,31 +9,53 @@ import icon from 'astro-icon';
 import llms from 'astro-llms-md';
 import webmcp from '@freshjuice/astro-webmcp';
 import tailwindcss from '@tailwindcss/vite';
-import rehypeExternalLinks from 'rehype-external-links';
-import { visit, SKIP } from 'unist-util-visit';
 import { minify as minifyHtml } from 'html-minifier-terser';
+
+/**
+ * Sätteri HAST plugin: add target="_blank" rel="noopener" to external links.
+ * Replaces the rehype-external-links npm package.
+ */
+const externalLinks = {
+  name: 'external-links',
+  element: {
+    filter: ['a'],
+    visit(node, ctx) {
+      const href = node.properties?.href;
+      if (typeof href !== 'string') return;
+      if (!/^https?:\/\//i.test(href)) return;
+      ctx.setProperty(node, 'target', '_blank');
+      ctx.setProperty(node, 'rel', 'noopener');
+    }
+  }
+};
 
 /**
  * Wrap markdown <table> elements in <table-saw> so the zachleat/table-saw
  * custom element can progressively enhance them on small viewports. The
  * wrapper is inert without JS — table renders as a normal <table>.
  */
-function rehypeWrapTablesInTableSaw() {
-  return (tree) => {
-    visit(tree, 'element', (node, index, parent) => {
-      if (node.tagName !== 'table') return;
-      if (!parent || index == null) return;
+const wrapTablesInTableSaw = {
+  name: 'wrap-tables-in-table-saw',
+  element: {
+    filter: ['table'],
+    visit(node, ctx) {
+      const parent = ctx.parent(node);
+      if (!parent) return;
       if (parent.type === 'element' && parent.tagName === 'table-saw') return;
-      parent.children[index] = {
+      const index = ctx.indexOf(node);
+      if (index < 0) return;
+      const wrapper = {
         type: 'element',
         tagName: 'table-saw',
         properties: {},
         children: [node]
       };
-      return [SKIP, index];
-    });
-  };
-}
+      const newChildren = parent.children.slice();
+      newChildren[index] = wrapper;
+      ctx.setProperty(parent, 'children', newChildren);
+    }
+  }
+};
 
 function readBuildInfo() {
   const builtAt = new Date().toISOString().slice(0, 10);
@@ -215,15 +237,8 @@ return safeOutput(await res.json());`,
     })
   ],
   markdown: {
-    processor: unified({
-      rehypePlugins: [
-        [rehypeExternalLinks, {
-          target: '_blank',
-          // Security only. We deliberately keep referrers and dofollow.
-          rel: ['noopener']
-        }],
-        rehypeWrapTablesInTableSaw
-      ]
+    processor: satteri({
+      hastPlugins: [externalLinks, wrapTablesInTableSaw]
     })
   },
   vite: {
