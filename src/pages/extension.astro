@@ -42,7 +42,11 @@ const features = [
   },
   {
     title: 'PDF & HAR export',
-    body: 'One click saves a print-ready PDF report or a HAR 1.2 network trace of the entire scan. The HAR opens in DevTools, Charles or HTTPToolkit and carries Playbill classifications inline.'
+    body: 'One click saves a print-ready PDF report or a HAR 1.2 network trace of the entire scan. The HAR opens in DevTools, Charles or HTTPToolkit and carries Playbill classifications inline. A built-in sanitizer redacts cookies and tokens by default — turn it off for raw audit exports.'
+  },
+  {
+    title: 'Reports in 5 languages',
+    body: 'The PDF report page includes a language dropdown — English, Spanish, French, German, Italian. Pick a language and the entire report re-renders instantly, ready to share with non-English-speaking colleagues, DPOs, or regulators.'
   },
   {
     title: 'Shareable report',
@@ -51,14 +55,15 @@ const features = [
 ];
 
 const metaDescription =
-  'Free, open-source browser extension for Chrome and Firefox. See trackers, cookies and pre-consent data flows before you click Accept. No telemetry, no accounts, nothing leaves your browser.';
+  'Free, open-source browser extension for Chrome and Firefox. See trackers, cookies and pre-consent data flows before you click Accept. Reports in 5 languages, HAR sanitizer, no telemetry, no accounts, nothing leaves your browser.';
 
 const extensionSchema = softwareApplication(Astro.site!, {
   url: new URL(Astro.url.pathname, Astro.site).toString(),
   description: metaDescription,
   version: manualBuildVersion,
   image: new URL(ogImagePath(Astro.url.pathname), Astro.site).toString(),
-  downloadUrl: chromeStoreUrl
+  downloadUrl: chromeStoreUrl,
+  privacyPolicyUrl: new URL('/extension/privacy/', Astro.site).toString()
 });
 ---
 <Layout
@@ -362,7 +367,7 @@ const extensionSchema = softwareApplication(Astro.site!, {
         </div>
         <div class="border-l-2 border-border pl-4">
           <dt class="font-mono text-xs font-semibold">storage</dt>
-          <dd class="text-muted-foreground">To remember your UI preferences (theme, language, high-contrast). Nothing else is stored.</dd>
+          <dd class="text-muted-foreground">To remember your UI preferences (theme, high-contrast, HAR sanitizer toggle). Nothing else is stored.</dd>
         </div>
         <div class="border-l-2 border-border pl-4">
           <dt class="font-mono text-xs font-semibold">&lt;all_urls&gt;</dt>

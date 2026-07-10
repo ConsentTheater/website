@@ -118,6 +118,7 @@ interface SoftwareApplicationInput {
   version: string;
   image?: string;
   downloadUrl?: string;
+  privacyPolicyUrl?: string;
 }
 
 export function softwareApplication(
@@ -134,6 +135,7 @@ export function softwareApplication(
     softwareVersion: s.version,
     ...(s.image ? { image: s.image } : {}),
     ...(s.downloadUrl ? { downloadUrl: s.downloadUrl } : {}),
+    ...(s.privacyPolicyUrl ? { privacyPolicyUrl: s.privacyPolicyUrl } : {}),
     // Free and open source. No aggregateRating: Google requires ratings to be
     // genuine and shown on this page; our store ratings are off-site, so marking
     // them up here would risk a manual action.
