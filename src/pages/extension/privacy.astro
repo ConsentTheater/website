@@ -1,0 +1,260 @@
+---
+import Layout from '@/layouts/Layout.astro';
+
+const updated = '2026-07-10';
+const extensionSourceUrl = 'https://codeberg.org/ConsentTheater/extension';
+const playbillUrl = 'https://codeberg.org/ConsentTheater/playbill';
+const changelogUrl = 'https://codeberg.org/ConsentTheater/extension/src/branch/main/CHANGELOG.md';
+const issuesUrl = 'https://codeberg.org/ConsentTheater/extension/issues';
+---
+<Layout
+  title="Extension Privacy Policy — ConsentTheater"
+  description="How the ConsentTheater browser extension handles your data. Nothing leaves your browser. No servers, no telemetry, no analytics. Full per-permission breakdown."
+>
+  <section class="mx-auto w-full max-w-3xl px-6 pt-10 pb-12">
+    <div class="mb-6">
+      <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        Browser extension
+      </p>
+      <h1 class="mt-1 font-display text-2xl font-bold tracking-tight sm:text-3xl">
+        Extension Privacy Policy
+      </h1>
+      <p class="mt-2 text-[11px] text-muted-foreground">
+        Last updated <time datetime={updated} class="font-mono">{updated}</time>
+      </p>
+      <p class="mt-3 text-sm leading-relaxed text-foreground/80">
+        This policy covers the ConsentTheater browser extension (Chrome and Firefox).
+        The website has its own <a href="/privacy/" class="link">privacy policy</a>.
+      </p>
+    </div>
+
+    <div class="space-y-8 text-sm leading-relaxed text-foreground/90">
+      <section>
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">TL;DR</h2>
+        <ul class="list-disc space-y-1.5 pl-5">
+          <li>We do not collect, transmit, sell, or share any personal data.</li>
+          <li>We have no servers, no analytics, no telemetry, no accounts, no cloud sync.</li>
+          <li>Scans are performed locally and on demand only — never in the background.</li>
+          <li>Scan results live in memory and are cleared when the tab closes.</li>
+          <li>The extension is fully open source under AGPL-3.0-or-later.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">What data the extension handles</h2>
+        <p>
+          When you click <strong>Scan this page</strong>, ConsentTheater inspects the page you
+          explicitly asked it to scan. During that scan it processes, <em>entirely on your
+          device</em>:
+        </p>
+        <ul class="mt-3 list-disc space-y-1.5 pl-5">
+          <li><strong>Cookies</strong> for the scanned origin (to classify which are tracking cookies).</li>
+          <li><strong>Outgoing network request URLs</strong> for the scanned tab (to identify third-party tracker hosts).</li>
+          <li><strong>Consent banner DOM text and button labels</strong> on the scanned page (to detect dark-pattern banners and capture your Accept / Reject / Manage click).</li>
+          <li><strong>localStorage, sessionStorage, IndexedDB</strong> listings for the scanned origin (names and sizes only, not contents).</li>
+        </ul>
+        <p class="mt-3">
+          None of this leaves your browser. It is used to produce the on-screen report
+          and is discarded when you close the tab or close the sidebar.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">What data the extension stores</h2>
+        <p>
+          ConsentTheater writes a small amount of data to your browser's local
+          extension storage (<code class="bg-secondary px-1 font-mono text-xs">chrome.storage.local</code> /
+          <code class="bg-secondary px-1 font-mono text-xs">browser.storage.local</code>). This
+          storage lives on your device, is scoped to the extension, and is not
+          synchronized to any cloud:
+        </p>
+        <ul class="mt-3 list-disc space-y-1.5 pl-5">
+          <li>Your <strong>UI preferences</strong> (theme, dark mode, high-contrast mode, HAR sanitizer toggle).</li>
+          <li>The <strong>Playbill tracker catalogue version</strong> the extension is using (a single string like <code class="font-mono text-xs">0.6.0</code>, so the sidebar can display which version you have).</li>
+        </ul>
+        <p class="mt-3">
+          There are no identifiers, no scan history, no per-site data, and no timestamps
+          in this storage. Uninstalling the extension removes it.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">What data the extension does not collect</h2>
+        <ul class="list-disc space-y-1.5 pl-5">
+          <li>No browsing history.</li>
+          <li>No visited URLs.</li>
+          <li>No IP address, user agent, or device fingerprint.</li>
+          <li>No page contents beyond what is explicitly required for the scan.</li>
+          <li>No form data, passwords, cookies <em>you</em> own (login sessions, carts, etc.), or anything bound to your identity on other sites.</li>
+          <li>No telemetry, crash reports, or "anonymous usage statistics".</li>
+          <li>No advertising identifiers.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">Network activity</h2>
+        <p>
+          The extension performs <strong>zero</strong> outbound network requests to ConsentTheater or
+          any third party during normal use.
+        </p>
+        <p class="mt-3">
+          The only bundled remote resource is the tracker catalogue
+          (<a href={playbillUrl} target="_blank" rel="noopener" class="link font-mono text-xs">@consenttheater/playbill</a>),
+          which is <strong>bundled into the extension at build time</strong>. No runtime fetch, no
+          CDN call, no update check initiated by the extension. Catalogue updates ship
+          through normal browser extension updates.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">HAR exports and the sanitizer</h2>
+        <p>
+          When you export a HAR file, the extension serialises the captured network
+          trace to a JSON file and triggers a browser download. This file is written to
+          your download folder — it is not uploaded anywhere.
+        </p>
+        <p class="mt-3">
+          HAR files can contain sensitive data: Cookie values, Authorization tokens,
+          and Set-Cookie headers. The <strong>HAR Sanitizer</strong> is on by default.
+          When enabled, it redacts sensitive header values before the file is written:
+        </p>
+        <ul class="mt-3 list-disc space-y-1.5 pl-5">
+          <li><strong>Cookie</strong> and <strong>Set-Cookie</strong> values are replaced with <code class="font-mono text-xs">[redacted]</code> — cookie names are preserved so the HAR remains useful for audit (e.g. <code class="font-mono text-xs">_ga=[redacted]</code>).</li>
+          <li><strong>Authorization</strong>, <strong>Proxy-Authorization</strong>, <strong>X-API-Key</strong>, <strong>X-Auth-Token</strong>, and <strong>X-Access-Token</strong> values are fully redacted.</li>
+        </ul>
+        <p class="mt-3">
+          Turning the sanitizer off in Settings produces a raw HAR with all header
+          values intact. This is intended for auditors who need the full credential
+          trail and understand the sensitivity of the file they are creating.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">Report language</h2>
+        <p>
+          The report page (opened when you click PDF) includes a language dropdown
+          (English, Spanish, French, German, Italian). Your language choice is kept in
+          the report page's memory only — it is not written to extension storage and
+          resets to English each time you open a new report. The sidebar UI is not
+          translated; only the report page is.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">Permissions — why each one is requested</h2>
+        <div class="overflow-x-auto">
+          <table class="w-full border-collapse text-xs">
+            <thead>
+              <tr class="border-b border-border text-left">
+                <th class="py-2 pr-3 font-semibold text-muted-foreground">Permission</th>
+                <th class="py-2 pr-3 font-semibold text-muted-foreground">Why it is needed</th>
+              </tr>
+            </thead>
+            <tbody class="leading-relaxed">
+              <tr class="border-b border-border/40 align-top">
+                <td class="py-2 pr-3 font-mono whitespace-nowrap">cookies</td>
+                <td class="py-2 pr-3">Read and clear cookies for the scanned origin, so the scan starts from a clean slate and the report can classify which cookies were set.</td>
+              </tr>
+              <tr class="border-b border-border/40 align-top">
+                <td class="py-2 pr-3 font-mono whitespace-nowrap">storage</td>
+                <td class="py-2 pr-3">Save your UI preferences (theme, contrast, HAR sanitizer toggle) in local extension storage.</td>
+              </tr>
+              <tr class="border-b border-border/40 align-top">
+                <td class="py-2 pr-3 font-mono whitespace-nowrap">tabs</td>
+                <td class="py-2 pr-3">Know which tab you want to scan and re-sync the sidebar when you switch tabs.</td>
+              </tr>
+              <tr class="border-b border-border/40 align-top">
+                <td class="py-2 pr-3 font-mono whitespace-nowrap">webRequest</td>
+                <td class="py-2 pr-3">Observe outgoing requests during a scan to identify third-party tracker hosts.</td>
+              </tr>
+              <tr class="border-b border-border/40 align-top">
+                <td class="py-2 pr-3 font-mono whitespace-nowrap">webNavigation</td>
+                <td class="py-2 pr-3">Know when the scanned tab finishes reloading, so the scan can capture pre-consent requests reliably.</td>
+              </tr>
+              <tr class="border-b border-border/40 align-top">
+                <td class="py-2 pr-3 font-mono whitespace-nowrap">browsingData</td>
+                <td class="py-2 pr-3">Clear localStorage, sessionStorage, IndexedDB, cacheStorage, and service workers for the scanned origin before the scan reloads the page — this is how we measure the first-visit state a real user would see.</td>
+              </tr>
+              <tr class="border-b border-border/40 align-top">
+                <td class="py-2 pr-3 font-mono whitespace-nowrap">sidePanel <span class="text-muted-foreground">(Chrome)</span></td>
+                <td class="py-2 pr-3">Open the ConsentTheater sidebar from the toolbar icon.</td>
+              </tr>
+              <tr class="border-b border-border/40 align-top">
+                <td class="py-2 pr-3 font-mono whitespace-nowrap">sidebar_action <span class="text-muted-foreground">(Firefox)</span></td>
+                <td class="py-2 pr-3">Open the ConsentTheater sidebar from the toolbar icon.</td>
+              </tr>
+              <tr class="border-b border-border/40 align-top">
+                <td class="py-2 pr-3 font-mono whitespace-nowrap">&lt;all_urls&gt;</td>
+                <td class="py-2 pr-3">Required for the above APIs to cover any site you might want to scan. The content script only does work on the tab where you click Scan.</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
+        <p class="mt-3">
+          No permission is used for any purpose other than the ones listed above.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">Scan model — why it is on demand</h2>
+        <p>
+          ConsentTheater does <strong>not</strong> passively analyze every page you visit, even though
+          its host permission covers all URLs. The scan pipeline only runs when you
+          click <strong>Scan this page</strong>. This is a deliberate product decision:
+        </p>
+        <ul class="mt-3 list-disc space-y-1.5 pl-5">
+          <li>Your normal browsing is never observed.</li>
+          <li>A scan requires wiping cookies and storage for the origin and reloading the tab — something we would never do without an explicit action from you.</li>
+          <li>There is no passive "recent activity" log to leak.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">Data retention</h2>
+        <ul class="list-disc space-y-1.5 pl-5">
+          <li>Scan reports live in the extension's service worker memory for the lifetime of the tab. They are cleared when the tab closes or when the service worker is evicted by the browser.</li>
+          <li>There is nothing to export to a server, no "delete my data" request to fulfill — because there is no account, no cloud, and no server-side copy.</li>
+        </ul>
+      </section>
+
+      <section>
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">Open source</h2>
+        <p>
+          The full source code, manifest, and build pipeline are published under
+          <a href="/license/" class="link font-mono">AGPL-3.0-or-later</a> at
+          <a href={extensionSourceUrl} target="_blank" rel="noopener" class="link font-mono">{extensionSourceUrl}</a>.
+          The tracker catalogue is published separately under the same license at
+          <a href={playbillUrl} target="_blank" rel="noopener" class="link font-mono">{playbillUrl}</a>.
+          You can verify every claim in this document by reading the code.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">Children</h2>
+        <p>
+          ConsentTheater is a general-purpose privacy tool and is not directed at
+          children under 13. We do not knowingly collect information from anyone,
+          including children.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">Changes to this policy</h2>
+        <p>
+          Substantive changes to this policy will be noted in the extension's
+          <a href={changelogUrl} target="_blank" rel="noopener" class="link">CHANGELOG</a> and in
+          the commit history of this file.
+        </p>
+      </section>
+
+      <section>
+        <h2 class="mb-2 font-display text-lg font-bold tracking-tight">Contact</h2>
+        <ul class="list-disc space-y-1.5 pl-5">
+          <li>Email: <a href="mailto:developer@consenttheater.org" class="link font-mono">developer@consenttheater.org</a></li>
+          <li>Issues: <a href={issuesUrl} target="_blank" rel="noopener" class="link">{issuesUrl}</a></li>
+          <li>Website: <a href="https://consenttheater.org" class="link">consenttheater.org</a></li>
+        </ul>
+      </section>
+    </div>
+  </section>
+</Layout>
