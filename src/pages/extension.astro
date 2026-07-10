@@ -14,7 +14,6 @@ const firefoxAmoUrl = 'https://addons.mozilla.org/en-US/firefox/addon/consentthe
 const sourceUrl = 'https://codeberg.org/ConsentTheater/extension';
 const releasesUrl = 'https://codeberg.org/ConsentTheater/extension/releases';
 const changelogUrl = 'https://codeberg.org/ConsentTheater/extension/src/branch/main/CHANGELOG.md';
-const privacyUrl = 'https://consenttheater.org/extension/privacy/';
 
 const manualBuildVersion = '0.6.0';
 const manualChromeZip = `${releasesUrl}/download/v${manualBuildVersion}/consenttheater-chrome-v${manualBuildVersion}.zip`;
@@ -269,7 +268,7 @@ const extensionSchema = softwareApplication(Astro.site!, {
       </ul>
       <p class="mt-4 text-xs text-muted-foreground">
         Read the full, plain-language
-        <a href={privacyUrl} target="_blank" rel="noopener" class="link font-mono">
+        <a href="/extension/privacy/" class="link font-mono">
           extension privacy policy
         </a>
         — including exactly why each browser permission is needed.
@@ -372,7 +371,7 @@ const extensionSchema = softwareApplication(Astro.site!, {
       </dl>
       <p class="mt-4 text-xs text-muted-foreground">
         Full breakdown in the
-        <a href={privacyUrl} target="_blank" rel="noopener" class="link font-mono">extension privacy policy</a>.
+        <a href="/extension/privacy/" class="link font-mono">extension privacy policy</a>.
       </p>
     </section>
 
