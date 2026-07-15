@@ -25,6 +25,14 @@ If anything doesn't apply, leave it unchecked or delete the line.
 - [ ] If touching UI: works in light mode, dark mode, and with high-contrast on
 - [ ] If changing tracker data: submitted to the [playbill](https://codeberg.org/ConsentTheater/playbill) repository instead
 
+## CLA acceptance
+
+```text
+I have read and agree to the CLA.
+```
+
+Paste the line above (uncommented) into your PR description. Maintainers will not merge without it. See [CONTRIBUTING.md](../CONTRIBUTING.md) and [CLA.md](../CLA.md).
+
 ## Related issue
 
 <!-- Link the issue this PR fixes, if any. "Fixes #123" auto-closes on merge. -->
