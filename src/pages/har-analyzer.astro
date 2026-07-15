@@ -1,0 +1,689 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { Icon } from 'astro-icon/components';
+
+const sourceUrl = 'https://codeberg.org/ConsentTheater/website/src/branch/main/src/pages/har-analyzer.astro';
+---
+
+<Layout
+  title="HAR Analyzer — ConsentTheater"
+  description="Client-side HAR file analyzer. Parse HTTP Archive files locally in your browser — no upload, no server, no tracking. Open source, AGPL-3.0."
+  showCodebergCta={false}
+>
+  <section class="mx-auto w-full max-w-5xl px-6 pt-10 pb-12">
+    <div class="mb-8">
+      <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        Tools
+      </p>
+      <h1 class="mt-1 font-display text-2xl font-bold tracking-tight sm:text-3xl">
+        HAR Analyzer
+      </h1>
+      <p class="mt-2 text-sm leading-relaxed text-muted-foreground">
+        Parse and inspect HTTP Archive (HAR) files entirely in your browser.
+        Your file never leaves your device — there is no server, no upload, no telemetry.
+      </p>
+    </div>
+
+    <!-- Drop zone (hidden after file loaded) -->
+    <div id="har-drop" class="relative flex min-h-[160px] flex-col items-center justify-center gap-3 border-2 border-dashed border-border bg-card p-8 text-center transition-colors hover:border-primary/50">
+      <Icon name="ph:upload-simple" class="h-10 w-10 text-muted-foreground" aria-hidden="true" />
+      <div>
+        <p class="font-display text-sm font-bold tracking-tight">Drop a .har file here</p>
+        <p class="mt-1 text-xs text-muted-foreground">or click to choose a file</p>
+      </div>
+      <input
+        id="har-input"
+        type="file"
+        accept=".har,application/json,application/octet-stream"
+        class="absolute inset-0 h-full w-full cursor-pointer opacity-0"
+        aria-label="Choose a HAR file to analyze"
+      />
+    </div>
+
+    <!-- Loaded state bar (hidden until file loaded) -->
+    <div id="har-loaded-bar" class="mb-4 hidden items-center justify-between gap-3 border border-border bg-card px-4 py-2.5">
+      <p class="text-xs text-muted-foreground">
+        <span id="har-loaded-name" class="font-mono font-semibold text-foreground"></span>
+        <span id="har-loaded-size" class="ml-2 text-muted-foreground"></span>
+      </p>
+      <button id="har-reset" type="button" class="inline-flex items-center gap-1.5 border border-input bg-background px-3 py-1.5 text-xs font-semibold text-foreground transition-colors hover:bg-accent hover:text-accent-foreground">
+        <Icon name="ph:arrow-counter-clockwise" class="h-3.5 w-3.5" aria-hidden="true" />
+        Load another file
+      </button>
+    </div>
+
+    <!-- Results -->
+    <div id="har-results" class="mt-6 hidden">
+        <!-- Summary bar -->
+        <div id="har-summary" class="mb-4 flex flex-wrap gap-3 text-xs"></div>
+
+        <!-- Filters -->
+        <div class="mb-4 flex flex-col gap-3 sm:flex-row sm:items-center">
+          <div class="relative flex-1">
+            <Icon name="ph:magnifying-glass" class="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
+            <input
+              id="har-search"
+              type="search"
+              placeholder="Filter by URL, domain, method, status…"
+              class="h-9 w-full border border-input bg-background pl-9 pr-3 text-sm text-foreground placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              aria-label="Filter entries"
+            />
+          </div>
+          <div id="har-status-filters" class="flex flex-wrap gap-1"></div>
+        </div>
+
+        <!-- Entries table -->
+        <div class="overflow-x-auto border border-border">
+          <table class="har-entries-table w-full border-collapse text-xs">
+            <thead>
+              <tr class="bg-secondary text-left">
+                <th class="cursor-pointer px-3 py-2 font-semibold uppercase tracking-wider text-foreground/80" data-sort="index">#</th>
+                <th class="cursor-pointer px-3 py-2 font-semibold uppercase tracking-wider text-foreground/80" data-sort="method">Method</th>
+                <th class="cursor-pointer px-3 py-2 font-semibold uppercase tracking-wider text-foreground/80" data-sort="url">URL</th>
+                <th class="cursor-pointer px-3 py-2 font-semibold uppercase tracking-wider text-foreground/80" data-sort="status">Status</th>
+                <th class="cursor-pointer px-3 py-2 font-semibold uppercase tracking-wider text-foreground/80" data-sort="type">Type</th>
+                <th class="px-3 py-2 font-semibold uppercase tracking-wider text-foreground/80">Cookies</th>
+                <th class="cursor-pointer px-3 py-2 font-semibold uppercase tracking-wider text-foreground/80" data-sort="size">Size</th>
+                <th class="cursor-pointer px-3 py-2 font-semibold uppercase tracking-wider text-foreground/80" data-sort="time">Time</th>
+              </tr>
+            </thead>
+            <tbody id="har-tbody"></tbody>
+          </table>
+        </div>
+        <p id="har-count" class="mt-2 text-[11px] text-muted-foreground"></p>
+    </div>
+
+      <!-- Error -->
+      <div id="har-error" class="mt-4 hidden border-l-2 p-4" style="border-color: hsl(var(--band-violating));">
+        <p class="text-[11px] font-semibold uppercase tracking-wider" style="color: hsl(var(--band-violating));">Error</p>
+        <p id="har-error-msg" class="mt-1 text-sm text-foreground/90"></p>
+      </div>
+
+    <!-- Privacy by design card -->
+    <aside
+      class="mt-6 mb-10 border-l-2 bg-card p-5"
+      style="border-color: hsl(var(--band-compliant));"
+      aria-labelledby="har-privacy-callout"
+    >
+      <p class="text-[11px] font-semibold uppercase tracking-wider" style="color: hsl(var(--band-compliant));">
+        Privacy by design
+      </p>
+      <h2 id="har-privacy-callout" class="mt-1 font-display text-lg font-bold tracking-tight">
+        Nothing leaves your browser. Really.
+      </h2>
+      <ul class="mt-3 space-y-1.5 text-sm leading-relaxed text-foreground/90">
+        <li>No file upload — <code class="bg-secondary px-1 font-mono text-xs">FileReader</code> reads the file in memory only.</li>
+        <li>No network requests — the analyzer has zero outbound calls.</li>
+        <li>No storage — parsed data is discarded when you close or reload the tab.</li>
+        <li>Open source — <a href={sourceUrl} target="_blank" rel="noopener" class="link">read the code yourself</a> on Codeberg.</li>
+      </ul>
+    </aside>
+
+    <!-- What is HAR -->
+    <section class="mt-12 mb-10">
+      <h2 class="mb-2 font-display text-lg font-bold tracking-tight">What is a HAR file?</h2>
+      <div class="space-y-3 text-sm leading-relaxed text-foreground/90">
+        <p>
+          <a href="https://en.wikipedia.org/wiki/HAR_(file_format)" target="_blank" rel="noopener" class="link">HAR (HTTP Archive)</a>
+          is a JSON-based format for recording everything a browser sends and receives during a
+          web session — URLs, HTTP methods, request/response headers, cookies, response bodies,
+          timings, and sizes. It is the standard way to capture and share network traces for
+          debugging, performance analysis, and privacy audits.
+        </p>
+        <p>
+          ConsentTheater's own browser extension can
+          <a href="/extension/" class="link">export HAR files</a>
+          with tracker classifications baked in, but any browser's DevTools can produce one.
+        </p>
+      </div>
+
+      <!-- Security warning -->
+      <div class="mt-5 border-l-2 p-4" style="border-color: hsl(var(--band-violating));">
+        <p class="text-[11px] font-semibold uppercase tracking-wider" style="color: hsl(var(--band-violating));">
+          HAR files contain sensitive data
+        </p>
+        <ul class="mt-2 space-y-1 text-sm leading-relaxed text-foreground/90">
+          <li><strong>Cookies</strong> — anyone with your HAR can impersonate your session.</li>
+          <li><strong>Form submissions</strong> — passwords, personal details, payment data.</li>
+          <li><strong>Response bodies</strong> — page content you viewed while recording.</li>
+        </ul>
+        <p class="mt-2 text-sm leading-relaxed text-foreground/90">
+          Never share a raw HAR file. Redact sensitive values first, or only share with trusted parties.
+        </p>
+      </div>
+    </section>
+
+    <!-- How to capture -->
+    <section class="mb-10">
+      <h2 class="mb-3 font-display text-lg font-bold tracking-tight">How to capture a HAR file</h2>
+      <div class="grid gap-4 sm:grid-cols-3">
+        <div class="border border-border bg-card p-4">
+          <h3 class="font-display text-sm font-bold tracking-tight">Chrome / Edge / Brave</h3>
+          <ol class="mt-2 list-decimal space-y-1 pl-5 text-xs leading-relaxed text-foreground/80">
+            <li>Open DevTools (F12 or Cmd+Opt+I).</li>
+            <li>Go to the <strong>Network</strong> tab.</li>
+            <li>Check <strong>Preserve log</strong>.</li>
+            <li>Reproduce the issue.</li>
+            <li>Right-click → <strong>Save all as HAR with content</strong>.</li>
+          </ol>
+        </div>
+        <div class="border border-border bg-card p-4">
+          <h3 class="font-display text-sm font-bold tracking-tight">Firefox</h3>
+          <ol class="mt-2 list-decimal space-y-1 pl-5 text-xs leading-relaxed text-foreground/80">
+            <li>Open DevTools (F12 or Cmd+Opt+I).</li>
+            <li>Go to the <strong>Network</strong> tab.</li>
+            <li>Check <strong>Persist Logs</strong>.</li>
+            <li>Reproduce the issue.</li>
+            <li>Right-click → <strong>Save All As HAR</strong>.</li>
+          </ol>
+        </div>
+        <div class="border border-border bg-card p-4">
+          <h3 class="font-display text-sm font-bold tracking-tight">ConsentTheater extension</h3>
+          <ol class="mt-2 list-decimal space-y-1 pl-5 text-xs leading-relaxed text-foreground/80">
+            <li><a href="/extension/" class="link">Install the extension</a>.</li>
+            <li>Run a scan on the target site.</li>
+            <li>Click <strong>Export HAR</strong> in the sidebar.</li>
+            <li>Sensitive values are redacted by default.</li>
+          </ol>
+        </div>
+      </div>
+    </section>
+
+    <!-- Detail panel -->
+    <div id="har-detail" class="hidden fixed inset-0 z-50 flex items-center justify-center bg-foreground/40 p-4 backdrop-blur-sm" role="dialog" aria-modal="true" aria-labelledby="har-detail-title">
+      <div class="flex max-h-[85vh] w-full max-w-3xl flex-col border border-border bg-card shadow-lg">
+        <div class="flex items-center justify-between border-b border-border px-4 py-3">
+          <h2 id="har-detail-title" class="font-display text-sm font-bold tracking-tight">Request details</h2>
+          <button id="har-detail-close" type="button" class="inline-flex h-7 w-7 items-center justify-center text-muted-foreground transition-colors hover:bg-accent hover:text-accent-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring" aria-label="Close detail panel">
+            <Icon name="ph:x" class="h-4 w-4" aria-hidden="true" />
+          </button>
+        </div>
+        <div id="har-detail-body" class="overflow-y-auto p-4 text-xs leading-relaxed text-foreground/90"></div>
+      </div>
+    </div>
+
+    <!-- Source link -->
+    <section class="border-t border-border pt-8">
+      <p class="text-sm leading-relaxed text-foreground/90">
+        This tool is part of the ConsentTheater open-source project (AGPL-3.0-or-later).
+        <a href={sourceUrl} target="_blank" rel="noopener" class="link font-mono">Read the source code</a>
+        — it's a single self-contained page, no build-time obfuscation, no external calls.
+      </p>
+    </section>
+  </section>
+</Layout>
+
+<script>
+  interface HarHeader { name: string; value: string }
+  interface HarRequest { method: string; url: string; headers: HarHeader[]; queryString: HarHeader[]; postData?: { text: string; mimeType?: string } }
+  interface HarResponse { status: number; statusText: string; mimeType: string; headers: HarHeader[]; content: { size: number; text?: string; mimeType?: string }; redirectUrl?: string }
+  interface HarEntry {
+    _index: number;
+    startedDateTime: string;
+    time: number;
+    request: HarRequest;
+    response: HarResponse;
+    timings?: Record<string, number>;
+    _domain: string;
+    _resourceType: string;
+    _setsCookies: boolean;
+    _cookieNames: string[];
+    _thirdParty: boolean;
+  }
+  interface HarLog { entries: unknown[]; pages?: unknown[] }
+  interface HarFile { log: HarLog }
+
+  let allEntries: HarEntry[] = [];
+  let filteredEntries: HarEntry[] = [];
+  let activeStatusFilter: number | null = null;
+  let searchQuery = '';
+  let sortColumn = 'index';
+  let sortDir: 'asc' | 'desc' = 'asc';
+  let firstPartyDomain = '';
+  let showOnlyCookies = false;
+  let showOnlyThirdParty = false;
+
+  const dropZone = document.getElementById('har-drop')!;
+  const fileInput = document.getElementById('har-input') as HTMLInputElement;
+  const loadedBar = document.getElementById('har-loaded-bar')!;
+  const loadedName = document.getElementById('har-loaded-name')!;
+  const loadedSize = document.getElementById('har-loaded-size')!;
+  const resetBtn = document.getElementById('har-reset')!;
+  const resultsDiv = document.getElementById('har-results')!;
+  const summaryDiv = document.getElementById('har-summary')!;
+  const searchInput = document.getElementById('har-search') as HTMLInputElement;
+  const statusFiltersDiv = document.getElementById('har-status-filters')!;
+  const tbody = document.getElementById('har-tbody')!;
+  const countP = document.getElementById('har-count')!;
+  const errorDiv = document.getElementById('har-error')!;
+  const errorMsg = document.getElementById('har-error-msg')!;
+  const detailDiv = document.getElementById('har-detail')!;
+  const detailBody = document.getElementById('har-detail-body')!;
+  const detailClose = document.getElementById('har-detail-close')!;
+
+  function showError(msg: string) {
+    errorDiv.classList.remove('hidden');
+    errorMsg.textContent = msg;
+    resultsDiv.classList.add('hidden');
+  }
+
+  function hideError() {
+    errorDiv.classList.add('hidden');
+    errorMsg.textContent = '';
+  }
+
+  function formatBytes(bytes: number): string {
+    if (bytes < 0) return '—';
+    if (bytes < 1024) return bytes + ' B';
+    if (bytes < 1048576) return (bytes / 1024).toFixed(1) + ' KB';
+    return (bytes / 1048576).toFixed(2) + ' MB';
+  }
+
+  function resetView() {
+    dropZone.classList.remove('hidden');
+    loadedBar.classList.add('hidden');
+    loadedBar.classList.remove('flex');
+    resultsDiv.classList.add('hidden');
+    hideError();
+    fileInput.value = '';
+  }
+
+  function showLoaded(file: File) {
+    dropZone.classList.add('hidden');
+    loadedBar.classList.remove('hidden');
+    loadedBar.classList.add('flex');
+    loadedName.textContent = file.name;
+    loadedSize.textContent = formatBytes(file.size);
+  }
+
+  function formatTime(ms: number): string {
+    if (ms < 0) return '—';
+    if (ms < 1) return ms.toFixed(2) + ' ms';
+    if (ms < 1000) return Math.round(ms) + ' ms';
+    return (ms / 1000).toFixed(2) + ' s';
+  }
+
+  function domainOf(url: string): string {
+    try { return new URL(url).hostname; } catch { return url; }
+  }
+
+  function resourceType(url: string, mimeType: string): string {
+    if (mimeType.startsWith('text/html')) return 'document';
+    if (mimeType.startsWith('text/css')) return 'stylesheet';
+    if (mimeType.startsWith('application/javascript') || mimeType.startsWith('text/javascript')) return 'script';
+    if (mimeType.startsWith('image/')) return 'image';
+    if (mimeType.startsWith('font/') || mimeType.includes('font')) return 'font';
+    if (mimeType.startsWith('application/json')) return 'fetch';
+    if (mimeType.startsWith('video/') || mimeType.startsWith('audio/')) return 'media';
+    if (mimeType.includes('xml')) return 'xml';
+    if (mimeType.startsWith('text/plain')) return 'text';
+    try {
+      const u = new URL(url);
+      if (u.pathname.endsWith('.woff2') || u.pathname.endsWith('.woff') || u.pathname.endsWith('.ttf')) return 'font';
+    } catch { /* ignore */ }
+    return 'other';
+  }
+
+  function statusClass(status: number): string {
+    if (status >= 100 && status < 200) return '1xx';
+    if (status >= 200 && status < 300) return '2xx';
+    if (status >= 300 && status < 400) return '3xx';
+    if (status >= 400 && status < 500) return '4xx';
+    if (status >= 500) return '5xx';
+    return 'other';
+  }
+
+  function statusColor(status: number): string {
+    if (status >= 500) return 'hsl(var(--band-violating))';
+    if (status >= 400) return 'hsl(var(--band-non-compliant))';
+    if (status >= 300) return 'hsl(var(--band-at-risk))';
+    if (status >= 200) return 'hsl(var(--band-compliant))';
+    return 'hsl(var(--muted-foreground))';
+  }
+
+  function extractCookieNames(setCookieValues: string[]): string[] {
+    const names: string[] = [];
+    for (const raw of setCookieValues) {
+      const name = raw.split('=')[0]?.trim();
+      if (name && !names.includes(name)) names.push(name);
+    }
+    return names;
+  }
+
+  function parseHar(data: unknown): HarEntry[] {
+    if (!data || typeof data !== 'object') throw new Error('Invalid HAR: not a JSON object');
+    const har = data as HarFile;
+    if (!har.log || !Array.isArray(har.log.entries)) {
+      throw new Error('Invalid HAR: missing log.entries array');
+    }
+    const rawEntries = har.log.entries.map((raw, i) => {
+      const e = raw as Record<string, unknown>;
+      const req = e.request as HarRequest;
+      const resp = e.response as HarResponse;
+      if (!req || !req.url) throw new Error(`Entry ${i}: missing request.url`);
+      const mimeType = resp?.content?.mimeType || resp?.mimeType || '';
+      const domain = domainOf(req.url);
+      const setCookieHeaders = (resp?.headers || []).filter(h =>
+        h.name.toLowerCase() === 'set-cookie'
+      );
+      const cookieNames = extractCookieNames(setCookieHeaders.map(h => h.value));
+      return {
+        _index: i,
+        startedDateTime: e.startedDateTime as string || '',
+        time: e.time as number || 0,
+        request: req,
+        response: resp,
+        timings: e.timings as Record<string, number> | undefined,
+        _domain: domain,
+        _resourceType: resourceType(req.url, mimeType),
+        _setsCookies: cookieNames.length > 0,
+        _cookieNames: cookieNames,
+        _thirdParty: false,
+      };
+    });
+    // First document request = first-party domain
+    const doc = rawEntries.find(e => e._resourceType === 'document');
+    firstPartyDomain = doc?._domain || rawEntries[0]?._domain || '';
+    for (const e of rawEntries) {
+      e._thirdParty = firstPartyDomain !== '' && e._domain !== firstPartyDomain;
+    }
+    return rawEntries;
+  }
+
+  function renderSummary() {
+    const total = allEntries.length;
+    const domains = new Set(allEntries.map(e => e._domain));
+    const cookieSetters = allEntries.filter(e => e._setsCookies).length;
+    const thirdParty = allEntries.filter(e => e._thirdParty).length;
+    const statusCounts: Record<string, number> = {};
+    for (const e of allEntries) {
+      const cls = statusClass(e.response.status);
+      statusCounts[cls] = (statusCounts[cls] || 0) + 1;
+    }
+    const totalSize = allEntries.reduce((s, e) => s + (e.response.content?.size || 0), 0);
+    const totalTime = allEntries.reduce((max, e) => Math.max(max, e.time || 0), 0);
+
+    const stats = [
+      { label: 'Requests', value: String(total) },
+      { label: 'Domains', value: String(domains.size) },
+      { label: 'Set cookies', value: String(cookieSetters) },
+      { label: '3rd-party', value: String(thirdParty) },
+      { label: 'Total size', value: formatBytes(totalSize) },
+      { label: 'Max time', value: formatTime(totalTime) },
+    ];
+    summaryDiv.innerHTML = stats.map(s =>
+      `<div class="border border-border bg-card px-3 py-2"><span class="text-muted-foreground">${s.label}</span> <strong class="ml-1 text-foreground">${s.value}</strong></div>`
+    ).join('');
+
+    // Status code class filter buttons
+    const classes = ['1xx','2xx','3xx','4xx','5xx'];
+    const statusBtns = classes.filter(c => statusCounts[c]).map(c => {
+      const active = activeStatusFilter === parseInt(c[0]);
+      const color = c === '5xx' ? 'hsl(var(--band-violating))'
+        : c === '4xx' ? 'hsl(var(--band-non-compliant))'
+        : c === '3xx' ? 'hsl(var(--band-at-risk))'
+        : c === '2xx' ? 'hsl(var(--band-compliant))'
+        : 'hsl(var(--muted-foreground))';
+      return `<button type="button" data-status="${c}" class="har-status-btn border border-input px-2 py-1 text-xs font-semibold transition-colors ${active ? 'bg-primary text-primary-foreground' : 'bg-background hover:bg-secondary'}" style="${active ? '' : `border-color: ${color};`}">${c} (${statusCounts[c]})</button>`;
+    }).join('');
+
+    // Toggle filter buttons
+    const cookieBtn = `<button type="button" id="har-cookie-toggle" class="har-status-btn border border-input px-2 py-1 text-xs font-semibold transition-colors ${showOnlyCookies ? 'bg-primary text-primary-foreground' : 'bg-background hover:bg-secondary'}" style="${showOnlyCookies ? '' : 'border-color: hsl(var(--band-at-risk));'}">Cookies (${cookieSetters})</button>`;
+    const tpBtn = `<button type="button" id="har-tp-toggle" class="har-status-btn border border-input px-2 py-1 text-xs font-semibold transition-colors ${showOnlyThirdParty ? 'bg-primary text-primary-foreground' : 'bg-background hover:bg-secondary'}" style="${showOnlyThirdParty ? '' : 'border-color: hsl(var(--band-non-compliant));'}">3rd-party (${thirdParty})</button>`;
+
+    statusFiltersDiv.innerHTML = statusBtns + cookieBtn + tpBtn;
+  }
+
+  function applyFilters() {
+    filteredEntries = allEntries.filter(e => {
+      if (activeStatusFilter !== null) {
+        const cls = statusClass(e.response.status);
+        if (!cls.startsWith(String(activeStatusFilter)[0] + 'xx') && !(cls === activeStatusFilter + 'xx')) {
+          const digit = activeStatusFilter;
+          if (Math.floor(e.response.status / 100) !== digit) return false;
+        }
+      }
+      if (showOnlyCookies && !e._setsCookies) return false;
+      if (showOnlyThirdParty && !e._thirdParty) return false;
+      if (searchQuery) {
+        const q = searchQuery.toLowerCase();
+        const hay = `${e.request.method} ${e.request.url} ${e.response.status} ${e._domain} ${e._resourceType} ${e._cookieNames.join(' ')}`.toLowerCase();
+        if (!hay.includes(q)) return false;
+      }
+      return true;
+    });
+    sortEntries();
+  }
+
+  function sortEntries() {
+    const dir = sortDir === 'asc' ? 1 : -1;
+    filteredEntries.sort((a, b) => {
+      let av: string | number, bv: string | number;
+      switch (sortColumn) {
+        case 'method': av = a.request.method; bv = b.request.method; break;
+        case 'url': av = a.request.url; bv = b.request.url; break;
+        case 'status': av = a.response.status; bv = b.response.status; break;
+        case 'type': av = a._resourceType; bv = b._resourceType; break;
+        case 'size': av = a.response.content?.size || 0; bv = b.response.content?.size || 0; break;
+        case 'time': av = a.time; bv = b.time; break;
+        default: av = a._index; bv = b._index;
+      }
+      if (typeof av === 'number' && typeof bv === 'number') return (av - bv) * dir;
+      return String(av).localeCompare(String(bv)) * dir;
+    });
+  }
+
+  function renderTable() {
+    const rows = filteredEntries.map(e => {
+      const color = statusColor(e.response.status);
+      const shortUrl = e.request.url.length > 80 ? e.request.url.slice(0, 77) + '…' : e.request.url;
+      const tpMark = e._thirdParty ? '<span class="text-[9px] font-semibold uppercase tracking-wider" style="color: hsl(var(--band-non-compliant));" title="Third-party domain">3p</span> ' : '';
+      const cookieCell = e._setsCookies
+        ? `<span class="font-mono text-[10px] font-semibold" style="color: hsl(var(--band-at-risk));" title="${e._cookieNames.join(', ').replace(/</g,'&lt;')}">${e._cookieNames.length} cookie${e._cookieNames.length > 1 ? 's' : ''}</span>`
+        : '<span class="text-muted-foreground/40">—</span>';
+      return `<tr class="har-entry-row border-b border-border cursor-pointer transition-colors hover:bg-secondary/50" data-index="${e._index}">
+        <td class="px-3 py-1.5 text-muted-foreground">${e._index + 1}</td>
+        <td class="px-3 py-1.5"><code class="font-mono text-[11px] font-semibold">${e.request.method}</code></td>
+        <td class="px-3 py-1.5 max-w-[400px] truncate" title="${e.request.url.replace(/\x22/g,'&quot;')}">${tpMark}<span class="text-foreground/90">${shortUrl}</span><br><span class="text-[10px] text-muted-foreground">${e._domain}</span></td>
+        <td class="px-3 py-1.5"><span class="font-mono font-semibold" style="color: ${color}">${e.response.status}</span></td>
+        <td class="px-3 py-1.5 text-muted-foreground">${e._resourceType}</td>
+        <td class="px-3 py-1.5">${cookieCell}</td>
+        <td class="px-3 py-1.5 text-muted-foreground">${formatBytes(e.response.content?.size || 0)}</td>
+        <td class="px-3 py-1.5 text-muted-foreground">${formatTime(e.time)}</td>
+      </tr>`;
+    }).join('');
+    tbody.innerHTML = rows;
+    countP.textContent = filteredEntries.length === allEntries.length
+      ? `${allEntries.length} entries`
+      : `${filteredEntries.length} of ${allEntries.length} entries`;
+  }
+
+  function render() {
+    applyFilters();
+    renderTable();
+  }
+
+  function showDetail(entry: HarEntry) {
+    const req = entry.request;
+    const resp = entry.response;
+    const reqHeaders = (req.headers || []).map(h =>
+      `<div class="flex gap-2"><code class="font-mono text-[11px] font-semibold text-muted-foreground">${h.name}</code><code class="font-mono text-[11px] break-all">${h.value.replace(/</g,'&lt;')}</code></div>`
+    ).join('') || '<p class="text-muted-foreground">No headers</p>';
+
+    const respHeaders = (resp.headers || []).map(h =>
+      `<div class="flex gap-2"><code class="font-mono text-[11px] font-semibold text-muted-foreground">${h.name}</code><code class="font-mono text-[11px] break-all">${h.value.replace(/</g,'&lt;')}</code></div>`
+    ).join('') || '<p class="text-muted-foreground">No headers</p>';
+
+    const query = (req.queryString || []).map(q =>
+      `<div class="flex gap-2"><code class="font-mono text-[11px] font-semibold text-muted-foreground">${q.name}</code><code class="font-mono text-[11px] break-all">${q.value.replace(/</g,'&lt;')}</code></div>`
+    ).join('');
+
+    const timings = entry.timings
+      ? Object.entries(entry.timings).filter(([,v]) => typeof v === 'number' && v >= 0).map(([k, v]) =>
+          `<div class="flex gap-2"><code class="font-mono text-[11px] font-semibold text-muted-foreground">${k}</code><span class="font-mono text-[11px]">${formatTime(v)}</span></div>`
+        ).join('')
+      : '<p class="text-muted-foreground">No timing data</p>';
+
+    const postBody = req.postData?.text
+      ? `<div class="mt-3"><p class="font-semibold mb-1">Request body</p><pre class="border border-border bg-secondary p-2 overflow-x-auto text-[11px] font-mono whitespace-pre-wrap break-all max-h-48 overflow-y-auto">${req.postData.text.replace(/</g,'&lt;').slice(0, 10000)}${req.postData.text.length > 10000 ? '\n…[truncated]' : ''}</pre></div>`
+      : '';
+
+    const respBody = resp.content?.text
+      ? `<div class="mt-3"><p class="font-semibold mb-1">Response body (${formatBytes(resp.content.size)})</p><pre class="border border-border bg-secondary p-2 overflow-x-auto text-[11px] font-mono whitespace-pre-wrap break-all max-h-64 overflow-y-auto">${resp.content.text.replace(/</g,'&lt;').slice(0, 20000)}${resp.content.text.length > 20000 ? '\n…[truncated]' : ''}</pre></div>`
+      : '<p class="mt-3 text-muted-foreground">No response body in HAR</p>';
+
+    detailBody.innerHTML = `
+      <div class="space-y-4">
+        <div>
+          <p class="font-semibold mb-1">General</p>
+          <div class="grid grid-cols-[auto_1fr] gap-x-3 gap-y-1 font-mono text-[11px]">
+            <span class="text-muted-foreground">URL</span><span class="break-all">${req.url.replace(/</g,'&lt;')}</span>
+            <span class="text-muted-foreground">Method</span><span>${req.method}</span>
+            <span class="text-muted-foreground">Status</span><span style="color: ${statusColor(resp.status)}" class="font-semibold">${resp.status} ${resp.statusText || ''}</span>
+            <span class="text-muted-foreground">Type</span><span>${entry._resourceType}</span>
+            <span class="text-muted-foreground">Domain</span><span>${entry._domain}${entry._thirdParty ? ' <span class="text-[10px] font-semibold" style="color: hsl(var(--band-non-compliant));">(third-party)</span>' : ''}</span>
+            <span class="text-muted-foreground">Started</span><span>${entry.startedDateTime}</span>
+            <span class="text-muted-foreground">Total time</span><span>${formatTime(entry.time)}</span>
+            <span class="text-muted-foreground">Size</span><span>${formatBytes(resp.content?.size || 0)}</span>
+            <span class="text-muted-foreground">Sets cookies</span><span>${entry._setsCookies ? `<strong class="font-semibold" style="color: hsl(var(--band-at-risk));">Yes (${entry._cookieNames.length})</strong>` : 'No'}</span>
+          </div>
+        </div>
+        ${query ? `<div><p class="font-semibold mb-1">Query string</p>${query}</div>` : ''}
+        <div><p class="font-semibold mb-1">Request headers (${req.headers.length})</p>${reqHeaders}</div>
+        <div><p class="font-semibold mb-1">Response headers (${resp.headers.length})</p>${respHeaders}</div>
+        ${entry._setsCookies ? `<div><p class="font-semibold mb-1" style="color: hsl(var(--band-at-risk));">Cookies set (${entry._cookieNames.length})</p><div class="flex flex-wrap gap-1">${entry._cookieNames.map(n => `<code class="border border-border bg-secondary px-1.5 py-0.5 font-mono text-[11px]">${n.replace(/</g,'&lt;')}</code>`).join('')}</div></div>` : ''}
+        <div><p class="font-semibold mb-1">Timings</p>${timings}</div>
+        ${postBody}
+        ${respBody}
+      </div>`;
+    detailDiv.classList.remove('hidden');
+  }
+
+  function handleFile(file: File) {
+    hideError();
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const text = reader.result as string;
+        const json = JSON.parse(text);
+        allEntries = parseHar(json);
+        if (allEntries.length === 0) {
+          showError('HAR file contains no entries.');
+          return;
+        }
+        activeStatusFilter = null;
+        searchQuery = '';
+        showOnlyCookies = false;
+        showOnlyThirdParty = false;
+        searchInput.value = '';
+        showLoaded(file);
+        resultsDiv.classList.remove('hidden');
+        renderSummary();
+        render();
+      } catch (err) {
+        showError(err instanceof Error ? err.message : 'Failed to parse HAR file — not valid JSON?');
+      }
+    };
+    reader.onerror = () => showError('Could not read the file.');
+    reader.readAsText(file);
+  }
+
+  // File input
+  fileInput.addEventListener('change', () => {
+    if (fileInput.files && fileInput.files[0]) handleFile(fileInput.files[0]);
+  });
+
+  // Reset / load another
+  resetBtn.addEventListener('click', () => resetView());
+
+  // Drag & drop
+  dropZone.addEventListener('dragover', (e) => {
+    e.preventDefault();
+    dropZone.classList.add('border-primary');
+  });
+  dropZone.addEventListener('dragleave', () => {
+    dropZone.classList.remove('border-primary');
+  });
+  dropZone.addEventListener('drop', (e) => {
+    e.preventDefault();
+    dropZone.classList.remove('border-primary');
+    const file = e.dataTransfer?.files?.[0];
+    if (file) handleFile(file);
+  });
+
+  // Search
+  searchInput.addEventListener('input', () => {
+    searchQuery = searchInput.value;
+    render();
+  });
+
+  // Status filter buttons (event delegation)
+  statusFiltersDiv.addEventListener('click', (e) => {
+    const btn = (e.target as HTMLElement).closest('[data-status]') as HTMLElement | null;
+    if (!btn) return;
+    const status = btn.dataset.status!;
+    const digit = parseInt(status[0]);
+    activeStatusFilter = activeStatusFilter === digit ? null : digit;
+    renderSummary();
+    render();
+  });
+
+  // Cookie toggle
+  document.addEventListener('click', (e) => {
+    if ((e.target as HTMLElement).closest('#har-cookie-toggle')) {
+      showOnlyCookies = !showOnlyCookies;
+      renderSummary();
+      render();
+    }
+    if ((e.target as HTMLElement).closest('#har-tp-toggle')) {
+      showOnlyThirdParty = !showOnlyThirdParty;
+      renderSummary();
+      render();
+    }
+  });
+
+  // Sort headers
+  document.querySelectorAll<HTMLElement>('.har-entries-table thead th[data-sort]').forEach(th => {
+    th.addEventListener('click', () => {
+      const col = th.dataset.sort!;
+      if (sortColumn === col) {
+        sortDir = sortDir === 'asc' ? 'desc' : 'asc';
+      } else {
+        sortColumn = col;
+        sortDir = 'asc';
+      }
+      render();
+    });
+  });
+
+  // Row click → detail
+  tbody.addEventListener('click', (e) => {
+    const row = (e.target as HTMLElement).closest('.har-entry-row') as HTMLElement | null;
+    if (!row) return;
+    const idx = parseInt(row.dataset.index!);
+    const entry = allEntries[idx];
+    if (entry) showDetail(entry);
+  });
+
+  // Close detail
+  detailClose.addEventListener('click', () => detailDiv.classList.add('hidden'));
+  detailDiv.addEventListener('click', (e) => {
+    if (e.target === detailDiv) detailDiv.classList.add('hidden');
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && !detailDiv.classList.contains('hidden')) {
+      detailDiv.classList.add('hidden');
+    }
+  });
+</script>
+
+<style>
+  .har-entries-table th:hover {
+    background-color: hsl(var(--secondary) / 0.6);
+  }
+  .har-status-btn[aria-pressed='true'] {
+    background-color: hsl(var(--primary));
+    color: hsl(var(--primary-foreground));
+    border-color: hsl(var(--primary));
+  }
+</style>
