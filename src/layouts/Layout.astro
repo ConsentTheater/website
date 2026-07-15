@@ -146,7 +146,7 @@ const isActive = (href: string) =>
     </a>
     <div class="flex min-h-screen flex-col">
       <header class="border-b border-border bg-card">
-        <div class="mx-auto flex w-full max-w-4xl items-center justify-between gap-3 px-6 py-4">
+        <div class="mx-auto flex w-full max-w-5xl items-center justify-between gap-3 px-6 py-4">
           <a href="/" class="group flex items-center gap-3" aria-label="ConsentTheater home">
             <Image
               src={logo}
@@ -200,7 +200,7 @@ const isActive = (href: string) =>
       )}
 
       <footer class="border-t border-border bg-card" aria-label="Footer">
-        <div class="mx-auto w-full max-w-4xl px-6 py-10 text-[11px] text-muted-foreground">
+        <div class="mx-auto w-full max-w-5xl px-6 py-10 text-[11px] text-muted-foreground">
           <!-- Top: brand + link columns -->
           <div class="grid grid-cols-2 gap-x-6 gap-y-8 md:grid-cols-4">
             <!-- Brand + social -->
@@ -280,6 +280,7 @@ const isActive = (href: string) =>
             <!-- Project -->
             <nav class="flex flex-col gap-2.5" aria-label="Project">
               <h2 class="font-semibold uppercase tracking-wider text-foreground">Project</h2>
+              <a href="/har-analyzer/" class="text-[13px] transition-colors hover:text-foreground">HAR Analyzer</a>
               <a href="/extension/" class="text-[13px] transition-colors hover:text-foreground">Browser extension</a>
               <a href="/methodology/" class="text-[13px] transition-colors hover:text-foreground">Methodology</a>
               <a href="/about/" class="text-[13px] transition-colors hover:text-foreground">About</a>
