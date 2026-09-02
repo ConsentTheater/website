@@ -36,7 +36,7 @@
     "@astrojs/sitemap": "^3.7.4",
     "@consenttheater/playbill": "^0.6.0",
     "@freshjuice/astro-webmcp": "^1.6.0",
-    "@tailwindcss/vite": "^4.3.2",
+    "@tailwindcss/vite": "^4.3.3",
     "@zachleat/table-saw": "^1.0.7",
     "astro": "^7.0.6",
     "class-variance-authority": "^0.7.1",
