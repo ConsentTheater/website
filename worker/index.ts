@@ -1,6 +1,8 @@
 import { Hono } from 'hono';
 import { loadPlaybill, matchCookie, matchDomain } from '@consenttheater/playbill';
 
+import { PLAYBILL_VERSION } from './playbill-version.js';
+
 const playbill = loadPlaybill('full');
 
 type Env = {
@@ -131,7 +133,7 @@ function runSearch(rawQ: string, kindParam: Kind): SearchResult | { error: strin
     kind: resolvedKind,
     match: primary ? primaryOut : null,
     related,
-    source: `playbill@${playbill.version}`,
+    source: `playbill@${PLAYBILL_VERSION}`,
     stats: playbill.stats
   };
 }
@@ -225,6 +227,13 @@ const MCP_TOOLS = [
     name: 'get_stats',
     description: 'Get Playbill catalogue stats: counts of cookies, domains, and companies.',
     inputSchema: { type: 'object', properties: {} }
+  },
+  {
+    name: 'get_playbill_info',
+    description:
+      'Get the Playbill catalogue version and freshness: the published npm release version (the data-freshness ' +
+      'signal to key on), the worker load timestamp, and entry counts.',
+    inputSchema: { type: 'object', properties: {} }
   }
 ];
 
@@ -280,7 +289,16 @@ function handleMcpMethod(method: string, params: any, id: unknown) {
         return mcpResult(id, mcpText({ categories }));
       }
       if (name === 'get_stats') {
-        return mcpResult(id, mcpText({ source: `playbill@${playbill.version}`, stats: playbill.stats }));
+        return mcpResult(id, mcpText({ source: `playbill@${PLAYBILL_VERSION}`, stats: playbill.stats }));
+      }
+      if (name === 'get_playbill_info') {
+        return mcpResult(id, mcpText({
+          playbill_version: PLAYBILL_VERSION,
+          schema_version: playbill.version,
+          loaded_at: playbill.generated,
+          tier: playbill.tier,
+          stats: playbill.stats
+        }));
       }
       return mcpError(id, -32602, `unknown tool: ${name}`);
     }

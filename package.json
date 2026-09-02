@@ -17,7 +17,7 @@
   },
   "scripts": {
     "dev": "astro dev",
-    "prebuild": "node scripts/generate-og.mjs",
+    "prebuild": "node scripts/generate-playbill-version.mjs && node scripts/generate-og.mjs",
     "build": "astro check && astro build",
     "preview": "astro preview",
     "deploy": "npm run build && wrangler deploy",
