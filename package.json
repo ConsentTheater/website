@@ -32,7 +32,7 @@
     "test:a11y:run": "node scripts/a11y.mjs"
   },
   "dependencies": {
-    "@astrojs/markdown-satteri": "^0.3.3",
+    "@astrojs/markdown-satteri": "^0.4.0",
     "@astrojs/sitemap": "^3.7.3",
     "@consenttheater/playbill": "^0.6.0",
     "@freshjuice/astro-webmcp": "^1.2.0",
