@@ -156,6 +156,7 @@ app.use('/api/*', async (c, next) => {
   c.header('X-Frame-Options', 'DENY');
   c.header('Referrer-Policy', 'strict-origin-when-cross-origin');
   c.header('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+  c.header('X-Robots-Tag', 'noindex');
   c.header(
     'Content-Security-Policy',
     "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
@@ -312,6 +313,7 @@ app.use('/mcp', async (c, next) => {
   await next();
   c.header('X-Content-Type-Options', 'nosniff');
   c.header('Referrer-Policy', 'strict-origin-when-cross-origin');
+  c.header('X-Robots-Tag', 'noindex');
 });
 
 async function handleMcpPost(c: any) {
@@ -337,10 +339,12 @@ async function handleMcpPost(c: any) {
 
 app.post('/mcp', handleMcpPost);
 // Some clients probe GET for an SSE stream; we are stateless, so decline.
-// Humans landing on /mcp in a browser get redirected to the docs page —
-// MCP clients never send Accept: text/html, so the probe still 405s.
+// Humans and AI crawlers landing on /mcp get redirected to the docs page —
+// MCP clients never send Accept: text/html or a crawler UA, so the probe
+// still 405s.
 app.get('/mcp', (c) => {
-  if ((c.req.header('Accept') || '').includes('text/html')) {
+  const accept = c.req.header('Accept') || '';
+  if (accept.includes('text/html') || wantsMarkdown(c.req.raw)) {
     return c.redirect('/mcp/', 302);
   }
   return c.json({ error: 'SSE not supported; POST JSON-RPC' }, 405);
@@ -411,7 +415,8 @@ async function serveMarkdownVariant(c: { req: { raw: Request; url: string }; env
 // `public/_headers` cascade.
 app.get('*', async (c) => {
   const url = new URL(c.req.url);
-  if (looksLikePage(url.pathname) && wantsMarkdown(c.req.raw)) {
+  const wantsMd = wantsMarkdown(c.req.raw);
+  if (looksLikePage(url.pathname) && wantsMd) {
     const md = await serveMarkdownVariant(c);
     if (md) return md;
     // No .md variant for this path → fall through to HTML so the bot
@@ -419,6 +424,22 @@ app.get('*', async (c) => {
   }
 
   const res = await c.env.ASSETS.fetch(c.req.raw);
+
+  // Bots hitting nonexistent paths get a real 404 with a markdown body —
+  // an HTML 404 page reads like existing content to an agent.
+  if (res.status === 404 && wantsMd) {
+    const path = url.pathname;
+    return new Response(
+      `404 — Not Found\n\nThe path \`${path}\` does not exist on consenttheater.org.\n\n- Browse page index: https://consenttheater.org/llms.txt\n- Full content export: https://consenttheater.org/llms-full.txt\n- Tracker lookup API: https://consenttheater.org/api/search?q=<cookie-or-domain>\n`,
+      {
+        status: 404,
+        headers: {
+          'Content-Type': 'text/markdown; charset=utf-8',
+          'Vary': 'User-Agent, Accept'
+        }
+      }
+    );
+  }
 
   // Tell caches that HTML responses vary by UA/Accept too, so they don't
   // serve markdown to a browser (or vice versa).
