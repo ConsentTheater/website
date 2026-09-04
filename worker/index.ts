@@ -362,8 +362,11 @@ app.get('/mcp', (c) => {
 //   /about/                    →  /about.md
 //   /                          →  /.md
 //
-// `Vary: User-Agent, Accept` is set on both variants so CF's edge cache
-// (and any downstream proxy) keys them separately.
+// `Vary: User-Agent, Accept, Accept-Encoding` is set on both variants so
+// CF's edge cache (and any downstream proxy) keys them separately — without
+// Accept-Encoding a cached HTML body can be served to an agent asking for
+// markdown, depending on which variant landed in cache first.
+const NEGOTIATED_VARY = 'User-Agent, Accept, Accept-Encoding';
 
 const AI_BOT_PATTERN =
   /\b(GPTBot|ChatGPT-User|OAI-SearchBot|ClaudeBot|Anthropic-AI|PerplexityBot|Google-Extended|Applebot-Extended|Meta-ExternalAgent|FacebookBot|Bytespider|cohere-ai|YouBot|Diffbot|ImagesiftBot|Omgili|DuckAssistBot|CCBot|Amazonbot)\b/i;
@@ -401,7 +404,7 @@ async function serveMarkdownVariant(c: { req: { raw: Request; url: string }; env
 
   const headers = new Headers(mdRes.headers);
   headers.set('Content-Type', 'text/markdown; charset=utf-8');
-  headers.set('Vary', 'User-Agent, Accept');
+  headers.set('Vary', NEGOTIATED_VARY);
   headers.set('X-Content-Variant', 'markdown');
   return new Response(mdRes.body, {
     status: 200,
@@ -435,7 +438,7 @@ app.get('*', async (c) => {
         status: 404,
         headers: {
           'Content-Type': 'text/markdown; charset=utf-8',
-          'Vary': 'User-Agent, Accept'
+          'Vary': NEGOTIATED_VARY
         }
       }
     );
@@ -449,7 +452,7 @@ app.get('*', async (c) => {
     const existingVary = headers.get('Vary');
     headers.set(
       'Vary',
-      existingVary ? `${existingVary}, User-Agent, Accept` : 'User-Agent, Accept'
+      existingVary ? `${existingVary}, ${NEGOTIATED_VARY}` : NEGOTIATED_VARY
     );
     return new Response(res.body, {
       status: res.status,
