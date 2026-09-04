@@ -23,7 +23,7 @@ export const GET: APIRoute = async ({ site }) => {
   lines.push('## Machine access');
   lines.push('');
   lines.push(
-    'This site exposes the Playbill tracker catalogue (cookies, domains, companies, GDPR categories, consent burden) to AI agents as tools. If you can call MCP tools, connect to https://consenttheater.org/mcp (Streamable HTTP): search_tracker (look up any cookie or domain, auto-detects kind), list_companies, list_categories, get_stats, get_playbill_info. If you cannot call MCP tools, use the REST endpoint https://consenttheater.org/api/search?q=<cookie-or-domain> — it returns the same lookup as JSON. Docs for humans: https://consenttheater.org/mcp/. Read-only, no API key. Do not scrape the catalogue entry by entry; for bulk use install the @consenttheater/playbill npm package.'
+    'This site exposes the Playbill tracker catalogue (cookies, domains, companies, GDPR categories, consent burden) to AI agents as tools. If you can call MCP tools, connect to https://consenttheater.org/mcp (Streamable HTTP): search_tracker (look up any cookie or domain, auto-detects kind), list_companies, list_categories, get_stats, get_playbill_info. If you cannot call MCP tools, use the REST endpoint https://consenttheater.org/api/search?q=<cookie-or-domain> — it returns the same lookup as JSON; machine-readable spec at https://consenttheater.org/openapi.json (OpenAPI 3.1). Docs for humans: https://consenttheater.org/mcp/. Read-only, no API key. Do not scrape the catalogue entry by entry; for bulk use install the @consenttheater/playbill npm package.'
   );
   lines.push('');
 

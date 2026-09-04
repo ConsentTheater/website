@@ -1,0 +1,117 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "ConsentTheater Playbill API",
+    "summary": "Look up cookies, domains, and trackers in the ConsentTheater Playbill: company, service, GDPR category, consent burden, description, lifetime.",
+    "description": "Read-only, no authentication. Also available as MCP tools at https://consenttheater.org/mcp (search_tracker, list_companies, list_categories, get_stats, get_playbill_info). Catalogue data: npm @consenttheater/playbill.",
+    "version": "1.0.0",
+    "license": { "name": "AGPL-3.0-or-later", "url": "https://codeberg.org/ConsentTheater/website/src/branch/main/LICENSE" }
+  },
+  "servers": [
+    { "url": "https://consenttheater.org", "description": "Production" }
+  ],
+  "paths": {
+    "/api/search": {
+      "get": {
+        "operationId": "searchTracker",
+        "summary": "Look up a tracker by cookie name or domain",
+        "description": "Auto-detects whether the query is a cookie or a domain. Set kind to override. Returns the primary match plus related entries from the same company.",
+        "parameters": [
+          {
+            "name": "q",
+            "in": "query",
+            "required": true,
+            "description": "Cookie name or domain. Examples: _ga, abc.xyz, metrics.example.com.",
+            "schema": { "type": "string", "maxLength": 100 }
+          },
+          {
+            "name": "kind",
+            "in": "query",
+            "required": false,
+            "description": "Force lookup kind instead of auto-detect.",
+            "schema": { "type": "string", "enum": ["cookie", "domain", "auto"], "default": "auto" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Match found (or null match with related entries)",
+            "headers": {
+              "Cache-Control": { "schema": { "type": "string", "example": "public, max-age=60, s-maxage=300" } }
+            },
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SearchResult" }
+              }
+            }
+          },
+          "400": {
+            "description": "Missing query, too-long query, or invalid kind",
+            "content": {
+              "application/json": {
+                "schema": { "$ref": "#/components/schemas/SearchError" }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "SearchResult": {
+        "type": "object",
+        "required": ["query", "kind", "match", "related", "source", "stats"],
+        "properties": {
+          "query": { "type": "string" },
+          "normalized": { "type": "string", "description": "Normalized lookup key (e.g. www-stripped host)." },
+          "kind": { "type": "string", "enum": ["cookie", "domain", "company"], "description": "How the query was resolved." },
+          "match": {
+            "oneOf": [
+              { "$ref": "#/components/schemas/TrackerEntry" },
+              { "type": "null" }
+            ]
+          },
+          "related": {
+            "type": "array",
+            "items": { "$ref": "#/components/schemas/TrackerEntry" },
+            "description": "Other entries from the same company."
+          },
+          "source": { "type": "string", "example": "playbill@0.6.0" },
+          "stats": { "$ref": "#/components/schemas/Stats" }
+        }
+      },
+      "TrackerEntry": {
+        "type": "object",
+        "required": ["company", "service", "category", "consent_burden"],
+        "properties": {
+          "kind": { "type": "string", "enum": ["cookie", "domain"] },
+          "name": { "type": "string", "description": "Cookie name or domain." },
+          "company": { "type": "string" },
+          "service": { "type": "string" },
+          "category": { "type": "string", "description": "GDPR category, e.g. advertising, analytics." },
+          "consent_burden": { "type": "string" },
+          "description": { "type": "string" },
+          "lifetime": { "type": "string", "description": "Typical cookie lifetime (cookies only)." },
+          "docs_url": { "type": "string", "format": "uri" },
+          "pattern": { "type": "boolean", "description": "Cookie name is a pattern match (cookies only)." }
+        }
+      },
+      "Stats": {
+        "type": "object",
+        "properties": {
+          "cookies": { "type": "integer" },
+          "domains": { "type": "integer" },
+          "companies": { "type": "integer" }
+        }
+      },
+      "SearchError": {
+        "type": "object",
+        "required": ["error"],
+        "properties": {
+          "error": { "type": "string" },
+          "hint": { "type": "string" }
+        }
+      }
+    }
+  }
+}

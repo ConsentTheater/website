@@ -29,6 +29,7 @@ export const GET: APIRoute = async ({ site }) => {
     ['Acknowledgements', '/acknowledgements.md', 'Open-source projects ConsentTheater is built on, with licenses and links.'],
     ['Browser extension', '/extension.md', 'Free Chrome/Firefox extension for live pre-consent tracker auditing.'],
     ['MCP Server', '/mcp.md', 'Connect AI agents to the Playbill catalogue over MCP — free, read-only, no API key at consenttheater.org/mcp.'],
+    ['OpenAPI spec', '/openapi.json', 'Machine-readable OpenAPI 3.1 spec for the /api/search tracker lookup endpoint.'],
     ['UK GDPR & PECR mapping', '/law/uk-gdpr-and-pecr.md', 'How UK GDPR and PECR map onto the EU GDPR and ePrivacy Directive articles, regulated by the ICO.']
   ];
   lines.push('## Project pages');
