@@ -1,6 +1,8 @@
 import { Hono } from 'hono';
 import { loadPlaybill, matchCookie, matchDomain } from '@consenttheater/playbill';
 
+import { PLAYBILL_VERSION } from './playbill-version.js';
+
 const playbill = loadPlaybill('full');
 
 type Env = {
@@ -66,41 +68,24 @@ function collectByCompany(
   return out;
 }
 
-const app = new Hono<{ Bindings: Env }>();
+// =============================================================================
+// Shared search — single implementation behind both /api/search and /mcp.
+// =============================================================================
 
-/**
- * Security headers for /api/* responses. Static HTML/assets served by
- * the ASSETS binding pick up their headers from `public/_headers`; this
- * middleware is scoped to API paths so it doesn't trample the static
- * CSP for HTML pages now that the worker fronts every request.
- *
- * The CSP is JSON-tight — these endpoints never serve HTML, so almost
- * everything is locked off. `frame-ancestors 'none'` blocks JSON
- * smuggling via embedded frames.
- */
-app.use('/api/*', async (c, next) => {
-  await next();
-  c.header('X-Content-Type-Options', 'nosniff');
-  c.header('X-Frame-Options', 'DENY');
-  c.header('Referrer-Policy', 'strict-origin-when-cross-origin');
-  c.header('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
-  c.header(
-    'Content-Security-Policy',
-    "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
-  );
-  c.header('Cross-Origin-Resource-Policy', 'same-origin');
-});
+type SearchResult = {
+  query: string;
+  normalized?: string;
+  kind: ResolvedKind;
+  match: Record<string, unknown> | null;
+  related: RelatedEntry[];
+  source: string;
+  stats: typeof playbill.stats;
+};
 
-app.get('/api/search', (c) => {
-  const q = (c.req.query('q') ?? '').trim();
-  const kindParam = (c.req.query('kind') ?? 'auto') as Kind;
-
-  if (!q) {
-    return c.json({ error: 'missing q', hint: 'try ?q=_ga or ?q=apollo.com' }, 400);
-  }
-  if (q.length > 100) {
-    return c.json({ error: 'query too long' }, 400);
-  }
+function runSearch(rawQ: string, kindParam: Kind): SearchResult | { error: string; hint?: string } {
+  const q = rawQ.trim();
+  if (!q) return { error: 'missing q', hint: 'try _ga or apollo.com' };
+  if (q.length > 100) return { error: 'query too long' };
 
   const kind = kindParam === 'auto' ? detectKind(q) : kindParam;
   const host = kind === 'domain' ? normalizeHost(q) : undefined;
@@ -142,16 +127,223 @@ app.get('/api/search', (c) => {
   }
 
   const { _kind, ...primaryOut } = primary ?? ({} as any);
-  c.header('cache-control', 'public, max-age=60, s-maxage=300');
-  return c.json({
+  return {
     query: q,
     normalized: host,
     kind: resolvedKind,
     match: primary ? primaryOut : null,
     related,
-    source: `playbill@${playbill.version}`,
+    source: `playbill@${PLAYBILL_VERSION}`,
     stats: playbill.stats
-  });
+  };
+}
+
+const app = new Hono<{ Bindings: Env }>();
+
+/**
+ * Security headers for /api/* responses. Static HTML/assets served by
+ * the ASSETS binding pick up their headers from `public/_headers`; this
+ * middleware is scoped to API paths so it doesn't trample the static
+ * CSP for HTML pages now that the worker fronts every request.
+ *
+ * The CSP is JSON-tight — these endpoints never serve HTML, so almost
+ * everything is locked off. `frame-ancestors 'none'` blocks JSON
+ * smuggling via embedded frames.
+ */
+app.use('/api/*', async (c, next) => {
+  await next();
+  c.header('X-Content-Type-Options', 'nosniff');
+  c.header('X-Frame-Options', 'DENY');
+  c.header('Referrer-Policy', 'strict-origin-when-cross-origin');
+  c.header('Strict-Transport-Security', 'max-age=63072000; includeSubDomains; preload');
+  c.header(
+    'Content-Security-Policy',
+    "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
+  );
+  c.header('Cross-Origin-Resource-Policy', 'same-origin');
+});
+
+app.get('/api/search', (c) => {
+  const q = c.req.query('q') ?? '';
+  const kindParam = (c.req.query('kind') ?? 'auto') as Kind;
+  const result = runSearch(q, kindParam);
+  if ('error' in result) {
+    return c.json(result, 400);
+  }
+  c.header('cache-control', 'public, max-age=60, s-maxage=300');
+  return c.json(result);
+});
+
+// =============================================================================
+// MCP endpoint (Streamable HTTP, stateless)
+// =============================================================================
+// Exposes the Playbill search as MCP tools so LLM clients (Claude, ChatGPT,
+// IDEs) can query trackers natively. This is a read-only lookup with no
+// per-session state, so we run Streamable HTTP in its stateless form: plain
+// JSON-RPC 2.0 over POST, no SSE stream, no Mcp-Session-Id. Each call is
+// self-contained. Only the three methods any tool-client needs are handled.
+
+const MCP_PROTOCOL_VERSION = '2025-03-26';
+
+const MCP_SERVER_INFO = {
+  name: 'consenttheater-playbill',
+  version: String(playbill.version)
+};
+
+const MCP_TOOLS = [
+  {
+    name: 'search_tracker',
+    description:
+      'Look up a tracker in the ConsentTheater Playbill (GDPR tracker knowledge base) by cookie name or domain. ' +
+      'Auto-detects whether the query is a cookie or a domain. Returns the matching tracker (company, service, ' +
+      'category, GDPR consent burden) plus related trackers from the same company.',
+    inputSchema: {
+      type: 'object',
+      properties: {
+        query: {
+          type: 'string',
+          description: 'Cookie name (e.g. "_ga") or domain (e.g. "apollo.com") to look up.'
+        },
+        kind: {
+          type: 'string',
+          enum: ['auto', 'cookie', 'domain'],
+          description: 'Force the lookup kind. Defaults to "auto" (detect from the query).'
+        }
+      },
+      required: ['query']
+    }
+  },
+  {
+    name: 'list_companies',
+    description: 'List every company tracked in the ConsentTheater Playbill.',
+    inputSchema: { type: 'object', properties: {} }
+  },
+  {
+    name: 'list_categories',
+    description: 'List every tracker category in the ConsentTheater Playbill (e.g. advertising, analytics).',
+    inputSchema: { type: 'object', properties: {} }
+  },
+  {
+    name: 'get_stats',
+    description: 'Get Playbill catalogue stats: counts of cookies, domains, and companies.',
+    inputSchema: { type: 'object', properties: {} }
+  },
+  {
+    name: 'get_playbill_info',
+    description:
+      'Get the Playbill catalogue version and freshness: the published npm release version (the data-freshness ' +
+      'signal to key on), the worker load timestamp, and entry counts.',
+    inputSchema: { type: 'object', properties: {} }
+  }
+];
+
+function mcpText(payload: unknown) {
+  return { content: [{ type: 'text', text: JSON.stringify(payload, null, 2) }] };
+}
+
+function mcpResult(id: unknown, result: unknown) {
+  return { jsonrpc: '2.0', id, result };
+}
+
+function mcpError(id: unknown, code: number, message: string) {
+  return { jsonrpc: '2.0', id, error: { code, message } };
+}
+
+function handleMcpMethod(method: string, params: any, id: unknown) {
+  switch (method) {
+    case 'initialize':
+      return mcpResult(id, {
+        protocolVersion: MCP_PROTOCOL_VERSION,
+        capabilities: { tools: {} },
+        serverInfo: MCP_SERVER_INFO
+      });
+
+    case 'ping':
+      return mcpResult(id, {});
+
+    case 'tools/list':
+      return mcpResult(id, { tools: MCP_TOOLS });
+
+    case 'tools/call': {
+      const name = params?.name;
+      const args = params?.arguments ?? {};
+      if (name === 'search_tracker') {
+        const result = runSearch(String(args.query ?? ''), (args.kind ?? 'auto') as Kind);
+        if ('error' in result) {
+          return mcpResult(id, { ...mcpText(result), isError: true });
+        }
+        return mcpResult(id, mcpText(result));
+      }
+      if (name === 'list_companies') {
+        const companies = [...new Set([
+          ...Object.values(playbill.cookies).map((e) => e.company),
+          ...Object.values(playbill.domains).map((e) => e.company)
+        ])].sort();
+        return mcpResult(id, mcpText({ count: companies.length, companies }));
+      }
+      if (name === 'list_categories') {
+        const categories = [...new Set([
+          ...Object.values(playbill.cookies).map((e) => e.category),
+          ...Object.values(playbill.domains).map((e) => e.category)
+        ])].sort();
+        return mcpResult(id, mcpText({ categories }));
+      }
+      if (name === 'get_stats') {
+        return mcpResult(id, mcpText({ source: `playbill@${PLAYBILL_VERSION}`, stats: playbill.stats }));
+      }
+      if (name === 'get_playbill_info') {
+        return mcpResult(id, mcpText({
+          playbill_version: PLAYBILL_VERSION,
+          schema_version: playbill.version,
+          loaded_at: playbill.generated,
+          tier: playbill.tier,
+          stats: playbill.stats
+        }));
+      }
+      return mcpError(id, -32602, `unknown tool: ${name}`);
+    }
+
+    default:
+      return mcpError(id, -32601, `method not found: ${method}`);
+  }
+}
+
+app.use('/mcp', async (c, next) => {
+  await next();
+  c.header('X-Content-Type-Options', 'nosniff');
+  c.header('Referrer-Policy', 'strict-origin-when-cross-origin');
+});
+
+async function handleMcpPost(c: any) {
+  let body: any;
+  try {
+    body = await c.req.json();
+  } catch {
+    return c.json(mcpError(null, -32700, 'parse error'), 400);
+  }
+
+  // Notifications (no id) — acknowledge, no response body.
+  const isNotification = body && body.id === undefined && typeof body.method === 'string';
+  if (isNotification) {
+    return c.body(null, 202);
+  }
+
+  if (!body || body.jsonrpc !== '2.0' || typeof body.method !== 'string') {
+    return c.json(mcpError(body?.id ?? null, -32600, 'invalid request'), 400);
+  }
+
+  return c.json(handleMcpMethod(body.method, body.params, body.id));
+}
+
+app.post('/mcp', handleMcpPost);
+// Some clients probe GET for an SSE stream; we are stateless, so decline.
+// Humans landing on /mcp in a browser get redirected to the docs page —
+// MCP clients never send Accept: text/html, so the probe still 405s.
+app.get('/mcp', (c) => {
+  if ((c.req.header('Accept') || '').includes('text/html')) {
+    return c.redirect('/mcp/', 302);
+  }
+  return c.json({ error: 'SSE not supported; POST JSON-RPC' }, 405);
 });
 
 // =============================================================================
