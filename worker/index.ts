@@ -2,6 +2,12 @@ import { Hono } from 'hono';
 import { loadPlaybill, matchCookie, matchDomain } from '@consenttheater/playbill';
 
 import { PLAYBILL_VERSION } from './playbill-version.js';
+import {
+  NEGOTIATED_VARY,
+  preferredType,
+  wantsMarkdown as wantsMarkdownFromHeaders,
+  serveMarkdownVariant as serveMarkdownFromAssets
+} from './_utils/markdown-variant.js';
 
 const playbill = loadPlaybill('full');
 
@@ -362,20 +368,18 @@ app.get('/mcp', (c) => {
 //   /about/                    →  /about.md
 //   /                          →  /.md
 //
-// `Vary: User-Agent, Accept, Accept-Encoding` is set on both variants so
-// CF's edge cache (and any downstream proxy) keys them separately — without
-// Accept-Encoding a cached HTML body can be served to an agent asking for
-// markdown, depending on which variant landed in cache first.
-const NEGOTIATED_VARY = 'User-Agent, Accept, Accept-Encoding';
-
-const AI_BOT_PATTERN =
-  /\b(GPTBot|ChatGPT-User|OAI-SearchBot|ClaudeBot|Anthropic-AI|PerplexityBot|Google-Extended|Applebot-Extended|Meta-ExternalAgent|FacebookBot|Bytespider|cohere-ai|YouBot|Diffbot|ImagesiftBot|Omgili|DuckAssistBot|CCBot|Amazonbot)\b/i;
-
-function wantsMarkdown(req: Request): boolean {
-  const ua = req.headers.get('User-Agent') || '';
-  const accept = req.headers.get('Accept') || '';
-  return AI_BOT_PATTERN.test(ua) || /text\/markdown/i.test(accept);
-}
+// Path mapping uses the sibling-file layout astro-llms-md emits:
+//   /handbook/dns-sinkholes/  →  /handbook/dns-sinkholes.md
+//   /about/                    →  /about.md
+//   /                          →  /.md
+//
+// Negotiation is identical to freshjuice-website (worker/_utils/markdown-
+// variant.js): full RFC 9110 q-value parsing with wildcards and q=0 honored.
+const wantsMarkdown = (req: Request) =>
+  wantsMarkdownFromHeaders(
+    req.headers.get('Accept') || '',
+    req.headers.get('User-Agent') || ''
+  );
 
 // True for "page-like" paths (no file extension in the last segment, or a
 // trailing slash). Skips the variant lookup for things that are already
@@ -388,29 +392,8 @@ function looksLikePage(pathname: string): boolean {
   return !lastSegment.includes('.');
 }
 
-function htmlPathToMdPath(pathname: string): string {
-  // Drop a trailing slash so `/foo/` and `/foo` both map to `/foo.md`.
-  // Root `/` becomes `.md` — astro-llms-md emits `dist/.md` for the index.
-  const stripped = pathname.replace(/\/$/, '');
-  return `${stripped}.md`;
-}
-
-async function serveMarkdownVariant(c: { req: { raw: Request; url: string }; env: Env }): Promise<Response | null> {
-  const url = new URL(c.req.url);
-  const mdPath = htmlPathToMdPath(url.pathname);
-  const mdReq = new Request(new URL(mdPath, url), { method: 'GET' });
-  const mdRes = await c.env.ASSETS.fetch(mdReq);
-  if (!mdRes.ok) return null;
-
-  const headers = new Headers(mdRes.headers);
-  headers.set('Content-Type', 'text/markdown; charset=utf-8');
-  headers.set('Vary', NEGOTIATED_VARY);
-  headers.set('X-Content-Variant', 'markdown');
-  return new Response(mdRes.body, {
-    status: 200,
-    statusText: 'OK',
-    headers
-  });
+function serveMarkdownVariant(c: { req: { raw: Request; url: string }; env: Env }): Promise<Response | null> {
+  return serveMarkdownFromAssets(c.env.ASSETS, new URL(c.req.url));
 }
 
 // Catch-all for non-API traffic. AI crawlers get the .md sibling when one
@@ -418,6 +401,23 @@ async function serveMarkdownVariant(c: { req: { raw: Request; url: string }; env
 // `public/_headers` cascade.
 app.get('*', async (c) => {
   const url = new URL(c.req.url);
+  const accept = c.req.header('Accept') || '';
+
+  // 406 when Accept explicitly refuses both variants (RFC 9110 §12.5.1),
+  // e.g. "Accept: application/json;q=1". Wildcards always pass.
+  if (accept && !accept.includes('*/*') && !accept.includes('text/html')) {
+    const chosen = preferredType(accept, ['text/html', 'text/markdown']);
+    if (!chosen) {
+      return new Response('Not Acceptable\n\nAvailable: text/html, text/markdown\n', {
+        status: 406,
+        headers: {
+          'Content-Type': 'text/plain; charset=utf-8',
+          'Vary': NEGOTIATED_VARY
+        }
+      });
+    }
+  }
+
   const wantsMd = wantsMarkdown(c.req.raw);
   if (looksLikePage(url.pathname) && wantsMd) {
     const md = await serveMarkdownVariant(c);
