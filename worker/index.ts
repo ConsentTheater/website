@@ -337,7 +337,14 @@ async function handleMcpPost(c: any) {
 
 app.post('/mcp', handleMcpPost);
 // Some clients probe GET for an SSE stream; we are stateless, so decline.
-app.get('/mcp', (c) => c.json({ error: 'SSE not supported; POST JSON-RPC' }, 405));
+// Humans landing on /mcp in a browser get redirected to the docs page —
+// MCP clients never send Accept: text/html, so the probe still 405s.
+app.get('/mcp', (c) => {
+  if ((c.req.header('Accept') || '').includes('text/html')) {
+    return c.redirect('/mcp/', 302);
+  }
+  return c.json({ error: 'SSE not supported; POST JSON-RPC' }, 405);
+});
 
 // =============================================================================
 // Markdown-for-AI fallback

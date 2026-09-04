@@ -1,0 +1,225 @@
+---
+import Layout from '@/layouts/Layout.astro';
+import { Icon } from 'astro-icon/components';
+
+const sourceUrl = 'https://codeberg.org/ConsentTheater/website/src/branch/main/src/pages/mcp.astro';
+
+const tools = [
+  {
+    name: 'search_tracker',
+    args: 'query (required), kind (optional: "cookie" | "domain" | "auto")',
+    description: 'Look up a tracker by cookie name or domain. Auto-detects the kind. Returns company, service, GDPR category, consent-burden tag, description, typical lifetime, and documentation link.'
+  },
+  {
+    name: 'list_companies',
+    args: 'none',
+    description: 'List every company tracked in the Playbill.'
+  },
+  {
+    name: 'list_categories',
+    args: 'none',
+    description: 'List every tracker category (advertising, analytics, and so on).'
+  },
+  {
+    name: 'get_stats',
+    args: 'none',
+    description: 'Catalogue counts: cookies, domains, companies.'
+  },
+  {
+    name: 'get_playbill_info',
+    args: 'none',
+    description: 'Catalogue version and freshness: npm release version, worker load timestamp, entry counts.'
+  }
+];
+
+const clients = [
+  {
+    name: 'Claude (claude.ai / Claude Desktop)',
+    steps: [
+      'Customize → Connectors → + → Add custom connector (Desktop: Settings → Connectors).',
+      'Paste the URL: https://consenttheater.org/mcp',
+      'No authentication — leave the OAuth fields empty, the endpoint is public and read-only.',
+      'Enable the connector in a chat and ask about a cookie.'
+    ]
+  },
+  {
+    name: 'Claude Code',
+    cmd: 'claude mcp add --transport http consenttheater https://consenttheater.org/mcp'
+  },
+  {
+    name: 'Cursor / VS Code / Windsurf / Cline',
+    json: `{
+  "mcpServers": {
+    "consenttheater": {
+      "url": "https://consenttheater.org/mcp"
+    }
+  }
+}`
+  },
+  {
+    name: 'Hermes Agent',
+    json: `# ~/.hermes/config.yaml
+mcp_servers:
+  consenttheater:
+    url: https://consenttheater.org/mcp`
+  },
+  {
+    name: 'ChatGPT (custom connector)',
+    steps: [
+      'Settings → Apps & Connectors → Create (or "Add custom connector" in the composer).',
+      'Paste the URL: https://consenttheater.org/mcp',
+      'No authentication — leave it off, the endpoint is public and read-only.',
+      'Enable it in the conversation (developer mode prompt) or just ask about a cookie and pick the connector.'
+    ]
+  }
+];
+
+const examples = [
+  {
+    prompt: 'Which company sets the __qca cookie?',
+    what: 'search_tracker detects a cookie, returns Quantcast + the GDPR category.'
+  },
+  {
+    prompt: 'Audit the cookies on this page and tell me which ones need consent under GDPR.',
+    what: 'Agent runs search_tracker per cookie, then explains each one\'s category and consent burden.'
+  },
+  {
+    prompt: 'Is metrics.example.com an analytics vendor or something shadier?',
+    what: 'search_tracker with kind=domain resolves the domain to its operator.'
+  },
+  {
+    prompt: 'How fresh is the catalogue you\'re using?',
+    what: 'get_playbill_info returns the npm release version and load timestamp.'
+  }
+];
+---
+
+<Layout
+  title="MCP Server — ConsentTheater"
+  description="Connect AI agents to the ConsentTheater Playbill over the Model Context Protocol. Free, read-only, no API key: look up any cookie or domain tracker from Claude, Cursor, VS Code, or any MCP client."
+  showCodebergCta={false}
+>
+  <section class="mx-auto w-full max-w-3xl px-6 pt-10 pb-12">
+    <div class="mb-8">
+      <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
+        Tools
+      </p>
+      <h1 class="mt-1 font-display text-2xl font-bold tracking-tight sm:text-3xl">
+        MCP Server
+      </h1>
+      <p class="mt-2 text-sm leading-relaxed text-muted-foreground">
+        Ask your AI assistant what a cookie or tracker actually does — instead of
+        googling domain names. The Playbill catalogue is exposed over the
+        <a href="https://modelcontextprotocol.io" target="_blank" rel="noopener" class="link">Model Context Protocol</a>,
+        free, read-only, no API key.
+      </p>
+    </div>
+
+    <!-- Why -->
+    <div class="mb-10 grid gap-3 sm:grid-cols-3">
+      <div class="border border-border bg-card p-4">
+        <p class="font-display text-sm font-bold tracking-tight">For DPA work</p>
+        <p class="mt-1 text-sm leading-relaxed text-foreground/90">
+          Paste a cookie list from a complaint or scan output and ask which entries
+          are advertising vs strictly necessary, and what the consent burden is.
+        </p>
+      </div>
+      <div class="border border-border bg-card p-4">
+        <p class="font-display text-sm font-bold tracking-tight">For personal audits</p>
+        <p class="mt-1 text-sm leading-relaxed text-foreground/90">
+          "What is this cookie?" in plain language, with the company, category, and
+          lifetime — no tab-hopping through vendor docs.
+        </p>
+      </div>
+      <div class="border border-border bg-card p-4">
+        <p class="font-display text-sm font-bold tracking-tight">No key, no account</p>
+        <p class="mt-1 text-sm leading-relaxed text-foreground/90">
+          Read-only, stateless, nothing stored. The endpoint exposes the same public
+          data as the npm package and the <a href="/" class="link">web lookup</a>.
+        </p>
+      </div>
+    </div>
+
+    <!-- Connect -->
+    <h2 class="mb-3 font-display text-lg font-bold tracking-tight">Connect your client</h2>
+    <div class="space-y-4">
+      {clients.map((c) => (
+        <div>
+          <p class="mb-1 text-sm font-semibold text-foreground">{c.name}</p>
+          {c.cmd && (
+            <pre class="overflow-x-auto border border-border bg-card p-3 font-mono text-xs leading-relaxed text-foreground"><code>{c.cmd}</code></pre>
+          )}
+          {c.json && (
+            <pre class="overflow-x-auto border border-border bg-card p-3 font-mono text-xs leading-relaxed text-foreground"><code>{c.json}</code></pre>
+          )}
+          {c.steps && (
+            <ol class="list-decimal space-y-1 pl-5 text-sm leading-relaxed text-foreground/90">
+              {c.steps.map((s: string) => <li>{s}</li>)}
+            </ol>
+          )}
+        </div>
+      ))}
+    </div>
+    <p class="mt-3 text-sm text-muted-foreground">
+      Restart your client after adding the config. Tools register as
+      <code class="font-mono text-xs">mcp__consenttheater__search_tracker</code> and siblings.
+    </p>
+
+    <!-- Tools -->
+    <h2 class="mt-10 mb-3 font-display text-lg font-bold tracking-tight">Available tools</h2>
+    <div class="overflow-x-auto border border-border">
+      <table class="w-full border-collapse text-xs">
+        <thead>
+          <tr class="bg-secondary text-left">
+            <th class="px-3 py-2 font-semibold uppercase tracking-wider text-foreground/80">Tool</th>
+            <th class="px-3 py-2 font-semibold uppercase tracking-wider text-foreground/80">Arguments</th>
+            <th class="px-3 py-2 font-semibold uppercase tracking-wider text-foreground/80">Returns</th>
+          </tr>
+        </thead>
+        <tbody>
+          {tools.map((t) => (
+            <tr class="border-t border-border align-top">
+              <td class="px-3 py-2 font-mono font-semibold text-foreground">{t.name}</td>
+              <td class="px-3 py-2 font-mono text-muted-foreground">{t.args}</td>
+              <td class="px-3 py-2 leading-relaxed text-muted-foreground">{t.description}</td>
+            </tr>
+          ))}
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Examples -->
+    <h2 class="mt-10 mb-3 font-display text-lg font-bold tracking-tight">What to ask</h2>
+    <div class="space-y-3">
+      {examples.map((e) => (
+        <div class="border border-border bg-card p-4">
+          <p class="text-sm text-foreground">"{e.prompt}"</p>
+          <p class="mt-1 text-sm text-foreground/90">{e.what}</p>
+        </div>
+      ))}
+    </div>
+
+    <!-- Notes -->
+    <h2 class="mt-10 mb-3 font-display text-lg font-bold tracking-tight">Good to know</h2>
+    <ul class="list-disc space-y-1 pl-5 text-sm leading-relaxed text-foreground/90">
+      <li>Endpoint: <code class="font-mono text-xs">https://consenttheater.org/mcp</code> (Streamable HTTP, stateless JSON-RPC).</li>
+      <li>Read-only. The server holds no secrets, no user data, and no state — same exposure as the public <a href="/api/search" class="link font-mono">/api/search</a>.</li>
+      <li>The catalogue itself is public anyway: install <a href="https://www.npmjs.com/package/@consenttheater/playbill" target="_blank" rel="noopener" class="link font-mono">@consenttheater/playbill</a> for local bulk use — don't hammer the endpoint for it.</li>
+      <li>Not legal advice. Categories and consent-burden tags are educational reference, not a verdict — see <a href="/methodology/" class="link">methodology</a>.</li>
+    </ul>
+
+    <div class="mt-10 border border-border bg-card p-4">
+      <div class="flex items-start gap-3">
+        <Icon name="ph:terminal" class="mt-0.5 h-5 w-5 shrink-0 text-muted-foreground" aria-hidden="true" />
+        <div class="text-sm">
+          <p class="font-semibold">Test it without installing anything</p>
+          <p class="mt-1 text-sm leading-relaxed text-foreground/90">
+            Any JSON-RPC POST works: send
+            <code class="font-mono text-xs">{'{"jsonrpc":"2.0","id":1,"method":"tools/list"}'}</code>
+            to <code class="font-mono text-xs">/mcp</code> and you'll get the tool list.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+</Layout>
