@@ -34,13 +34,13 @@
   "dependencies": {
     "@astrojs/markdown-satteri": "^0.4.0",
     "@astrojs/sitemap": "^3.7.4",
-    "@consenttheater/playbill": "^0.6.0",
+    "@consenttheater/playbill": "^0.7.0",
     "@freshjuice/astro-webmcp": "^1.6.0",
     "@tailwindcss/vite": "^4.3.3",
     "@zachleat/table-saw": "^1.0.7",
-    "astro": "^7.2.10",
+    "astro": "^7.3.1",
     "class-variance-authority": "^0.7.1",
-    "hono": "^4.13.5",
+    "hono": "^4.13.7",
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
@@ -59,7 +59,7 @@
     "sharp": "^0.35.4",
     "start-server-and-test": "^3.0.12",
     "typescript": "^6.0.3",
-    "wrangler": "^4.128.0"
+    "wrangler": "^4.129.0"
   },
   "overrides": {
     "sharp": "$sharp"
