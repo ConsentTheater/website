@@ -112,6 +112,7 @@ const LAW_ROUTES = [
   { pathname: '/law/gdpr/art-17/', title: 'GDPR Article 17', subtitle: 'The right to erasure (right to be forgotten).' },
   { pathname: '/law/gdpr/art-89/', title: 'GDPR Article 89', subtitle: 'Safeguards for research, archiving and statistics.' },
   { pathname: '/law/eprivacy/art-5/', title: 'ePrivacy Article 5', subtitle: 'Confidentiality of communications and stored data.' },
+  { pathname: '/law/eprivacy/art-13/', title: 'ePrivacy Article 13', subtitle: 'Unsolicited communications — the anti-spam rule.' },
   { pathname: '/law/uk-gdpr-and-pecr/', title: 'UK GDPR & PECR', subtitle: 'Post-Brexit privacy law in the United Kingdom.' }
 ];
 
