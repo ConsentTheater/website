@@ -15,7 +15,7 @@ const sourceUrl = 'https://codeberg.org/ConsentTheater/extension';
 const releasesUrl = 'https://codeberg.org/ConsentTheater/extension/releases';
 const changelogUrl = 'https://codeberg.org/ConsentTheater/extension/src/branch/main/CHANGELOG.md';
 
-const manualBuildVersion = '0.8.0';
+const manualBuildVersion = '0.9.0';
 const manualChromeZip = `${releasesUrl}/download/v${manualBuildVersion}/consenttheater-chrome-v${manualBuildVersion}.zip`;
 const manualFirefoxZip = `${releasesUrl}/download/v${manualBuildVersion}/consenttheater-firefox-v${manualBuildVersion}.zip`;
 
@@ -207,30 +207,42 @@ const extensionSchema = softwareApplication(Astro.site!, {
       </div>
     </details>
 
-    <!-- What's new in 0.8.0 -->
+    <!-- What's new in 0.9.0 -->
     <section class="mb-12 border border-border bg-card p-5" aria-labelledby="whats-new">
       <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
         What's new
       </p>
       <h2 id="whats-new" class="mt-1 font-display text-lg font-bold tracking-tight">
-        Version 0.8.0 — Playbill 0.8.0, dependency refresh
+        Version 0.9.0 — Playbill 0.9.0, pretty value output, stable HAR exports
       </h2>
       <ul class="mt-3 space-y-1.5 text-sm leading-relaxed text-foreground/90">
         <li>
-          <strong>Updated Playbill catalogue to 0.8.0.</strong> The tracker database grew
-          to <strong>4,112 cookies / 6,124 domains / 3,017 companies</strong>
-          (10,236 merged signatures). New domain signatures across analytics (Microsoft
-          Application Insights, Chartbeat, Datadog EU, Yandex, Siteimprove, StatCounter),
-          advertising (Google Tag Services, TikTok, Microsoft bing.net), a Nordic/EU SaaS
-          functional cluster (AddSearch, Findkit, Giosg, Videobot, and more), marketing
-          (Brevo, GetSiteControl, Ortto), and Secure Privacy CMP. Hotjar, Heap, ClickTale,
-          and Beamer entries now report one owner: <strong>Contentsquare</strong>. With
-          thanks to Pasi R. (Codeberg @PasiRuo) for five verified PRs adding 36 domain
-          signatures.
+          <strong>Updated Playbill catalogue to 0.9.0.</strong> The tracker database grew
+          to <strong>4,123 cookies / 6,312 domains / 3,150 companies</strong>
+          (10,435 merged signatures) — 199 new entries from six contributor PRs. The consent
+          category nearly doubled: new CMPs include CCM19, Clickio, CookieHub, CookiePal,
+          Enzuzo, Gravito, Truendo, Iubenda, Pandectes, and OneTrust and Cookiebot EU
+          endpoints, plus Nordic and EU SaaS hosts, session replay (Lucky Orange, Plerdy,
+          TWIPLA), and Tracklution server-side tagging. With thanks to Pasi R.
+          (Codeberg @PasiRuo) for six verified PRs.
         </li>
         <li>
-          <strong>Dependency refresh.</strong> All dependencies are current — including
-          vite 8.3.0, eslint 10.11.0 and @types/chrome 0.3.0. TypeScript intentionally held at 6.x.
+          <strong>Pretty Value Output.</strong> Cookie and storage values that are
+          stringified or percent-encoded JSON, or key=value payloads, now render
+          pretty-printed in the sidebar — read what's actually stored instead of
+          URL-encoded mush. On by default, with a per-value raw/pretty toggle; exports
+          are untouched.
+        </li>
+        <li>
+          <strong>HAR exports survive service-worker restarts.</strong> Chrome kills the
+          idle background worker after ~30 seconds, which used to wipe the captured HAR
+          and make the export claim no scan had run. The finished log is now kept in
+          memory-only session storage and served from there after a restart.
+        </li>
+        <li>
+          <strong>Report stats now count unique hosts</strong> instead of raw network
+          events — the summary, tables, badge, and text export finally agree. The
+          percent-encoding blind spot in identifier detection is fixed too.
         </li>
       </ul>
       <p class="mt-4 text-xs text-muted-foreground">
