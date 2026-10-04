@@ -167,7 +167,6 @@ app.use('/api/*', async (c, next) => {
     'Content-Security-Policy',
     "default-src 'none'; frame-ancestors 'none'; base-uri 'none'; form-action 'none'"
   );
-  c.header('Cross-Origin-Resource-Policy', 'same-origin');
 });
 
 app.get('/api/search', (c) => {
