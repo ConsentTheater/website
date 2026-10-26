@@ -1,6 +1,6 @@
 {
   "name": "@consenttheater/website",
-  "version": "0.9.0",
+  "version": "0.10.0",
   "description": "ConsentTheater — open-source tracker lookup and project site. Built on Astro + Cloudflare Workers, powered by @consenttheater/playbill.",
   "type": "module",
   "private": true,
@@ -32,34 +32,34 @@
     "test:a11y:run": "node scripts/a11y.mjs"
   },
   "dependencies": {
-    "@astrojs/markdown-satteri": "^0.4.2",
+    "@astrojs/markdown-satteri": "^0.4.5",
     "@astrojs/sitemap": "^3.7.4",
-    "@consenttheater/playbill": "^0.9.0",
+    "@consenttheater/playbill": "^0.10.0",
     "@freshjuice/astro-webmcp": "^1.6.0",
     "@tailwindcss/vite": "^4.3.3",
     "@zachleat/table-saw": "^1.0.7",
-    "astro": "^7.3.5",
+    "astro": "^7.4.2",
     "class-variance-authority": "^0.7.1",
-    "hono": "^4.13.13",
+    "hono": "^4.13.14",
     "tailwindcss": "^4.3.3"
   },
   "devDependencies": {
-    "@astrojs/check": "^0.9.10",
+    "@astrojs/check": "^0.9.12",
     "@fontsource/lora": "^5.3.0",
     "@iconify-json/ph": "^1.2.2",
     "@resvg/resvg-js": "^2.6.2",
-    "@types/node": "^26.6.4",
+    "@types/node": "^26.6.5",
     "astro-icon": "^1.2.0",
     "astro-llms-md": "^3.0.2",
     "gray-matter": "^4.0.3",
     "html-minifier-terser": "^7.2.0",
-    "pa11y-ci": "^4.1.1",
-    "satori": "^0.35.0",
+    "pa11y-ci": "^5.0.0",
+    "satori": "^0.63.2",
     "satori-html": "^0.3.2",
     "sharp": "^0.35.5",
-    "start-server-and-test": "^3.0.12",
+    "start-server-and-test": "^3.0.13",
     "typescript": "^6.0.3",
-    "wrangler": "^4.147.0"
+    "wrangler": "^4.153.0"
   },
   "overrides": {
     "sharp": "$sharp"
