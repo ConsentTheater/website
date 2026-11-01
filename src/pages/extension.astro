@@ -15,7 +15,7 @@ const sourceUrl = 'https://codeberg.org/ConsentTheater/extension';
 const releasesUrl = 'https://codeberg.org/ConsentTheater/extension/releases';
 const changelogUrl = 'https://codeberg.org/ConsentTheater/extension/src/branch/main/CHANGELOG.md';
 
-const manualBuildVersion = '0.9.0';
+const manualBuildVersion = '0.10.0';
 const manualChromeZip = `${releasesUrl}/download/v${manualBuildVersion}/consenttheater-chrome-v${manualBuildVersion}.zip`;
 const manualFirefoxZip = `${releasesUrl}/download/v${manualBuildVersion}/consenttheater-firefox-v${manualBuildVersion}.zip`;
 
@@ -207,42 +207,33 @@ const extensionSchema = softwareApplication(Astro.site!, {
       </div>
     </details>
 
-    <!-- What's new in 0.9.0 -->
     <section class="mb-12 border border-border bg-card p-5" aria-labelledby="whats-new">
       <p class="text-[11px] font-semibold uppercase tracking-wider text-muted-foreground">
         What's new
       </p>
       <h2 id="whats-new" class="mt-1 font-display text-lg font-bold tracking-tight">
-        Version 0.9.0 — Playbill 0.9.0, pretty value output, stable HAR exports
+        Version 0.10.0: Playbill 0.10.0 and dependency updates
       </h2>
       <ul class="mt-3 space-y-1.5 text-sm leading-relaxed text-foreground/90">
         <li>
-          <strong>Updated Playbill catalogue to 0.9.0.</strong> The tracker database grew
-          to <strong>4,123 cookies / 6,312 domains / 3,150 companies</strong>
-          (10,435 merged signatures) — 199 new entries from six contributor PRs. The consent
-          category nearly doubled: new CMPs include CCM19, Clickio, CookieHub, CookiePal,
-          Enzuzo, Gravito, Truendo, Iubenda, Pandectes, and OneTrust and Cookiebot EU
-          endpoints, plus Nordic and EU SaaS hosts, session replay (Lucky Orange, Plerdy,
-          TWIPLA), and Tracklution server-side tagging. With thanks to Pasi R.
-          (Codeberg @PasiRuo) for six verified PRs.
+          <strong>Playbill 0.10.0.</strong> The bundled catalogue contains
+          <strong>4,270 cookies / 6,546 domains / 3,290 companies</strong>
+          (10,816 entries). This release adds 384 signatures and removes three
+          overbroad cookie patterns. Coverage includes resource and platform hosts,
+          analytics, advertising, security and consent services. Thanks to independent
+          researcher <a href="https://codeberg.org/PasiRuo" target="_blank" rel="noopener" class="link">Pasi R. (@PasiRuo)</a>
+          for PRs contributing researched catalogue additions and matching fixes.
         </li>
         <li>
-          <strong>Pretty Value Output.</strong> Cookie and storage values that are
-          stringified or percent-encoded JSON, or key=value payloads, now render
-          pretty-printed in the sidebar — read what's actually stored instead of
-          URL-encoded mush. On by default, with a per-value raw/pretty toggle; exports
-          are untouched.
+          <strong>More precise catalogue matching.</strong> Documented Marfeel cookie
+          signatures replace broad patterns that could match unrelated cookies.
+          Playbill also retains category metadata for domains with multiple roles
+          and considers every role when filtering its smaller catalogue tiers.
         </li>
         <li>
-          <strong>HAR exports survive service-worker restarts.</strong> Chrome kills the
-          idle background worker after ~30 seconds, which used to wipe the captured HAR
-          and make the export claim no scan had run. The finished log is now kept in
-          memory-only session storage and served from there after a restart.
-        </li>
-        <li>
-          <strong>Report stats now count unique hosts</strong> instead of raw network
-          events — the summary, tables, badge, and text export finally agree. The
-          percent-encoding blind spot in identifier detection is fixed too.
+          <strong>Dependency updates.</strong> The extension now uses Preact 11,
+          Vitest 5 and chokidar 6. Heading wrapper types were corrected for
+          Preact 11 compatibility.
         </li>
       </ul>
       <p class="mt-4 text-xs text-muted-foreground">
