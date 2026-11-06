@@ -116,3 +116,5 @@ In practice this means:
 - No warranty is provided. The software is distributed as-is.
 
 The full licence is also rendered on the site at [`/license/`](./src/pages/license.astro).
+
+ConsentTheater is created and maintained by [Alex Zappa](https://alex.zappa.dev/).
